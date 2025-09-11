@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+title: "HHG-SaDAS: Codes from Master's Thesis"
+message: "If you use this code, please cite this repository and my thesis."
+authors:
+  - family-names: "Mithiya"
+    given-names: "Siddhartha"
+    affiliation: "Indian Institute of Technology (IIT) Mandi"
+version: "1.0.0"
+date-released: 2025-09-11
+license: MIT
+repository-code: "https://github.com/Siddhartha-Acad/HHG-SaDAS"
+preferred-citation:
+  type: thesis
+  title: "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60"
+  authors:
+    - family-names: "Mithiya"
+      given-names: "Siddhartha"
+  year: 2025
+  publisher: "IIT Mandi"
