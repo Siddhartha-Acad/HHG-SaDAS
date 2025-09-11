@@ -1,3 +1,9 @@
-*desktop.ini
-
+desktop.ini
 commit_HHG-SaDAS.txt
+
+.idea/
+__pycache__/
+
+# Avoid data files too.
+*.xlsx
+*.txt
