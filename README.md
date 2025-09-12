@@ -1,25 +1,44 @@
-# HHG-SaDAS
+# HHG-SaDAS  
 > For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
 
 ---
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Status](https://img.shields.io/badge/status-in%20development-orange)
 ![Python](https://img.shields.io/badge/python-3.9%2B-brightgreen)
+![Status](https://img.shields.io/badge/status-in%20development-orange)
 
 ---
 
 ## What is HHG-SaDAS?
 
-HHG-SaDAS is a research-oriented project focused on simulating **High-Harmonic Generation (HHG)** in strong-field physics.  
-It implements two powerful numerical approaches:
+**HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the **3D time-dependent Schrödinger equation** using:
 
 - **Generalized Pseudospectral Method (GPSM)**
 - **Split-Operator Method**
 
-This allows for efficient and accurate modeling of quantum dynamics relevant to HHG studies.
+---
+
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* at the  
+**Indian Institute of Technology (IIT) Mandi, India**.  
+The overall tenure of my MS(R) program was **August 2022 – August 2025**.
+
+These codes form an integral part of my MS(R) thesis and are released to ensure **academic transparency** and **reproducibility** of the research.
+
+The original Git repository, maintained throughout the research period, is kept **private**.  
+This public repository is a **streamlined version**, providing the main useful codes in a straightforward manner.
+
 
 ---
+
+### Thesis Information
+
+- **MS(R) Thesis Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*  
+- **Thesis Supervisor:** Prof. Hari R. Varma  
+- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)  
+- **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
+
+---
+
 
 
 ## Status
