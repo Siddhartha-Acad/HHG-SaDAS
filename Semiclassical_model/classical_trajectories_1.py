@@ -1,5 +1,5 @@
 """
-File: classical_trajectories.py
+File: classical_trajectories_1.py
 Project: HHG-SaDAS
 Code Description:
     Script for simulating classical electron trajectories in a
@@ -28,17 +28,16 @@ Notes:
 - Maximum return energy is expected to be ~3.17 U_p in agreement with
   the three-step model of HHG.
 - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
-  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in
-   Noble-Gas Atoms Confined Inside C60".
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 --------------------------------------------------------------------------------
 """
 
 
 import numpy as np
-# import Assistant.Decorate_axes.decorate_axes_L as da
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
-from Atomic_units import *
+from Atomic_units import Int_0, omega_au
+# import Assistant.Decorate_axes.decorate_axes_L as da
 
 fig1 = plt.figure(); fig2 = plt.figure()
 ax1 = fig1.add_subplot(111)
