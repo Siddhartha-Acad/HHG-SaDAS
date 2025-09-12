@@ -1,3 +1,39 @@
+"""
+File: classical_trajectories.py
+Project: HHG-SaDAS
+Code Description:
+    Script for simulating classical electron trajectories in a
+    monochromatic laser field, relevant to the three-step model
+    of High Harmonic Generation (HHG). The code calculates and
+    visualizes:
+      - Electron position and velocity as functions of time
+      - Return times and recombination events
+      - Kinetic energy at recombination relative to the
+        ponderomotive potential (U_p)
+
+    The simulation uses atomic units, laser parameters
+    (wavelength, intensity, frequency), and scans different
+    tunneling phases φ₀ to determine the maximum return energy.
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- Laser field: linearly polarized, continuous wave with finite cycles.
+- Trajectories are obtained from classical equations of motion under
+  the dipole approximation.
+- Maximum return energy is expected to be ~3.17 U_p in agreement with
+  the three-step model of HHG.
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in
+   Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+
 import numpy as np
 # import Assistant.Decorate_axes.decorate_axes_L as da
 import matplotlib.pyplot as plt
