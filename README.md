@@ -1,5 +1,5 @@
 # HHG-SaDAS
-> Simulation of High-Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
+> For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
 
 ---
 
