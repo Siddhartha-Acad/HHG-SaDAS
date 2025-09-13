@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from Atomic_units import Int_0, omega_au
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-# import Assistant.Decorate_axes.decorate_axes_L_thesis as da
+import Assistant.Decorate_axes.decorate_axes_L_thesis as da
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # ---------------------- Common Figure Settings ----------------------
@@ -49,9 +49,9 @@ tickslabel_size = 14
 label_fontsize = 14
 fig_size = (fig_scale_factor * width, fig_scale_factor * height)
 
-# dec_color = np.concatenate((da.mc.C_L, da.mc.des_col_1))
-# plt.rc('font', **{'family': 'serif', 'size': tickslabel_size})
-# da.mpl.rcParams['axes.prop_cycle'] = da.mpl.cycler(color=dec_color)
+dec_color = np.concatenate((da.mc.C_L, da.mc.des_col_1))
+plt.rc('font', **{'family': 'serif', 'size': tickslabel_size})
+da.mpl.rcParams['axes.prop_cycle'] = da.mpl.cycler(color=dec_color)
 # -------------------------------------------------------------------
 
 fig1 = plt.figure(figsize=fig_size); fig2 = plt.figure(figsize=fig_size)
@@ -66,8 +66,8 @@ axins11 = inset_axes(ax11, width="55%", height="30%", loc='upper left', borderpa
 axins11.set_yticklabels([])
 axins11.tick_params(labelsize=10)
 
-# da.decorate_2d([ax1, ax11, ax2, ax22])
-# da.decorate_2d([axins1, axins11], grid=False)
+da.decorate_2d([ax1, ax11, ax2, ax22])
+da.decorate_2d([axins1, axins11], grid=False)
 
 
 def E_field(t):

@@ -37,12 +37,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from Atomic_units import Int_0, omega_au
-# import Assistant.Decorate_axes.decorate_axes_L as da
+import Assistant.Decorate_axes.decorate_axes_L as da
 
 fig1 = plt.figure(); fig2 = plt.figure()
 ax1 = fig1.add_subplot(111)
 ax2 = fig2.add_subplot(111)
-# da.decorate_2d([ax1, ax2])
+da.decorate_2d([ax1, ax2])
 
 def E_field(t):
     return E0_au * np.cos(w0*t)

@@ -1,8 +1,6 @@
 # HHG-SaDAS  
 > For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
 
----
-
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.9%2B-brightgreen)
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
@@ -18,14 +16,13 @@
 
 ---
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* at the  
-**Indian Institute of Technology (IIT) Mandi, India**.  
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* at the **Indian Institute of Technology (IIT) Mandi, India**.  
 The overall tenure of my MS(R) program was **August 2022 – August 2025**.
 
-These codes form an integral part of my MS(R) thesis and are released to ensure **academic transparency** and **reproducibility** of the research.
+These codes form an integral part of my MS(R) thesis and are released to ensure academic transparency and reproducibility of the research.
 
-The original Git repository, maintained throughout the research period, is kept **private**.  
-This public repository is a **streamlined version**, providing the main useful codes in a straightforward manner.
+The original Git repository, maintained throughout the research period, is kept private.  
+Whereas, this public repository is a streamlined version, providing the main useful codes in a straightforward manner.
 
 
 ---
