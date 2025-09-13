@@ -1,3 +1,34 @@
+"""
+File: Truncate_cmap.py
+Project: HHG-SaDAS
+
+Code Description:
+    | This script defines a utility function to truncate an existing
+    | Matplotlib colormap to a specified subrange. This is useful when
+    | only a portion of a colormap is desired for highlighting specific
+    | data ranges.
+    |
+    | Features:
+    |   • Accepts any Matplotlib colormap by name
+    |   • Defines the minimum and maximum normalized values to keep
+    |   • Returns a new LinearSegmentedColormap of the truncated range
+    |   • Supports specifying the number of discrete points in the new colormap
+
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+-
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import numpy as np

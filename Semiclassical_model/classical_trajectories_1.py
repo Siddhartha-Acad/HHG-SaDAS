@@ -2,18 +2,18 @@
 File: classical_trajectories_1.py
 Project: HHG-SaDAS
 Code Description:
-    Script for simulating classical electron trajectories in a
-    monochromatic laser field, relevant to the three-step model
-    of High Harmonic Generation (HHG). The code calculates and
-    visualizes:
-      - Electron position and velocity as functions of time
-      - Return times and recombination events
-      - Kinetic energy at recombination relative to the
-        ponderomotive potential (U_p)
-
-    The simulation uses atomic units, laser parameters
-    (wavelength, intensity, frequency), and scans different
-    tunneling phases φ₀ to determine the maximum return energy.
+    | Script for simulating classical electron trajectories in a
+    | monochromatic laser field, relevant to the three-step model
+    | of High Harmonic Generation (HHG). The code calculates and
+    | visualizes:
+    |   - Electron position and velocity as functions of time
+    |   - Return times and recombination events
+    |   - Kinetic energy at recombination relative to the
+    |     ponderomotive potential (U_p)
+    |
+    | The simulation uses atomic units, laser parameters
+    | (wavelength, intensity, frequency), and scans different
+    | tunneling phases φ₀ to determine the maximum return energy.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi

@@ -2,9 +2,9 @@
 File: Atomic_units.py
 Project: HHG-SaDAS
 Code Description:
-    Utility module for defining and handling physical constants
-    (SI and atomic units) used in simulations of High Harmonic
-    Generation (HHG) from free and confined atoms.
+    | Utility module for defining and handling physical constants
+    | (SI and atomic units) used in simulations of High Harmonic
+    | Generation (HHG) from free and confined atoms.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi

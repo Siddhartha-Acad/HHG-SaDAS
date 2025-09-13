@@ -1,5 +1,30 @@
-import numpy as np
+"""
+File: manim_colors.py
+Project: HHG-SaDAS
 
+Code Description:
+    | This file defines a collection of color palettes for plotting
+    | and visualization within the HHG-SaDAS project.
+    |
+    | These palettes provide a consistent, visually appealing color scheme
+    | for figures and data visualization, including those used in the thesis.
+
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+-
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+
+import numpy as np
 
 #          ~: A :~    ~: B :~    ~: C :~    ~: D :~    ~: E :~
 blue   = ['#C7E9F1', '#9CDCEB', '#58C4DD', '#29ABCA', '#1C758A']     # ~: 0 :~
@@ -25,8 +50,6 @@ teal_c = '#5CD0B3'
 sweet_green = '#83C167'
 git_green = '#70BF41'
 HTML_sweet_green = '#16a085'
-
-
 
 
 C_L = ['#58C4DD', '#9A72AC', '#83C167', '#F0AC5F', '#E8C11C', '#FC6255']

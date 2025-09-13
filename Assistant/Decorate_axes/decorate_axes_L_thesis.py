@@ -2,9 +2,9 @@
 File: decorate_axes_D.py
 Project: HHG-SaDAS
 Code Description: (Light Theme used for thesis)
-This module provides utility functions to format and customize matplotlib
-axes styles for 2D, 3D, and polar plots. It also supports consistent
-color schemes, legend formatting, and slider axis styling.
+    | This module provides utility functions to format and customize matplotlib
+    | axes styles for 2D, 3D, and polar plots. It also supports consistent
+    | color schemes, legend formatting, and slider axis styling.
 
 The functions are designed to reduce repetitive code when preparing
 publication-quality or presentation-ready figures.

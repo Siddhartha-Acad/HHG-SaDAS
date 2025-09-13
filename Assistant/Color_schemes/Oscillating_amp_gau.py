@@ -1,3 +1,27 @@
+"""
+File: Oscillating_amp_gau.py
+Project: HHG-SaDAS
+
+Code Description:
+    | This script creates an animation of a time-dependent 2D Gaussian-like
+    | wave function, defined as f(x, y, t) = sin(t)^2 * exp(-x^2 - y^2).
+    |
+    | It is designed to track the evolution of the function's amplitude
+    | over time, using the initial function height as a reference.
+
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation

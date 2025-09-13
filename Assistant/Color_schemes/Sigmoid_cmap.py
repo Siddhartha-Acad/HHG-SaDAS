@@ -1,3 +1,33 @@
+"""
+File: Sigmoid_cmap.py
+Project: HHG-SaDAS
+
+Code Description:
+    | This script defines a function to create a sigmoid-transformed version
+    | of any Matplotlib colormap. The sigmoid transformation allows for
+    | emphasizing a particular range of values in the colormap.
+    |
+    | Features:
+    |   • Defines a sigmoid function for smooth transition
+    |   • Applies the sigmoid to the input colormap
+    |   • Returns a new LinearSegmentedColormap
+    |   • Includes an example comparison between the original and sigmoid
+    |     colormaps using a 10x10 random dataset
+
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap

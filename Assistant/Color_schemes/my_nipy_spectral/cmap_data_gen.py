@@ -1,6 +1,29 @@
+"""
+File: cmap_data_gen.py
+Project: HHG-SaDAS
+
+Code Description:
+    | This code creates a modified version of the 'nipy_spectral' colormap
+    | from Matplotlib, where the highest color values smoothly fade to white.
+    | The resulting colormap is saved as a NumPy array for later use in plots
+    | within the HHG-SaDAS project.
+
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 
 # Get the original colormap
 cmap = plt.cm.nipy_spectral
