@@ -1,5 +1,5 @@
 """
-File: Wavefunction_Expansion.py
+File: Partial_wave_Expansion.py
 Project: HHG-SaDAS
 Code Description:
     | *** [VERY IMPORTANT CODE] ***
