@@ -23,8 +23,7 @@ Notes:
 - This code provides a simple validation of quadrature rules against known
   analytical results.
 - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
-  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas
-  Atoms Confined Inside C60".
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 --------------------------------------------------------------------------------
 """
 
