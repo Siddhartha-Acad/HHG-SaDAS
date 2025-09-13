@@ -6,4 +6,5 @@ __pycache__/
 
 # Avoid data files too.
 *.xlsx
-*.txt
+
+code_message.txt

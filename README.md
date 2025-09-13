@@ -38,7 +38,27 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 
 
-## Status
+## Installation
+
+### 1. Clone the repository
+```bash
+git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
+cd HHG-SaDAS
+```
+### 2. (Optional) Create and activate a virtual environment
+```bash
+python3 -m venv venv_HHG
+source venv_HHG/bin/activate
+```
+
+### 4. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+
+
+## Project Status
 🚧 This project is still in **active development** and not yet ready for production use.
 
 ---
