@@ -86,6 +86,14 @@ def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_mi
             ax.tick_params(color='red', width=4)
 
 
+def da_legend(axes_list, loc='upper right', fontsize=12):
+    if not isinstance(axes_list, list):
+        axes_list = [axes_list]  # Convert to list if it's not already
+
+    for ax in axes_list:
+        ax.legend(loc=loc, fontsize=fontsize, framealpha=0.5, edgecolor='k')
+
+
 def decorate_polar(axes_list):
     # ax21.set_rlabel_position(45)
     # ax21.set_theta_direction(-1)
