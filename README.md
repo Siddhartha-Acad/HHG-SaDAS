@@ -51,7 +51,7 @@ python3 -m venv venv_HHG
 source venv_HHG/bin/activate
 ```
 
-### 4. Install dependencies
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
