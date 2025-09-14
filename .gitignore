@@ -8,3 +8,5 @@ __pycache__/
 *.xlsx
 
 code_message.txt
+
+GPSM_Harmonic_generation/**/*.txt
