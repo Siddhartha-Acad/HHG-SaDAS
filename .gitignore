@@ -9,4 +9,6 @@ __pycache__/
 
 code_message.txt
 
-GPSM_Harmonic_generation/**/*.txt
+Harmonic_generation/**/*.txt
+
+trial_1.py
