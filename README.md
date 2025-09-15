@@ -16,7 +16,7 @@
 
 ---
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* at the **Indian Institute of Technology (IIT) Mandi, India**.  
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree at the **Indian Institute of Technology (IIT) Mandi, India**.  
 The overall tenure of my MS(R) program was **August 2022 – August 2025**.
 
 These codes form an integral part of my MS(R) thesis and are released to ensure academic transparency and reproducibility of the research.
