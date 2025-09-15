@@ -125,7 +125,7 @@ ax1.plot(r, Psi(r, 0) / (np.sqrt((2 * l + 1) / (4 * np.pi))), color='deeppink', 
 ax3.contourf(R * np.sin(Theta), R * np.cos(Theta), psi, 100, cmap='jet')
 
 
-ax2.set_title(r"ψ(r, θ) = $\sqrt{\frac{2\ell + 1}{4\pi}}$ 2re$^{-r^2}$ P$_\ell$(cosθ); $\ell$=" +f"{l}", pad=30, fontsize=20)
+ax2.set_title(r"ψ(r, θ) = $\sqrt{\frac{2\ell + 1}{4\pi}}$ 2r e$^{-r^2}$ P$_\ell$(cosθ); $\ell$=" +f"{l}", pad=30, fontsize=20)
 ax3.set_title(fr'ψ(r$_i$, θ$_j$) = $\sum_{{\ell=0}}^{{l_{{max}}}}$g$_{{\ell}}$(r$_i$)P$_{{\ell}}$(cosθ$_j$)', pad=30, fontsize=20)
 ax1.legend(loc='upper right', ncol=2, fontsize=15, framealpha=0.5, edgecolor='k')
 fig2.subplots_adjust(top=0.86, bottom=0.063)

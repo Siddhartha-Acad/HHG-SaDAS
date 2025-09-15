@@ -23,6 +23,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import legendre
 import Assistant.Decorate_axes.decorate_axes_D as da
+from scipy.special import lpmv
+from pathlib import Path
+this_dir = Path(__file__).resolve().parent  # Relative file path system
+
+
+def a_legendre(l, m, x):
+    """
+    Associated Legendre polynomial without Condon-Shortley phase
+    """
+    return lpmv(m, l, x) * (-1)**m
 
 def P_n_prime(N, x):
     return (N*(N+1) / ((2*N+1)*(1-x**2))) * (legendre(N-1)(x) - legendre(N+1)(x))
@@ -34,15 +44,18 @@ def f(x):
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Angular Interpolation :~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-l = 5; L = 20
-theta_org = np.linspace(0,  np.pi, 200)
+L = 10
+l = 10; m = 0
+theta_org = np.linspace(0, np.pi, 200)
 roots, weights = np.polynomial.legendre.leggauss(L+1)
 theta_k = np.arccos(roots); Ny = L+1
 
 LegInterp = np.zeros(len(theta_org))
-P_N_cos_theta = legendre(L+1)(np.cos(theta_org))
+P_N_cos_theta = legendre(Ny)(np.cos(theta_org))
+
+
 def ang_interpolation_funcn(theta):
-    return legendre(l)(np.cos(theta))
+    return a_legendre(l, m, np.cos(theta))
 
 for j in range(Ny):
     LegInterp += ang_interpolation_funcn(theta_k[j]) * P_N_cos_theta / ((np.cos(theta_org) - np.cos(theta_k[j])) * P_n_prime(L+1, np.cos(theta_k[j])))
@@ -74,9 +87,9 @@ ax3 = fig2.add_subplot(223)
 ax4 = fig2.add_subplot(224)
 da.decorate_2d([ax1, ax2, ax3, ax4])
 
-ax1.plot(theta_k, ang_interpolation_funcn(theta_k), 'o', markersize=8, color='orange', label=rf'P$_{l}$(θ$_k$)', zorder=1)
-ax1.plot(theta_org, ang_interpolation_funcn(theta_org), 'o-', lw=2, label=rf'P$_{l}$(θ) Exact', zorder=0)
-ax1.plot(theta_org, LegInterp, '.-', lw=2, color='m', label=rf'P$_{l}$(θ) interpolated', zorder=0)
+ax1.plot(theta_k, ang_interpolation_funcn(theta_k), 'o', markersize=8, color='orange', label=rf'P$^{{{m}}}_{{{l}}}$(θ$_k$)', zorder=1)
+ax1.plot(theta_org, ang_interpolation_funcn(theta_org), 'o-', lw=2, label=rf'P$^{{{m}}}_{{{l}}}$(θ) Exact', zorder=0)
+ax1.plot(theta_org, LegInterp, '.-', lw=2, color='m', label=rf'P$^{{{m}}}_{{{l}}}$(θ) interpolated', zorder=0)
 ax1.legend(loc='upper center', fontsize=15, framealpha=0.5, edgecolor='k')
 
 ax2.plot(colloc_pt, g_tilde, 'o-', markersize=8, lw=2, label=r'$\tilde{g}$[r(x$_j$)]')
