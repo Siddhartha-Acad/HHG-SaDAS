@@ -2,8 +2,8 @@
 File: parameters.py
 Project: HHG-SaDAS
 Code Description:
-    This contains all parameters and functions that defines the entire system and numerical requirements.
-    All other simulating codes, fetch parameters from this script.
+    | This contains all parameters that defines the entire system and numerical requirements.
+    | All other simulating codes, fetch parameters from this script.
 
 
 Author: Siddhartha Mithiya
@@ -19,35 +19,37 @@ Notes:
 """
 
 import numpy as np
+from pathlib import Path
+from Atomic_units import Int_0, omega_au, a0, T0
+this_dir = Path(__file__).resolve().parent  # Relative file path system
 
 
-def potential_V_SAE_M1(r, atom='Ne'):
-    params = atomic_params_SAE_M1.get(atom)
-    if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
-    Zc, a1, a2, a3, a4, a5, a6 = params["Zc"], params["a1"], params["a2"], params["a3"], params["a4"], params["a5"], params["a6"]
-    return -(Zc + a1*np.exp(-a2*r) + a3*r*np.exp(-a4*r) + a5*np.exp(-a6*r)) / r
+def state_name(n, l):
+    """
+    Converts quantum numbers n and l to a string representation of the atomic state.
 
-def potential_V_SAE_M2(r, atom='Ne'):
-    params = atomic_params_SAE_M2.get(atom)
-    if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
+    :param n: Principal quantum number (n ≥ 1).
+    :param l: Orbital angular momentum quantum number (l ≥ 0).
+    :return: Atomic state string (e.g., '1s', '2p', '3d').
+    :raises ValueError: If l is outside the allowed range (0–6).
 
-    C0, Zc, c = params['C0'], params['Zc'], params['c']
-    a1, a2, a3 = params['a1'], params['a2'], params['a3']
-    b1, b2, b3 = params['b1'], params['b2'], params['b3']
-
-    V_long = -C0 / r
-    V_short = -Zc * np.exp(-c * r) / r
-    V_shell = (a1 * np.exp(-b1 * r)) + (a2 * np.exp(-b2 * r)) + (a3 * np.exp(-b3 * r))
-    return V_long + V_short - V_shell       # overall -ve sign in V_shell.
-
+    Example:
+    >>> state_name(1, 0)
+    '1s'
+    """
+    orbital_letters = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}
+    if l in orbital_letters:
+        return f"{n}{orbital_letters[l]}"
+    else:
+        raise ValueError(f"Invalid orbital angular momentum quantum number l={l}. Allowed values are 0 to 6.")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 n = 4; l = 1; m = 0         # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
-evolving_atom = 'Xe'
-SAE_model = 'SAE-M1'
+evolving_atom = 'Xe'        # Atoms are listed down in 'SAE dataset' section.
+SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,9 +57,26 @@ SAE_model = 'SAE-M1'
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 N = 200                     # P'_N(xj) = 0 ; radial grid size: len(colloc_pt) = N-1
 L = 20                      # must be >= l ; number of S matrix gl(r) in partial wave expansion.
+l_max = 20                  # Number of partial waves = number of S-matrices = l_max+1
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
 L_map = 20; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness: (r_max - r0) a.u.
+
+colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
+colloc_file = this_dir.parent / 'Harmonic_Generation' / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file
+colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#          LASER and temporal grid info          |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+lambda_nm = 1064                                # wavelength (nm)
+I0 = 5 * 10**13                                 # Intensity (W/cm2)
+I0_au = I0 / Int_0                              # Intensity (a.u)
+E0_au = np.sqrt(I0_au)                          # Field intensity (a.u)
+w0 = omega_au(lambda_nm); T = 2 * np.pi / w0    # Angular frequency and time period.
+cpp = 60; tf = cpp*T; dt = 0.1                  # cpp = cycles per pulse.
+t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,3 +108,42 @@ atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and
     # "Ar4+": {"C0": 5, "Zc": 13, "c": 0.8529,  "a1": -17.4441, "a2": -26.0893, "a3": 2.1135, "b1": 1.4141,  "b2": 4.4613,  "b3": 101.5018},
     # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
 }
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                 Printing info                  |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if __name__ != '__main__':
+    print('~~~~~~~~~~~: Grid info :~~~~~~~~~~~')
+    print('mapping param (L_map)       :', L_map)
+    print('mapping param (r_max)       :', r_max)
+    print('radial colloc points (N-1)  :', N-1)
+    print('angular colloc points (L+1) :', L+1, '\n')
+
+    # print('~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~')  # TODO: move to evolution.py
+    # print(f'Ip (a.u)              : {Ip:.3f}')
+    # print(f'Up (a.u)              : {Up_au:.5f}')
+    # print(f'N_cutoff              : {N_cut:.3f}')
+    # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
+
+    print('~~~~~~~: Atom & Laser info :~~~~~~~')
+    print(f'atom system   : {evolving_atom}')
+    print(f'initial state : {state_name(n, l)}')
+    print(f'I0 (W/cm2)    : {I0:.2e}')
+    print('I0 (a.u)      :', I0 / Int_0)
+    print('E0 (a.u)      :', E0_au)
+    print('λ  (nm)       :', lambda_nm)
+    print('λ  (a.u)      :', lambda_nm * 10 ** -9 / a0)
+    print('w0 (a.u)      :', w0)
+    print('T (a.u)       :', T)
+    print('T (f.s)       :', T * T0 * 10**15)
+    print('tf (a.u)      :', tf)
+    print('tf (f.s)      :', tf * T0 * 10**15)
+    print('dt (a.u)      :', dt)
+    print('dt (atto)     :', dt * T0 * 10**18)
+    print('nopt          :', len(t), '\n')
+
+    print('~~~~~~~: S-matrix info :~~~~~~~')
+    print('l_max         :', l_max)
+    print('k_max         :', k_max)
+    print('dt            :', dt, '\n')

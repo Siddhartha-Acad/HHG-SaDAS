@@ -1,5 +1,5 @@
 """
-File: center_comment.py
+File: comment_box.py
 Project: HHG-SaDAS
 Code Description:
     | Utility script to generate visually centered comment boxes.
@@ -21,6 +21,13 @@ def center_comment(text: str, width: int = 50, border: str = "~") -> str:
     middle = f"# {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
+def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
+    return (f"{text}".center(width, fill)).replace(text, f": {text} :")
 
-comment_string = "HHG-SaDAS by Siddhartha Mithiya 2025"
-print(center_comment(comment_string))
+
+# comment_head_string = "Printing info"
+# print(center_comment(comment_head_string))
+
+
+comment_title_string = "HHG-SaDAS by Siddhartha Mithiya 2025"
+print(pretty_title(comment_title_string))

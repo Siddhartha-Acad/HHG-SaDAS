@@ -6,10 +6,10 @@ __pycache__/
 
 # Avoid data files too.
 *.xlsx
+Harmonic_generation/**/*.txt
 
 code_message.txt
 
-Harmonic_generation/**/*.txt
 
 trial_1.py
 trial_2.py
