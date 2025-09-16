@@ -18,13 +18,74 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import numpy as np
+
+
+def potential_V_SAE_M1(r, atom='Ne'):
+    params = atomic_params_SAE_M1.get(atom)
+    if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
+    Zc, a1, a2, a3, a4, a5, a6 = params["Zc"], params["a1"], params["a2"], params["a3"], params["a4"], params["a5"], params["a6"]
+    return -(Zc + a1*np.exp(-a2*r) + a3*r*np.exp(-a4*r) + a5*np.exp(-a6*r)) / r
+
+def potential_V_SAE_M2(r, atom='Ne'):
+    params = atomic_params_SAE_M2.get(atom)
+    if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
+
+    C0, Zc, c = params['C0'], params['Zc'], params['c']
+    a1, a2, a3 = params['a1'], params['a2'], params['a3']
+    b1, b2, b3 = params['b1'], params['b2'], params['b3']
+
+    V_long = -C0 / r
+    V_short = -Zc * np.exp(-c * r) / r
+    V_shell = (a1 * np.exp(-b1 * r)) + (a2 * np.exp(-b2 * r)) + (a3 * np.exp(-b3 * r))
+    return V_long + V_short - V_shell       # overall -ve sign in V_shell.
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                 GPSM Parameters                |
+#           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+n = 4; l = 1; m = 0         # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
+evolving_atom = 'Xe'
+SAE_model = 'SAE-M1'
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                GPSM Parameters                 |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 N = 200                     # P'_N(xj) = 0 ; radial grid size: len(colloc_pt) = N-1
 L = 20                      # must be >= l ; number of S matrix gl(r) in partial wave expansion.
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
-L_map = 20 ; r_max = 200    # radial mapping parameters
+L_map = 20; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness: (r_max - r0) a.u.
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                  SAE dataset                   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+atomic_params_SAE_M1 = {        # Ref: X. M. Tong and C. D. Lin, J. Phys. B: At. Mol. Opt. Phys., 38, 2593 (2005).
+    "H"  :  {"Zc": 1.0, "a1": 0.000,  "a2": 0.000,  "a3": 0.000,   "a4": 0.000, "a5": 0.000,  "a6": 0.000},
+    "He" :  {"Zc": 1.0, "a1": 1.231,  "a2": 0.662,  "a3": -1.325,  "a4": 1.236, "a5": -0.231, "a6": 0.480},
+    "Ne" :  {"Zc": 1.0, "a1": 8.069,  "a2": 2.148,  "a3": -3.570,  "a4": 1.986, "a5": 0.931,  "a6": 0.602},
+    "Ar" :  {"Zc": 1.0, "a1": 16.039, "a2": 2.007,  "a3": -25.543, "a4": 4.525, "a5": 0.961,  "a6": 0.443},
+    "Xe" :  {"Zc": 1.0, "a1": 51.356, "a2": 2.112,  "a3": -99.927, "a4": 3.737, "a5": 1.644,  "a6": 0.431},
+    # "Rb" :  {"Zc": 1.0, "a1": 24.023, "a2": 11.107, "a3": 115.200, "a4": 6.629, "a5": 11.977, "a6": 1.245},
+    # "Ne+":  {"Zc": 2.0, "a1": 8.043,  "a2": 2.715,  "a3": 0.506,   "a4": 0.982, "a5": -0.043, "a6": 0.401},
+    # "Ar+":  {"Zc": 2.0, "a1": 14.989, "a2": 2.217,  "a3": -23.606, "a4": 4.585, "a5": 1.011,  "a6": 0.551}
+}
+
+atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and A. Becker, J. Phys. Commun., 4, 065011 (2020).
+    "H"   : {"C0": 1, "Zc": 0,  "c": 0.000,   "a1": 0.000,    "a2": 0.000,    "a3": 0.000,  "b1": 0.000,   "b2": 0.000,   "b3": 0.000},
+    "He"  : {"C0": 1, "Zc": 1,  "c": 2.0329,  "a1": 0.3953,   "a2": 0.000,    "a3": 0.000,  "b1": 6.1805,  "b2": 0.000,   "b3": 0.000},
+    "Ne"  : {"C0": 1, "Zc": 9,  "c": 0.8870,  "a1": -9.9286,  "a2": -5.9950,  "a3": 0.000,  "b1": 1.3746,  "b2": 3.7963,  "b3": 0.000},
+    "Ar"  : {"C0": 1, "Zc": 17, "c": 0.8103,  "a1": -15.9583, "a2": -27.7467, "a3": 2.1768, "b1": 1.2305,  "b2": 4.3946,  "b3": 86.7179},
+    # "Li"  : {"C0": 1, "Zc": 2,  "c": 15.9594, "a1": 9.1124,   "a2": 19.3145,  "a3": 0.000,  "b1": 3.6040,  "b2": 11.3082, "b3": 0.000},
+    # "Be"  : {"C0": 1, "Zc": 3,  "c": 2.0481,  "a1": 0.5294,   "a2": 0.3219,   "a3": 0.000,  "b1": 0.8475,  "b2": 37.5567, "b3": 0.000},
+    # "Na"  : {"C0": 1, "Zc": 10, "c": 1.4927,  "a1": -11.3552, "a2": -2.0302,  "a3": 1.6028, "b1": 2.5597,  "b2": 10.1463, "b3": 47.9555},
+    # "Mg"  : {"C0": 1, "Zc": 11, "c": 1.4248,  "a1": -14.5892, "a2": -1.9433,  "a3": 1.8141, "b1": 2.7001,  "b2": 12.3150, "b3": 51.7100},
+    # "Ar+" : {"C0": 2, "Zc": 16, "c": 0.8698,  "a1": -16.0391, "a2": -26.9860, "a3": 2.1780, "b1": 1.3146,  "b2": 4.4514,  "b3": 88.3315},
+    # "Ar2+": {"C0": 3, "Zc": 15, "c": 0.8792,  "a1": -16.4007, "a2": -26.6805, "a3": 2.1681, "b1": 1.3486,  "b2": 4.4656,  "b3": 90.3068},
+    # "Ar3+": {"C0": 4, "Zc": 14, "c": 0.9445,  "a1": -16.4800, "a2": -25.8243, "a3": 2.1550, "b1": 1.4521,  "b2": 4.5171,  "b3": 94.5151},
+    # "Ar4+": {"C0": 5, "Zc": 13, "c": 0.8529,  "a1": -17.4441, "a2": -26.0893, "a3": 2.1135, "b1": 1.4141,  "b2": 4.4613,  "b3": 101.5018},
+    # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
+}
