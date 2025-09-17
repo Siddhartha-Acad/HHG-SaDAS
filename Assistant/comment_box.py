@@ -22,12 +22,12 @@ def center_comment(text: str, width: int = 50, border: str = "~") -> str:
     return "\n".join([line, middle, line])
 
 def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
-    return (f"{text}".center(width, fill)).replace(text, f": {text} :")
+    line = f": {text} :"
+    return "# " + line.center(width - 1, fill)
 
 
 # comment_head_string = "Printing info"
 # print(center_comment(comment_head_string))
 
-
-comment_title_string = "HHG-SaDAS by Siddhartha Mithiya 2025"
+comment_title_string = "hi"
 print(pretty_title(comment_title_string))

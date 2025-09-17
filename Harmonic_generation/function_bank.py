@@ -38,13 +38,13 @@ def dydx(integrand, x):
     dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
     return dy_dx
 
-def f(x):
-    alpha = 2 * L_map / r_max
-    return L_map*(1 + x) / (1 - x + alpha)
+def f(x, Lmap=L_map):
+    alpha = 2 * Lmap / r_max
+    return Lmap*(1 + x) / (1 - x + alpha)
 
-def f_p(x):
-    alpha = 2 * L_map / r_max
-    return L_map * (alpha + 2) / (1 - x + alpha)**2
+def f_p(x, Lmap=L_map):
+    alpha = 2 * Lmap / r_max
+    return Lmap * (alpha + 2) / (1 - x + alpha)**2
 
 def P_N(x):
     return legendre(N)(x)
@@ -77,15 +77,6 @@ def Keldysh(Ip_au, Up_au):          # Keldysh Parameter
 
 def N_cutoff(Ip_au, Up_au):         # Cut-off Harmonic
     return (Ip_au + 3.17*Up_au) / w0
-
-# def mapped_integration(function):
-#     return np.sum(function * int_w)
-#
-# def norm_factor(function):
-#     return 1 / np.sqrt(mapped_integration(np.abs(function)**2))
-#
-# def normalize(function):
-#     return norm_factor(function) * function
 
 def generate_states(l):
     orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
