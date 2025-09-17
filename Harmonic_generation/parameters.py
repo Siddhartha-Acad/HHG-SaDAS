@@ -48,8 +48,8 @@ def state_name(n, l):
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 n = 4; l = 1; m = 0         # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
-evolving_atom = 'Xe'        # Atoms are listed down in 'SAE dataset' section.
-SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'
+evolving_atom = 'He'        # Atoms are listed down in 'SAE dataset' section.
+SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

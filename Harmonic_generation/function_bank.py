@@ -24,11 +24,10 @@ from Harmonic_generation.parameters import *
 def dydx(integrand, x):
     """
     FIRST ORDER DERIVATIVE
-    Parameters:
-        integrand (array-like): Values of the function at discrete points.
-        x (array-like): The corresponding x-values.
-    Returns:
-        numpy.ndarray: The derivative of the function.
+
+    :param integrand: Values of the function at discrete points (array-like).
+    :param x: Corresponding x-values (array-like).
+    :return: Derivative of the function (numpy.ndarray).
     """
     nop_x = len(x)
     dy_dx = np.zeros_like(integrand, dtype=np.float64)
@@ -38,16 +37,41 @@ def dydx(integrand, x):
     dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
     return dy_dx
 
+
 def f(x, Lmap=L_map):
+    """
+    Nonlinear radial mapping function.
+
+    :param x: Input variable, typically defined in the range [-1, 1] (float or array-like).
+    :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
+    :return: Transformed value(s) according to the nonlinear radial mapping (float or numpy.ndarray).
+    """
     alpha = 2 * Lmap / r_max
-    return Lmap*(1 + x) / (1 - x + alpha)
+    return Lmap * (1 + x) / (1 - x + alpha)
+
 
 def f_p(x, Lmap=L_map):
+    """
+    First derivative of the nonlinear radial mapping function.
+
+    :param x: Input variable, typically defined in the range [-1, 1] (float or array-like).
+    :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
+    :return: Value(s) of the derivative of the nonlinear radial mapping (float or numpy.ndarray).
+    """
     alpha = 2 * Lmap / r_max
     return Lmap * (alpha + 2) / (1 - x + alpha)**2
 
+
 def P_N(x):
+    """
+    Legendre polynomial of degree N at x.
+
+    :param x: Point(s) of evaluation (float or array-like).
+    :param N: Polynomial degree (int).
+    :return: Value(s) of P_N(x) (float or numpy.ndarray).
+    """
     return legendre(N)(x)
+
 
 def d2(i, j):
     if i != j:
@@ -58,13 +82,16 @@ def d2(i, j):
 def V_eff(l, x):
     return -1 / x + l*(l+1) / (2*x**2)
 
-def H(l, i, j):
+def H(l, i, j, model='SAE-M2'):
     term1 = -0.5 * (1 / f_p(colloc_pt[i])) * d2(i, j) * (1 / f_p(colloc_pt[j]))
     if i != j:
-        return term1                        # Only return term1 for i != j
-    else:
-        term2 = l * (l + 1) / (2 * f(colloc_pt[i])**2) - (1 / f(colloc_pt[i]))
-        return term1 + term2                # Return term1 + term2 for i == j
+        return term1
+    if model == 'SAE-M1':
+        term2 = l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) + potential_V_SAE_M1(f(colloc_pt[i]), atom=evolving_atom)
+        return term1 + term2
+    elif model == 'SAE-M2':
+        term2 = l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) + potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom)
+        return term1 + term2
 
 def S(E_l, A_l, i, j):
     return sum(A_l[k][i] * A_l[k][j] * np.exp(-1j * E_l[k] * dt / 2) for k in range(len(E_l)))
@@ -81,15 +108,6 @@ def N_cutoff(Ip_au, Up_au):         # Cut-off Harmonic
 def generate_states(l):
     orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
     return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
-
-def rel_E_error(n, E_num):
-    """
-    :param n: principle quantum number
-    :param E_num: numerical E_n
-    :return: Relative energy in energy eigenvalues
-    """
-    correct_E = -0.5 / n ** 2
-    return abs((correct_E - E_num) / correct_E)
 
 
 def E_field(t):

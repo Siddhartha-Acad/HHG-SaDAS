@@ -1,13 +1,28 @@
 """
-~ H_ij_positive.py: H atom interacting with external Laser field.
+File: check_GPSM.py
+Project: HHG-SaDAS
+Code Description:
+    | ***[Demonstration purpose code]***
+    | This script demonstrates the GPSM eigenstates and eigenvalues in detail.
+    | All parameters are imported from `parameters.py`.
+    | Users are encouraged to run this script to verify that GPSM is functioning correctly.
 
-• Understood the necessity of positive energy solutions of H_matrix.
-• r = f(x): nonlinear mapped radial coordinate.
-• Plot the results of the Pseudospectral method.
-• All the variables are exported from here which are used by other programme files.
-• It doesn't generate any file.
 
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- r = f(x): nonlinear mapped radial coordinate.
+- Plot the results of the Pseudospectral method.
+- It doesn't generate any file.
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
 """
+
 import time
 import warnings
 from scipy.linalg import eigh
@@ -32,24 +47,35 @@ fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 def mapped_integration(function):
+    """
+    integration using Gauss–Legendre quadrature.
+
+    :param function: Function values evaluated at the Gauss–Legendre nodes or collocation points (array-like).
+    :return: Approximate integral computed using the quadrature rule (float).
+    """
     return np.sum(function * int_w)
 
+
 # def norm_factor(function):
+#     """
+#     Computes the normalization factor for a wavefunction.
+#     [Note]: This function is currently unused.
+#
+#     :param function: Wavefunction values (array-like).
+#     :return: Normalization factor (float).
+#     """
 #     return 1 / np.sqrt(mapped_integration(np.abs(function)**2))
 #
+#
 # def normalize(function):
+#     """
+#     Normalize a wavefunction.
+#     [Note]: This function is currently unused.
+#
+#     :param function: Wavefunction values (array-like).
+#     :return: Normalized wavefunction (array-like).
+#     """
 #     return norm_factor(function) * function
-
-
-
-int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # integration weights; used in mapped_integration.
-
-theta_org = np.linspace(0, 2*np.pi, 200)                # original theta.
-roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature.
-theta_k = np.arccos(roots)                                        # Gauss-Legendre angular collocation points
-insert_positions = np.searchsorted(theta_org, theta_k)            # To find the proper position to insert theta_k
-theta = np.insert(theta_org, insert_positions, theta_k)
-theta_k_locs = np.where(np.isin(theta, theta_k))[0]
 
 
 
@@ -57,14 +83,19 @@ r = f(colloc_pt)                                # converting length unit from a.
 r_nm = r * a0 * 10**9                           # radial coordinate in nanometer (nm)
 v = V_eff(l, r)
 n0_array = np.arange(1, L + 1 + 1, 1)           # Set the max energy search one level above the required level.
-l0_levels = -1 / (2 * n0_array**2)              # Calculate energy levels up to just below the target state's energy.
+
+
+int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # integration weights; used in mapped_integration.
+roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature.
+theta_k = np.arccos(roots)                                        # Gauss-Legendre angular collocation points
+
 
 
 # ------------------------------------: H matrix, E, A :------------------------------------
 H_matrix = np.zeros((N - 1, N - 1))
 for i in range(N - 1):
     for j in range(i, N - 1):                           # Only computing the upper triangle
-        H_matrix[i, j] = H_matrix[j, i] = H(l, i, j)
+        H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
 E, A = eigh(H_matrix, subset_by_index=[0, 5]); A = A.T
 
 
@@ -116,7 +147,7 @@ if __name__ == '__main__':
     print(f'norm φ[{n-1}] = int(|φ|^2)   :', mapped_integration(phi[n-1]**2))
 
     [print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) +
-           f' : {E[i]:<17.15f} a.u, Rel_Error: {rel_E_error(l + i + 1, E[i]):.5e}') for i in range(E_n)]
+           f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
     print('ψ shape                  :', np.shape(psi))
     print('S shape                  :', np.shape(S_matrix_real), '\n')
@@ -126,14 +157,10 @@ if __name__ == '__main__':
     from Assistant.Decorate_axes import decorate_axes_L as da
     import matplotlib.pyplot as plt
     fig2, axs = plt.subplots(1, 2, gridspec_kw={'width_ratios': [0.35, 0.65]}, figsize=fig_size)
-    fig1 = plt.figure(figsize=fig_size); fig3 = plt.figure(figsize=fig_size); fig3a = plt.figure(figsize=fig_size)
+    fig3 = plt.figure(figsize=fig_size); fig3a = plt.figure(figsize=fig_size)
     fig4 = plt.figure(figsize=fig_size); fig5 = plt.figure(figsize=fig_size); fig6 = plt.figure(figsize=fig_size)
     fig6a = plt.figure(figsize=fig_size); fig7 = plt.figure(figsize=fig_size); fig8 = plt.figure(figsize=fig_size)
-    ax1 = fig1.add_subplot(221)         # Eigenstates with potential_anim function
-    ax2 = fig1.add_subplot(222)         # modSq Eigenstates with potential_anim function
-    ax3 = fig1.add_subplot(234)         # Energy levels with potential_anim
-    ax4 = fig1.add_subplot(235)         # Energy levels o- plots compared with E0/n^2
-    ax5 = fig1.add_subplot(236)         # Energy levels bar plot
+
     ax8 = fig3.add_subplot(211)         # u(r)
     ax9 = fig3.add_subplot(212)         # |u(x)|^2
     ax8a = fig3a.add_subplot(211)       # A(x)
@@ -157,7 +184,7 @@ if __name__ == '__main__':
     ax21 = fig7.add_subplot(121)        # potential_anim maximum deformation
     ax20 = fig8.add_subplot(111)        # Electric Field
 
-    da.decorate_2d([ax1, ax2, ax3, ax4, ax5, ax7, ax8, ax8a, ax8b, ax9, ax11, ax12, ax13, ax14, ax15, ax15_1, ax16, ax19, ax20, ax21])
+    da.decorate_2d([ax7, ax8, ax8a, ax8b, ax9, ax11, ax12, ax13, ax14, ax15, ax15_1, ax16, ax19, ax20, ax21])
     da.decorate_2d(ax6, tick_param=False)
     da.decorate_2d(ax6_twin, grid=False, tick_param=False)
     da.decorate_2d([ax10, ax17, ax17_1, ax17_2, ax18], axis_ticks=False, grid=False, visible_spine='none')
@@ -167,17 +194,10 @@ if __name__ == '__main__':
 
     states_list = generate_states(l)[0:E_n]
     offset = 0; offset_arr = []; amp = 1
-    for i in range(len(l0_levels)):
-        ax3.axhline(l0_levels[i], color='w', linestyle='dashed', lw=1, alpha=0.5, label='l=0 levels' if i == 0 else '')
-        ax7.axhline(l0_levels[i], color='w', linestyle='dashed', lw=1, alpha=0.5, label='l=0 levels' if i == 0 else '')
 
     for Eth, E_egVal in enumerate(E):
-        ax3.axhline(E_egVal, xmin=0, xmax=0.5, color='#58C4DD', label='E levels' if Eth == 0 else '')
         ax7.axhline(E_egVal, xmin=0, xmax=0.5, color='#58C4DD', label=f'l={l} levels' if Eth == 0 else '', zorder=2)
 
-        ax1.plot(r, psi[Eth], label=states_list[Eth])
-        ax2.plot(r_nm, abs(psi[Eth]) ** 2, label=states_list[Eth])
-        # print(f'E({Eth}) = {np.round(E_egVal * 27.21, 7)} eV')
         plot_state = amp * psi[Eth] ** 2
         if Eth != 0:
             amp = max(psi[0] ** 2) / max(psi[Eth] ** 2)
@@ -201,33 +221,16 @@ if __name__ == '__main__':
     ax9.fill_between(r_nm, psi[n - 1] ** 2, color='#83C167', alpha=0.2)
 
 
-
-    ax3.plot(r_nm, v, color='m', label='V(x)')
-    ax1.plot(r, v, color='m')
-    ax2.plot(r_nm, v, color='m')
     ax7.plot(r_nm, v, color='m', label='V(x)')
-    ax1.fill_between(r, v, color='m', alpha=0.15)
     ax7.fill_between(r_nm, v, color='m', alpha=0.10)
-    ax3.fill_between(r_nm, v, color='m', alpha=0.15)
-    ax2.fill_between(r_nm, v, color='m', alpha=0.15)
+
     ax7.axis([min(r_nm), max(r_nm), -0.55, 0.05])
 
 
     n_array = np.arange(1, 80, 1)
-    ref_n_array = n_array[0 : len(l0_levels)-2]
     plot_n_array = n_array[l: len(E)+l]
-    ax4.plot(plot_n_array, E, 'o--', color='yellow', label=f'num (l={l})', zorder=2)
-    ax4.plot(ref_n_array, l0_levels[0] / ref_n_array ** 2, 'o-', color='m', label='E' + r'$_0$' + '/n' + '$^2$', zorder=1)
-    ax4.plot(ref_n_array, l0_levels[0:-2], 'o-', label='l=0 levels', zorder=0)
-    ax4.set_xlim(0, max(ref_n_array)+1)
 
-    ax1.set_ylim(-0.42, 0.78)
-    ax2.set_ylim(-0.05, 0.55)
-    # ax8.set_xlim(-1, 10)
-    # ax9.set_xlim(-1, 10)
 
-    ax5.bar(plot_n_array, E, color=da.dec_color[l: len(E)+l], label=f'num (l={l})')
-    ax5.bar(ref_n_array, l0_levels[0:-2], color=da.dec_color[:len(l0_levels)-2], alpha=0.4, label='l=0 levels')
 
     # interpolation = 'spline36'
     interpolation = 'none'
@@ -269,17 +272,10 @@ if __name__ == '__main__':
     max_deformed_pot =  v - E0_au * r
     ax21.plot(r, max_deformed_pot, color='m')
     ax21.fill_between(r, max_deformed_pot, 0, color='m', alpha=0.15)
-    for i in range(len(l0_levels)):
-        ax21.axhline(l0_levels[i], color='#58C4DD', label='l=0 levels' if i == 0 else '')
     ax21.axis([min(r), 30, -1, 0.1])
 
 
-    ax1.legend(loc='upper right', ncol=3, columnspacing=0.5, fontsize=12, framealpha=0.8, edgecolor='w')
-    ax2.legend(loc='upper right', ncol=3, columnspacing=0.5, fontsize=12, framealpha=0.8, edgecolor='w')
     ax6.legend(loc='upper right', ncol=2, columnspacing=0.5, fontsize=13, framealpha=0.9, edgecolor='w')
-    ax3.legend(loc='lower right', fontsize=12, framealpha=0.8, edgecolor='w')
-    ax4.legend(loc='lower right', fontsize=12, framealpha=0.8, edgecolor='w')
-    ax5.legend(loc='lower right', fontsize=12, framealpha=0.8, edgecolor='w')
     ax7.legend(loc='lower right', fontsize=12, framealpha=0.8, edgecolor='w')
     ax8.legend(loc='upper right', fontsize=15, framealpha=0.8, edgecolor='w')
     ax8a.legend(loc='upper right', fontsize=15, framealpha=0.8, edgecolor='w')
@@ -297,14 +293,7 @@ if __name__ == '__main__':
     ax7.set_title(f'Potential & Energy levels; l={l}', fontsize=15)
     ax6.set_title(r'Radial functions: |u(r)|$^2$ ; [u(r) = rR(r)]', fontsize=15)
 
-    ax1.set_xlabel('r (a.u) :' + r'$\longrightarrow$', fontsize=15)
-    ax2.set_xlabel('r (nm) :' + r'$\longrightarrow$', fontsize=15)
-    ax3.set_xlabel('r (nm) :' + r'$\longrightarrow$', fontsize=15)
-    ax3.set_ylabel(r'E$_n$ (a.u) :' + r'$\longrightarrow$', fontsize=15)
-    ax1.set_ylabel('u(r)' + r'$\longrightarrow$', fontsize=15)
-    ax2.set_ylabel(r'|u(r)|$^2$' + r'$\longrightarrow$', fontsize=15)
-    ax4.set_xlabel('n :' + r'$\longrightarrow$', fontsize=15)
-    ax5.set_xlabel('n :' + r'$\longrightarrow$', fontsize=15)
+
     ax9.set_xlabel('r (nm) :' + r'$\longrightarrow$', fontsize=15)
     ax6.set_xlabel('r (a.u) :' + r'$\longrightarrow$', fontsize=15)
     ax7.set_xlabel('r (nm) :' + r'$\longrightarrow$', fontsize=15)
@@ -329,18 +318,13 @@ if __name__ == '__main__':
     fig6a.suptitle(f'S_matrix; (l={l}, k_max={E_n}, dt={dt}); interpolation: {interpolation}', fontsize=20)
 
 
-    ax4.set_xticks(ref_n_array)
-    ax5.set_xticks(ref_n_array)
-
     n_values = ["n=" + str(n_ind + l) for n_ind in range(1, len(psi)+1)]
     ax6.set_yticks(offset_arr, n_values, fontsize=12)
     energy_labels = [f'{np.round(value * 27.21, 2)} eV' for value in E]
 
     ax6_twin.set_yticks(offset_arr, energy_labels, fontsize=12)
     ax6_twin.set_ylim(ax6.get_ylim())
-    ax3.set_ylim(ax4.get_ylim())
-    ax5.set_ylim(ax4.get_ylim())
-    fig1.subplots_adjust(top=0.966, bottom=0.078, left=0.069, right=0.975, wspace=0.196, hspace=0.21)
+
     fig2.subplots_adjust(top=0.912, bottom=0.097, left=0.061, right=0.934, wspace=0.107)
     fig3.subplots_adjust(top=0.935, bottom=0.09, left=0.109, right=0.928, hspace=0.112)
     fig3a.subplots_adjust(top=0.935, bottom=0.09, left=0.109, right=0.928, hspace=0.112)
