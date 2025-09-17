@@ -21,23 +21,10 @@ Notes:
 from scipy.special import legendre
 from Harmonic_generation.parameters import *
 
-def dydx(integrand, x):
-    """
-    FIRST ORDER DERIVATIVE
 
-    :param integrand: Values of the function at discrete points (array-like).
-    :param x: Corresponding x-values (array-like).
-    :return: Derivative of the function (numpy.ndarray).
-    """
-    nop_x = len(x)
-    dy_dx = np.zeros_like(integrand, dtype=np.float64)
-    dy_dx[0] = (integrand[1] - integrand[0]) / (x[1] - x[0])
-    for i in range(1, nop_x - 1):
-        dy_dx[i] = (integrand[i + 1] - integrand[i - 1]) / (x[i + 1] - x[i - 1])
-    dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
-    return dy_dx
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#               radial mapping function f(x)               |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def f(x, Lmap=L_map):
     """
     Nonlinear radial mapping function.
@@ -45,6 +32,10 @@ def f(x, Lmap=L_map):
     :param x: Input variable, typically defined in the range [-1, 1] (float or array-like).
     :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
     :return: Transformed value(s) according to the nonlinear radial mapping (float or numpy.ndarray).
+
+    References
+    ----------
+    For details, see Section 2.2.2 -- 'Grid discretization and nonlinear mapping'
     """
     alpha = 2 * Lmap / r_max
     return Lmap * (1 + x) / (1 - x + alpha)
@@ -74,13 +65,35 @@ def P_N(x):
 
 
 def d2(i, j):
+    """
+    Second-order derivative matrix of Gauss–Lobatto cardinal functions.
+    This function returns the (i, j) element of the second derivative matrix
+    associated with Gauss–Lobatto collocation points.
+
+    :param i: Row index (int).
+    :param j: Column index (int).
+    :return: Value of the (i, j) entry of the second derivative matrix (float).
+
+    References
+    ----------
+    For details, see Section 2.2.7 -- 'Applying GPSM to construct the matrix Hamiltonian'
+    """
     if i != j:
         return -2 / (colloc_pt[i] - colloc_pt[j])**2
     else:
         return -N*(N+1) / (3*(1 - colloc_pt[i]**2))
 
+
 def V_eff(l, x):
+    """
+    Effective potential for a particle in a central field.
+
+    :param l: Angular momentum quantum number (int).
+    :param x: Radial coordinate (float).
+    :return: Effective potential value at x (float).
+    """
     return -1 / x + l*(l+1) / (2*x**2)
+
 
 def H(l, i, j, model='SAE-M2'):
     term1 = -0.5 * (1 / f_p(colloc_pt[i])) * d2(i, j) * (1 / f_p(colloc_pt[j]))
@@ -140,3 +153,21 @@ def potential_V_SAE_M2(r, atom='Ne'):
     V_short = -Zc * np.exp(-c * r) / r
     V_shell = (a1 * np.exp(-b1 * r)) + (a2 * np.exp(-b2 * r)) + (a3 * np.exp(-b3 * r))
     return V_long + V_short - V_shell       # overall -ve sign in V_shell.
+
+
+
+def dydx(integrand, x):
+    """
+    FIRST ORDER DERIVATIVE
+
+    :param integrand: Values of the function at discrete points (array-like).
+    :param x: Corresponding x-values (array-like).
+    :return: Derivative of the function (numpy.ndarray).
+    """
+    nop_x = len(x)
+    dy_dx = np.zeros_like(integrand, dtype=np.float64)
+    dy_dx[0] = (integrand[1] - integrand[0]) / (x[1] - x[0])
+    for i in range(1, nop_x - 1):
+        dy_dx[i] = (integrand[i + 1] - integrand[i - 1]) / (x[i + 1] - x[i - 1])
+    dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
+    return dy_dx
