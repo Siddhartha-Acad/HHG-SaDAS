@@ -26,9 +26,11 @@ Notes:
 import time
 import warnings
 from scipy.linalg import eigh
-from Atomic_units import a0, Energy_0
+import matplotlib.pyplot as plt
+from Atomic_units import Energy_0
 from Harmonic_generation.function_bank import *
 from Assistant.Time_conversion import secs_to_hr_min_sec
+from Assistant.Decorate_axes import decorate_axes_L as da
 start_time = time.time()
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -40,7 +42,7 @@ print('*** DeprecationWarning : Blocked from H_ij_positive.py ***\n')
 # ~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
 height = 3                          # Height in inches
-fig_scale_factor = 2              # big=2 ; medium=1.5; small=1
+fig_scale_factor = 2                # big=2 ; medium=1.5; small=1
 tickslabel_size = 18
 label_fontsize = 19
 fig_size = (fig_scale_factor*width, fig_scale_factor*height)
@@ -83,11 +85,9 @@ r = f(colloc_pt)                                # converting length unit from a.
 r_nm = r * a0 * 10**9                           # radial coordinate in nanometer (nm)
 v = V_eff(l, r)
 
-
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # integration weights; used in mapped_integration.
 roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature.
 theta_k = np.arccos(roots)                                        # Gauss-Legendre angular collocation points
-
 
 # ------------------------------------: H matrix, E, A :------------------------------------
 H_matrix = np.zeros((N - 1, N - 1))
@@ -97,9 +97,9 @@ for i in range(N - 1):
 E, A = eigh(H_matrix, subset_by_index=[0, 5]); A = A.T
 
 
-Ip = -E[0]
-Up_au = Up(E0_au, w0)
-N_cut = N_cutoff(Ip, Up_au)
+Ip = -E[0]                          # Ionisation potential
+Up_au = Up(E0_au, w0)               # Ponderomotive force
+N_cut = N_cutoff(Ip, Up_au)         # Cutoff position
 
 # ----------------------------:  u(r) = psi(f(x)) ; φ(r) :----------------------------
 psi = np.zeros(np.shape(A)); E_n = len(E)
@@ -150,8 +150,6 @@ print('S shape                  :', np.shape(S_matrix_real), '\n')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-from Assistant.Decorate_axes import decorate_axes_L as da
-import matplotlib.pyplot as plt
 fig1, axs = plt.subplots(1, 2, gridspec_kw={'width_ratios': [0.35, 0.65]}, figsize=fig_size)
 fig2 = plt.figure(figsize=fig_size); fig3 = plt.figure(figsize=fig_size)
 fig4 = plt.figure(figsize=fig_size); fig5 = plt.figure(figsize=fig_size); fig6 = plt.figure(figsize=fig_size)
@@ -228,10 +226,6 @@ ax2.plot(r_nm, v, color='m', label='V(x)')
 ax2.fill_between(r_nm, v, color='m', alpha=0.10)
 ax2.axis([min(r_nm), max(r_nm), -0.55, 0.05])
 
-n_array = np.arange(1, 80, 1)
-plot_n_array = n_array[l: len(E)+l]
-
-
 # interpolation = 'spline36'
 interpolation = 'none'
 ax7.imshow(H_matrix, interpolation=interpolation, cmap='nipy_spectral_r')
@@ -240,9 +234,9 @@ ax7.set_xlim(-0.5, 20); ax7.set_ylim(20, -0.5)
 ax8.plot(colloc_pt, A[n - 1], 'o-', markersize=4, label='A(r) ~ ' + states_list[n - 1])
 ax8.plot(colloc_pt, P_N(colloc_pt), 'o-', markersize=4, label=r'P$_N$(r)')
 ax9.plot(colloc_pt, A[n - 1] * P_N(colloc_pt), 'o-', markersize=4, color='#83C167', label=r'φ(r)=A(r)$\cdot$P$_N$(r) ~ ' + states_list[n - 1])
-ax10.plot(colloc_pt, N * (N + 1) / 2 * (A[n - 1] * P_N(colloc_pt)) ** 2, 'o-', markersize=4, color='m', label=r'|φ(r)|$^2$ ~ ' + states_list[n - 1])
+ax10.plot(colloc_pt, (norm_fact * A[n - 1] * P_N(colloc_pt)) ** 2, 'o-', markersize=4, color='m', label=r'|φ(r)|$^2$ ~ ' + states_list[n - 1])
 ax9.fill_between(colloc_pt, A[n - 1] * P_N(colloc_pt), color='#83C167', alpha=0.2)
-ax10.fill_between(colloc_pt, N * (N + 1) / 2 * (A[n - 1] * P_N(colloc_pt)) ** 2, color='m', alpha=0.2)
+ax10.fill_between(colloc_pt, (norm_fact * A[n - 1] * P_N(colloc_pt)) ** 2, color='m', alpha=0.2)
 
 L_map_array = np.arange(10, 120, 20)
 for L_map_val in L_map_array:
@@ -269,6 +263,8 @@ ax21.fill_between(t / T, E_array, alpha=0.2)
 max_deformed_pot =  v - E0_au * r
 ax20.plot(r, max_deformed_pot, color='m')
 ax20.fill_between(r, max_deformed_pot, 0, color='m', alpha=0.15)
+for E_i in E:
+    ax20.axhline(E_i)
 ax20.axis([min(r), 30, -1, 0.1])
 
 
