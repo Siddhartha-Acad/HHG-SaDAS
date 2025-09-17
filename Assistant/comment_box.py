@@ -29,5 +29,5 @@ def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
 # comment_head_string = "Printing info"
 # print(center_comment(comment_head_string))
 
-comment_title_string = "hi"
-print(pretty_title(comment_title_string))
+# comment_title_string = "hi"
+# print(pretty_title(comment_title_string))
