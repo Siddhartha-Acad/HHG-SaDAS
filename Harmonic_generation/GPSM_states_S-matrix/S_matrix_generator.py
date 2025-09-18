@@ -28,12 +28,12 @@ start_time = time.time()
 
 
 print('Azimuthal quantum num. (m)  :', m)
-print(f'S matrix range              : S({m}) to S({m+l_max-1})')
-print('total S matrix (L)          :', l_max, '\n')
+print(f'S matrix range              : S({m}) to S({m+l_max})')
+print('total S matrix (l_max)      :', l_max, '\n')
 data_S_matrix = {}
 energy_eigenvalues = {}
 for l in range(m, l_max+m+1):
-    # ------------------------------------: H matrix, E, A :------------------------------------
+    # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
     H_matrix = np.zeros((N - 1, N - 1))
     for i in range(N - 1):
         for j in range(i, N - 1):  # Only computing the upper triangle
@@ -49,7 +49,7 @@ for l in range(m, l_max+m+1):
     # print(f'negative energy states (E<0) : {negative_energy_states}')
     # print(f'positive energy states (E>0) : {positive_energy_states}\n')
 
-    # ------------------------------------: S matrix :------------------------------------
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_matrix_real = np.zeros((N-1, N-1))
     S_matrix_imag = np.zeros((N-1, N-1))
     for i in range(N - 1):
@@ -65,20 +65,19 @@ for l in range(m, l_max+m+1):
     data_S_matrix[f'l={l}'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
 conf_info_string = conf_pot_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_Smatrix__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
 else: file_name = f'{evolving_atom}@C60_Smatrix__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 
-
 df_S_matrix = pd.DataFrame(data_S_matrix)
 df_S_matrix.to_excel(file_name, index=False)
 print(f"'{file_name}'")
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 output_file = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
 with open(output_file, 'w') as f:
     f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
