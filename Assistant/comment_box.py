@@ -29,7 +29,7 @@ def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     return "# " + line.center(width - 1, fill)
 
 
-comment_head_string = "Smooth Square Well (SSW) potential"
+comment_head_string = "Confinement potential selector"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Ip, Up, N_cut"

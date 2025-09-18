@@ -19,10 +19,10 @@ Notes:
 """
 
 import warnings
-import numpy as np
 from pathlib import Path
 from scipy.special import legendre
-from Atomic_units import Int_0, omega_au, a0, T0
+from Atomic_units import Int_0, omega_au, T0
+from Harmonic_generation.Conf_model_bank import *
 this_dir = Path(__file__).resolve().parent              # Relative path system
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -40,7 +40,7 @@ evolving_atom = 'He'        # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
 confined = False                    # whether the atom is confined or not?
-confinement_model = 'P-Gau'         # which type of confinement potential?
+confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 conf_info_string = 'till_empty'
 
 
@@ -391,6 +391,35 @@ def potential_V_SAE_M2(r, atom='Ne'):
     V_short = -Zc * np.exp(-c * r) / r
     V_shell = (a1 * np.exp(-b1 * r)) + (a2 * np.exp(-b2 * r)) + (a3 * np.exp(-b3 * r))
     return V_long + V_short - V_shell       # overall -ve sign in V_shell.
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#              Confinement potential selector              |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def conf_pot_selector(input_model, r):
+    """
+    :param input_model: String specifying the confinement model.
+                        Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
+    :param r: Radial coordinate (float or array-like).
+    :return: Tuple (v_pot, info_string)
+             - v_pot: Potential values as a NumPy array.
+             - info_string: String with parameter values.
+    """
+    if input_model == 'ASW':
+        return V_ASW(r)
+    elif input_model == "GASW":
+        return V_GASW(r)
+    elif input_model == 'Lor':
+        return V_Lorentz(r)
+    elif input_model == 'SSW':
+        return V_SSW(r)
+    elif input_model == 'Gau':
+        return V_Gaussian(r)
+    elif input_model == 'P-Gau':
+        return V_PowerExpo(r)
+    else:
+        raise ValueError(f"Unknown confinement model: {input_model}")
 
 
 
