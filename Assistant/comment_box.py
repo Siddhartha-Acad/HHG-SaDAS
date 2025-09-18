@@ -29,8 +29,8 @@ def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
     return "# " + line.center(width - 1, fill)
 
 
-comment_head_string = "Helpful functions that simplify life"
-print(center_comment(comment_head_string))
+# comment_head_string = "Helpful functions that simplify life"
+# print(center_comment(comment_head_string))
 
-# comment_title_string = "hi"
-# print(pretty_title(comment_title_string))
+comment_title_string = "Function Bank"
+print(pretty_title(comment_title_string))

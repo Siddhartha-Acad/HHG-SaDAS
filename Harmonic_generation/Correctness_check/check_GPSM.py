@@ -4,7 +4,7 @@ Project: HHG-SaDAS
 Code Description:
     | ***[Demonstration purpose code]***
     | This script demonstrates the GPSM eigenstates and eigenvalues in detail.
-    | All parameters are imported from `parameters.py`.
+    | All parameters are imported from `parameters_and_functions.py`.
     | Users are encouraged to run this script to verify that GPSM is functioning correctly.
 
 
@@ -28,9 +28,9 @@ import warnings
 from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
-from Harmonic_generation.function_bank import *
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
+from Harmonic_generation.parameters_and_functions import *
 start_time = time.time()
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -100,15 +100,15 @@ Up_au = Up(E0_au, w0)               # Ponderomotive force
 N_cut = N_cutoff(Ip, Up_au)         # Cutoff position
 
 # ----------------------------:  u(r) = psi(f(x)) ; φ(r) :----------------------------
-psi = np.zeros(np.shape(A)); E_n = len(E)
+u_r = np.zeros(np.shape(A)); E_n = len(E)
 phi = np.zeros(np.shape(A))
 norm_fact = np.sqrt(N*(N+1)/2)
 for Eth in range(E_n):
     for i in range(N - 1):
         phi[Eth][i] = A[Eth][i] * P_N(colloc_pt[i])
-        psi[Eth][i] = phi[Eth][i] / np.sqrt(f_p(colloc_pt[i]))
+        u_r[Eth][i] = phi[Eth][i] / np.sqrt(f_p(colloc_pt[i]))
     phi[Eth] *= norm_fact             # φ(r) = A(r) * P_N(r)
-    psi[Eth] *= norm_fact             # psi(r) = u(r) = r * R(r)
+    u_r[Eth] *= norm_fact             # u(r) = r * R(r)
 
 # ------------------------------------: S matrix :------------------------------------
 S_matrix_real = np.zeros((N-1, N-1))
@@ -143,7 +143,7 @@ print(f'norm φ[{n-1}] = int(|φ|^2)   :', mapped_integration(phi[n-1]**2))
 [print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) +
        f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
-print('ψ shape                  :', np.shape(psi))
+print('u(r) shape               :', np.shape(u_r))
 print('S shape                  :', np.shape(S_matrix_real), '\n')
 
 
@@ -197,10 +197,10 @@ offset = 0; offset_arr = []; amp = 1
 for Eth, E_egVal in enumerate(E):
     ax2.axhline(E_egVal, xmin=0, xmax=0.5, color='#58C4DD', label=f'l={l} levels' if Eth == 0 else '', zorder=2)
 
-    plot_state = amp * psi[Eth] ** 2
+    plot_state = amp * u_r[Eth] ** 2
     if Eth != 0:
-        amp = max(psi[0] ** 2) / max(psi[Eth] ** 2)
-        plot_state = amp * psi[Eth] ** 2
+        amp = max(u_r[0] ** 2) / max(u_r[Eth] ** 2)
+        plot_state = amp * u_r[Eth] ** 2
         offset -= max(plot_state) + abs(min(plot_state)) + 0.05
     offset_arr.append(offset)
     ax1.plot(r, plot_state + offset, 'o-', markersize=4, label=states_list[Eth])
@@ -211,14 +211,14 @@ for Eth, E_egVal in enumerate(E):
 
 
 #       ~~~~~~~~~~~~~: State number starts from 1 (n quantum number):~~~~~~~~~~~~~
-ax3.plot(r_nm, psi[n - 1], 'o-', label=states_list[n - 1])
-ax4.plot(r_nm, psi[n - 1] ** 2, 'o-', color='#83C167', label=states_list[n - 1])
+ax3.plot(r_nm, u_r[n - 1], 'o-', label=states_list[n - 1])
+ax4.plot(r_nm, u_r[n - 1] ** 2, 'o-', color='#83C167', label=states_list[n - 1])
 
 ax5.plot(colloc_pt, A[n - 1], 'o-', label=states_list[n - 1])
 ax6.plot(colloc_pt, A[n - 1] ** 2, 'o-', color='#83C167', label=states_list[n - 1])
 
-ax3.fill_between(r_nm, psi[n - 1], alpha=0.2)
-ax4.fill_between(r_nm, psi[n - 1] ** 2, color='#83C167', alpha=0.2)
+ax3.fill_between(r_nm, u_r[n - 1], alpha=0.2)
+ax4.fill_between(r_nm, u_r[n - 1] ** 2, color='#83C167', alpha=0.2)
 
 ax2.plot(r_nm, v, color='m', label='V(x)')
 ax2.fill_between(r_nm, v, color='m', alpha=0.10)
@@ -308,7 +308,7 @@ ax21.set_ylabel(r'E(t) $\longrightarrow$', fontsize=15)
 fig6.suptitle(f'S_matrix; (l={l}, k_max={E_n}, dt={dt}); interpolation: {interpolation}', fontsize=20)
 fig7.suptitle(f'S_matrix; (l={l}, k_max={E_n}, dt={dt}); interpolation: {interpolation}', fontsize=20)
 
-n_values = ["n=" + str(n_ind + l) for n_ind in range(1, len(psi)+1)]
+n_values = ["n=" + str(n_ind + l) for n_ind in range(1, len(u_r) + 1)]
 ax1.set_yticks(offset_arr, n_values, fontsize=12)
 energy_labels = [f'{np.round(value * 27.21, 2)} eV' for value in E]
 
