@@ -24,7 +24,6 @@ Notes:
 """
 
 import time
-import warnings
 from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
@@ -33,22 +32,17 @@ from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation.parameters_and_functions import *
 start_time = time.time()
 
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-print('*** RuntimeWarning     : Blocked from H_ij_positive.py ***')
-print('*** DeprecationWarning : Blocked from H_ij_positive.py ***\n')
-
-# ~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
 height = 3                          # Height in inches
 fig_scale_factor = 2                # big=2 ; medium=1.5; small=1
 tickslabel_size = 18
 label_fontsize = 19
 fig_size = (fig_scale_factor*width, fig_scale_factor*height)
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def mapped_integration(function):
+
+def Gauss_Lobatto_quadrature(function):
     """
     integration using Gauss–Legendre quadrature.
 
@@ -65,7 +59,7 @@ def mapped_integration(function):
 #     :param function: Wavefunction values (array-like).
 #     :return: Normalization factor (float).
 #     """
-#     return 1 / np.sqrt(mapped_integration(np.abs(function)**2))
+#     return 1 / np.sqrt(Gauss_Lobatto_quadrature(np.abs(function)**2))
 #
 # def normalize(function):
 #     """
@@ -79,15 +73,12 @@ def mapped_integration(function):
 
 
 
-r = f(colloc_pt)                                # converting length unit from a.u to meter
-r_nm = r * a0 * 10**9                           # radial coordinate in nanometer (nm)
-v = V_eff(l, r)
+r = f(colloc_pt)                    # converting length unit from a.u to meter
+r_nm = r * a0 * 10**9               # radial coordinate in nanometer (nm)
+v = V_eff(l, r)                     # Effective potential: including centrifugal term
 
-int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # integration weights; used in mapped_integration.
-roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature.
-theta_k = np.arccos(roots)                                        # Gauss-Legendre angular collocation points
 
-# ------------------------------------: H matrix, E, A :------------------------------------
+# ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
 for i in range(N - 1):
     for j in range(i, N - 1):                           # Only computing the upper triangle
@@ -99,7 +90,8 @@ Ip = -E[0]                          # Ionisation potential
 Up_au = Up(E0_au, w0)               # Ponderomotive force
 N_cut = N_cutoff(Ip, Up_au)         # Cutoff position
 
-# ----------------------------:  u(r) = psi(f(x)) ; φ(r) :----------------------------
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: u(r) ; φ(r) :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 u_r = np.zeros(np.shape(A)); E_n = len(E)
 phi = np.zeros(np.shape(A))
 norm_fact = np.sqrt(N*(N+1)/2)
@@ -107,29 +99,30 @@ for Eth in range(E_n):
     for i in range(N - 1):
         phi[Eth][i] = A[Eth][i] * P_N(colloc_pt[i])
         u_r[Eth][i] = phi[Eth][i] / np.sqrt(f_p(colloc_pt[i]))
-    phi[Eth] *= norm_fact             # φ(r) = A(r) * P_N(r)
-    u_r[Eth] *= norm_fact             # u(r) = r * R(r)
+    phi[Eth] *= norm_fact                                     # φ(r) = A(r) * P_N(r)
+    u_r[Eth] *= norm_fact                                     # u(r) = r * R(r)
 
-# ------------------------------------: S matrix :------------------------------------
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 S_matrix_real = np.zeros((N-1, N-1))
 S_matrix_imag = np.zeros((N-1, N-1))
 for i in range(N - 1):
-    for j in range(i, N - 1):                               # Only compute the upper triangle
+    for j in range(i, N - 1):                                 # Only compute the upper triangle
         matrix_ele = S(E, A, i, j)
         S_matrix_real[i][j] = np.real(matrix_ele)
         S_matrix_imag[i][j] = np.imag(matrix_ele)
-        if i != j:                                          # Mirror the values to the lower triangle
+        if i != j:                                            # Mirror the values to the lower triangle
             S_matrix_real[j][i] = np.real(matrix_ele)
             S_matrix_imag[j][i] = np.imag(matrix_ele)
 along_S_diag = sum(phi[k]**2 for k in range(E_n))
 
-print('~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~')
+print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
 print(f'Ip (a.u)              : {Ip:.3f}')
 print(f'Up (a.u)              : {Up_au:.3f}')
 print(f'N_cutoff              : {N_cut:.3f}')
 print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
 
-print('~~~~~~~~~~~~: GPSM :~~~~~~~~~~~~')
+print('~~~~~~~~~~~~~~~~: GPSM :~~~~~~~~~~~~~~~')
 print('No of Eigenvalues found  :', E_n)
 print('H shape                  :', np.shape(H_matrix))
 print('H[0][0]                  :', H_matrix[0][0])
@@ -138,16 +131,14 @@ print(f'E[0](eV) ~ l={l}           :', E[0] * Energy_0)
 print(f'A[{n-1}][0]                  :', A[n-1][0])
 print(f'A[{n-1}][-1]                 :', A[n-1][-1])
 print(f'norm A[{n-1}] = sum(A^2)     :', sum(A[n-1]**2))
-print(f'norm φ[{n-1}] = int(|φ|^2)   :', mapped_integration(phi[n-1]**2))
-
-[print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) +
-       f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
+print(f'norm φ[{n-1}] = int(|φ|^2)   :', Gauss_Lobatto_quadrature(phi[n - 1] ** 2))
+[print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) + f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
 print('u(r) shape               :', np.shape(u_r))
 print('S shape                  :', np.shape(S_matrix_real), '\n')
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig1, axs = plt.subplots(1, 2, gridspec_kw={'width_ratios': [0.35, 0.65]}, figsize=fig_size)
 fig2 = plt.figure(figsize=fig_size); fig3 = plt.figure(figsize=fig_size)
 fig4 = plt.figure(figsize=fig_size); fig5 = plt.figure(figsize=fig_size); fig6 = plt.figure(figsize=fig_size)

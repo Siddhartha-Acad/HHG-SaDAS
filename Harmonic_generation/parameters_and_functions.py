@@ -18,11 +18,18 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import warnings
 import numpy as np
 from pathlib import Path
 from scipy.special import legendre
 from Atomic_units import Int_0, omega_au, a0, T0
 this_dir = Path(__file__).resolve().parent              # Relative path system
+
+warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
+print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,6 +53,10 @@ r0 = 150                    # absorber layer thickness: (r_max - r0) a.u.
 colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
 colloc_file = this_dir.parent / 'Harmonic_Generation' / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
+
+int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
+roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
+theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -469,19 +480,19 @@ def state_name(n, l):
 #                 Printing info                  |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if __name__ != '__main__':
-    print('~~~~~~~~~~~: Grid info :~~~~~~~~~~~')
+    print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
     print('mapping param (L_map)       :', L_map)
     print('mapping param (r_max)       :', r_max)
     print('radial colloc points (N-1)  :', N-1)
     print('angular colloc points (L+1) :', L+1, '\n')
 
-    # print('~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~')  # TODO: move to evolution.py
+    # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')  # TODO: move to evolution.py
     # print(f'Ip (a.u)              : {Ip:.3f}')
     # print(f'Up (a.u)              : {Up_au:.5f}')
     # print(f'N_cutoff              : {N_cut:.3f}')
     # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
 
-    print('~~~~~~~: Atom & Laser info :~~~~~~~')
+    print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
     print(f'atom system   : {evolving_atom}')
     print(f'initial state : {state_name(n, l)}')
     print(f'I0 (W/cm2)    : {I0:.2e}')
@@ -498,7 +509,7 @@ if __name__ != '__main__':
     print('dt (atto)     :', dt * T0 * 10**18)
     print('nopt          :', len(t), '\n')
 
-    print('~~~~~~~: S-matrix info :~~~~~~~')
+    print('~~~~~~~~~~~: S-matrix info :~~~~~~~~~~~')
     print('l_max         :', l_max)
     print('k_max         :', k_max)
     print('dt            :', dt, '\n')
