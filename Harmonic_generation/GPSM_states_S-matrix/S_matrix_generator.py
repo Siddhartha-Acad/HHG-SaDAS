@@ -28,11 +28,11 @@ start_time = time.time()
 
 
 print('Azimuthal quantum num. (m)  :', m)
-print(f'S matrix range              : S({m}) to S({m+L-1})')
-print('total S matrix (L)          :', L, '\n')
+print(f'S matrix range              : S({m}) to S({m+l_max-1})')
+print('total S matrix (L)          :', l_max, '\n')
 data_S_matrix = {}
 energy_eigenvalues = {}
-for l in range(m, L+m+1):
+for l in range(m, l_max+m+1):
     # ------------------------------------: H matrix, E, A :------------------------------------
     H_matrix = np.zeros((N - 1, N - 1))
     for i in range(N - 1):
@@ -43,9 +43,9 @@ for l in range(m, L+m+1):
     A = A.T
 
     energy_eigenvalues[f'l={l}'] = E                        # Store eigenvalues for l
+    print(f'S-matrix for l={l}      : DONE')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
-    print(f'S-matrix for l={l}     : DONE')
     # print(f'negative energy states (E<0) : {negative_energy_states}')
     # print(f'positive energy states (E>0) : {positive_energy_states}\n')
 
@@ -79,13 +79,13 @@ print(f"'{file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-output_file = f'EgVals_{evolving_atom}@C60_m={m}_{conf_info_string}_L={L}_N={N}_r_max={r_max}_L_map={L_map}.txt'
+output_file = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
 with open(output_file, 'w') as f:
-    f.write(" ".join([f"l={l}" for l in range(m, L+m+1)]) + "\n")
+    f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
     max_rows = max(len(vals) for vals in energy_eigenvalues.values())
     for row in range(max_rows):
         row_data = []
-        for l in range(m, L+m+1):
+        for l in range(m, l_max+m+1):
             row_data.append(f"{energy_eigenvalues[f'l={l}'][row]:.6f}" if row < len(energy_eigenvalues[f'l={l}']) else "")
         f.write(" ".join(row_data) + "\n")
 print(f"EgVals saved             : '{output_file}'")
