@@ -27,23 +27,43 @@ from Harmonic_generation.parameters_and_functions import *
 start_time = time.time()
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
+conf_info_string = conf_pot_selector(confinement_model, 0)[1]
+
+if not confined:
+    file_name = f'{evolving_atom}_Smatrix__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
+else: file_name = f'{evolving_atom}@C60_Smatrix__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+
+if confined:
+    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'
+else:
+    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom'
+output_dir.mkdir(parents=True, exist_ok=True)  # Create if it doesn't exist
+
+file_path = output_dir / file_name
+if file_path.exists():
+    raise FileExistsError(f"File already exists:\nbound_states_file = '{file_name}'")
+
+
 print('Azimuthal quantum num. (m)  :', m)
 print(f'S matrix range              : S({m}) to S({m+l_max})')
-print('total S matrix (l_max)      :', l_max, '\n')
+print('total S matrix (l_max+1)    :', l_max+1, '\n')
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = {}
 energy_eigenvalues = {}
 for l in range(m, l_max+m+1):
     # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
     H_matrix = np.zeros((N - 1, N - 1))
     for i in range(N - 1):
-        for j in range(i, N - 1):  # Only computing the upper triangle
+        for j in range(i, N - 1):                   # Only computing the upper triangle
             H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
 
     E, A = eigh(H_matrix, subset_by_index=[0, k_max-1])
     A = A.T
 
-    energy_eigenvalues[f'l={l}'] = E                        # Store eigenvalues for l
-    print(f'S-matrix for l={l}      : DONE')
+    energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
+    print(f'S-matrix for l={l}  :  DONE')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
     # print(f'negative energy states (E<0) : {negative_energy_states}')
@@ -66,28 +86,25 @@ for l in range(m, l_max+m+1):
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
-conf_info_string = conf_pot_selector(confinement_model, 0)[1]
-
-if not confined:
-    file_name = f'{evolving_atom}_Smatrix__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
-else: file_name = f'{evolving_atom}@C60_Smatrix__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
-
 df_S_matrix = pd.DataFrame(data_S_matrix)
-df_S_matrix.to_excel(file_name, index=False)
-print(f"'{file_name}'")
+df_S_matrix.to_excel(file_path, index=False)
+print(f"\n'{file_name}'\n")
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-output_file = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
-with open(output_file, 'w') as f:
-    f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
-    max_rows = max(len(vals) for vals in energy_eigenvalues.values())
-    for row in range(max_rows):
-        row_data = []
-        for l in range(m, l_max+m+1):
-            row_data.append(f"{energy_eigenvalues[f'l={l}'][row]:.6f}" if row < len(energy_eigenvalues[f'l={l}']) else "")
-        f.write(" ".join(row_data) + "\n")
-print(f"EgVals saved             : '{output_file}'")
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if save_Egvals_with_Smatrix:
+    output_name = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+    output_path = output_dir / output_name
+
+    with open(output_path, 'w') as f:
+        f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
+        max_rows = max(len(vals) for vals in energy_eigenvalues.values())
+        for row in range(max_rows):
+            row_data = []
+            for l in range(m, l_max+m+1):
+                row_data.append(f"{energy_eigenvalues[f'l={l}'][row]:.6f}" if row < len(energy_eigenvalues[f'l={l}']) else "")
+            f.write(" ".join(row_data) + "\n")
+    print(f"EgVals saved : '{output_name}'")
 
 end_time = time.time()
-print(f'Execution Time           : {end_time - start_time:.2f} seconds')
+print(f'Execution Time : {end_time - start_time:.2f} seconds')

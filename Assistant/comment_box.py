@@ -32,5 +32,5 @@ def pretty_title(text: str, width: int = 90, fill: str = "~") -> str:
 # comment_head_string = "Confinement potential selector"
 # print(center_comment(comment_head_string))
 
-comment_title_string = "saving EgVals"
+comment_title_string = "saving EgVals: .txt"
 print(pretty_title(comment_title_string))
