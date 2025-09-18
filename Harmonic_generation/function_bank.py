@@ -33,9 +33,9 @@ def f(x, Lmap=L_map):
     :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
     :return: Transformed value(s) according to the nonlinear radial mapping (float or numpy.ndarray).
 
-    References
+    Reference
     ----------
-    For details, see Section 2.2.2 -- 'Grid discretization and nonlinear mapping'
+    - Section 2.2.2 -- 'Grid discretization and nonlinear mapping'
     """
     alpha = 2 * Lmap / r_max
     return Lmap * (1 + x) / (1 - x + alpha)
@@ -74,9 +74,9 @@ def d2(i, j):
     :param j: Column index (int).
     :return: Value of the (i, j) entry of the second derivative matrix (float).
 
-    References
+    Reference
     ----------
-    For details, see Section 2.2.7 -- 'Applying GPSM to construct the matrix Hamiltonian'
+    - Section 2.2.7 -- 'Applying GPSM to construct the matrix Hamiltonian'
     """
     if i != j:
         return -2 / (colloc_pt[i] - colloc_pt[j])**2
@@ -107,41 +107,141 @@ def H(l, i, j, model='SAE-M2'):
         return term1 + term2
 
 def S(E_l, A_l, i, j):
+    r"""
+    The S-matrix.
+
+    .. math::
+        S_{\alpha\beta}(\ell) =
+        \langle x_\alpha \,|\, \exp\!\left(-i \hat{h}^{(0)}_\ell(x) \, \delta t / 2\right) \,|\, x_\beta \rangle
+
+    :param E_l: Eigenenergies (array-like).
+    :param A_l: Eigenvectors (2D array-like).
+    :param i: Basis index (int).
+    :param j: Basis index (int).
+    :return: S-matrix element S[i, j] (complex).
+
+    References
+    ----------
+    - Appendix C — *Derivation and Consistency of S-matrix formalism*
+    - Section 2.3.5 — *Matrix time evolution operator: The S-matrix*
+    """
     return sum(A_l[k][i] * A_l[k][j] * np.exp(-1j * E_l[k] * dt / 2) for k in range(len(E_l)))
 
-def Up(E0_au, w0):                  # Ponderomotive energy
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Ponderomotive force;  Keldysh parameter; Harmonic cut-off |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def Up(E0_au, w0):
+    """
+    Ponderomotive energy (Up).
+
+    :param E0_au: Electric field amplitude in atomic units (float).
+    :param w0: Angular frequency of the laser field in atomic units (float).
+    :return: Ponderomotive energy in atomic units (float).
+    """
     return E0_au**2 / (4 * w0**2)
 
-def Keldysh(Ip_au, Up_au):          # Keldysh Parameter
+def Keldysh(Ip_au, Up_au):
+    """
+    Keldysh parameter.
+
+    :param Ip_au: Ionization potential in atomic units (float).
+    :param Up_au: Ponderomotive energy in atomic units (float).
+    :return: Keldysh parameter (float).
+    """
     return np.sqrt(Ip_au / (2*Up_au))
 
-def N_cutoff(Ip_au, Up_au):         # Cut-off Harmonic
+def N_cutoff(Ip_au, Up_au):
+    """
+    Harmonic order cut-off position.
+
+    :param Ip_au: Ionization potential in atomic units (float).
+    :param Up_au: Ponderomotive energy in atomic units (float).
+    :param w0: Angular frequency of the laser field in atomic units (float).
+    :return: Cut-off harmonic order (float).
+    """
     return (Ip_au + 3.17*Up_au) / w0
 
-def generate_states(l):
-    orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
-    return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
+
 
 
 def E_field(t):
-    return E0_au * np.sin(w0*t) * (np.sin(w0*t / (2*cpp))) ** 2
+    """
+    Laser electric field with a sine-squared envelope.
+
+    :param t: Time in atomic units (float).
+    :return: Electric field amplitude at time t (float).
+
+    Reference
+    ----------
+    - Section 2.3 -- 'Time Evolution of atomic wavefunction interacting with external strong-field LASER'
+    """
+    return E0_au * np.sin(w0 * t) * (np.sin(w0 * t / (2 * cpp))) ** 2
+
 
 def V_int(r, theta, t):
+    """
+    Laser–atom interaction potential in the length gauge.
+
+    :param r: Radial coordinate in atomic units (float).
+    :param theta: Polar angle in radians (float).
+    :param t: Time in atomic units (float).
+    :return: Interaction potential at (r, θ, t) (float).
+
+    Reference
+    ----------
+    - Section 2.3 -- 'Time Evolution of atomic wavefunction interacting with external strong-field LASER'
+    """
     return -E_field(t) * r * np.cos(theta)
 
+
 def Absorber_func(r):
+    """
+    Radial absorber function.
+
+    :param r: Radial coordinate (a.u.).
+    :return: Absorber value at r (float).
+
+    Reference
+    ----------
+    - Section 2.3.9 -- 'The Absorber mask function and Absorbing layer'
+    """
     if 0 < r <= r0: return 1
     elif r0 < r < r_max:
         return np.cos(np.pi * (r - r0) / (2 * (r_max - r0))) ** 0.25
 
 
 def potential_V_SAE_M1(r, atom='Ne'):
+    """
+    Single-active-electron (SAE) model potential (Model-1).
+
+    :param r: Radial coordinate (a.u.).
+    :param atom: Atomic species label (default: 'Ne').
+    :return: SAE model potential V(r) (a.u.).
+    :raises ValueError: If atom is not found in the parameter table.
+
+    Reference
+    ----------
+    - Section 3.1.1 -- 'Atomic model potential: SAE-M1'
+    """
     params = atomic_params_SAE_M1.get(atom)
     if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
     Zc, a1, a2, a3, a4, a5, a6 = params["Zc"], params["a1"], params["a2"], params["a3"], params["a4"], params["a5"], params["a6"]
     return -(Zc + a1*np.exp(-a2*r) + a3*r*np.exp(-a4*r) + a5*np.exp(-a6*r)) / r
 
 def potential_V_SAE_M2(r, atom='Ne'):
+    """
+    Single-active-electron (SAE) model potential (Model-2).
+
+    :param r: Radial coordinate (a.u.).
+    :param atom: Atomic species label (default: 'Ne').
+    :return: SAE model potential V(r) (a.u.).
+    :raises ValueError: If atom is not found in the parameter table.
+
+    Reference
+    ----------
+    - Section 3.1.2 -- 'Atomic model potential: SAE-M2'
+    """
     params = atomic_params_SAE_M2.get(atom)
     if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
 
@@ -171,3 +271,8 @@ def dydx(integrand, x):
         dy_dx[i] = (integrand[i + 1] - integrand[i - 1]) / (x[i + 1] - x[i - 1])
     dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
     return dy_dx
+
+def generate_states(l):
+    orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
+    return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
+
