@@ -39,7 +39,7 @@ n = 2; l = 0; m = 0         # defines initial state. [NOTE]: for a given l, n al
 evolving_atom = 'He'        # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
-confined = True                    # whether the atom is confined or not?
+confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 
 
@@ -176,7 +176,7 @@ def d2(i, j):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                   H-matrix & S-matrix                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def H(l, i, j, model='SAE-M2'):
+def H(l_val, i, j, model='SAE-M2'):
     r"""
     Real symmetric Hamiltonian matrix element in the radial mapped discrete Gauss-Lobatto collocation grid.
 
@@ -194,7 +194,7 @@ def H(l, i, j, model='SAE-M2'):
         - :math:`V_{\text{SAE}}` is the single-active-electron (SAE) potential,
           with model choice ``SAE-M1`` or ``SAE-M2``.
 
-    :param l: Angular momentum quantum number :math:`\ell` (int).
+    :param l_val: Angular momentum quantum number :math:`\ell` (int).
     :param i: Basis index (row) (int).
     :param j: Basis index (column) (int).
     :param model: SAE model to use, either ``'SAE-M1'`` or ``'SAE-M2'`` (str, default='SAE-M2').
@@ -209,12 +209,12 @@ def H(l, i, j, model='SAE-M2'):
     if i != j:
         return term1
     if model == 'SAE-M1':
-        term2 = (l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) +
+        term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
                  potential_V_SAE_M1(f(colloc_pt[i]), atom=evolving_atom) +
                  conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
         return term1 + term2
     elif model == 'SAE-M2':
-        term2 = (l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) +
+        term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
                  potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom) +
                  conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
         return term1 + term2
@@ -247,18 +247,18 @@ def S(E_l, A_l, i, j):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Ponderomotive force;  Keldysh parameter; Harmonic cut-off |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def Up(E0_au, w0):
+def Up(field_amp_au, omega0_au):
     r"""
     Ponderomotive energy :math:`U_p`.
 
     .. math::
         U_p = \frac{E_0^2}{4 \omega_0^2}
 
-    :param E0_au: Electric field amplitude (a.u.).
-    :param w0: Angular frequency of the laser field (a.u.).
+    :param field_amp_au: Electric field amplitude (a.u.).
+    :param omega0_au: Angular frequency of the laser field (a.u.).
     :return: Ponderomotive energy (a.u.).
     """
-    return E0_au**2 / (4 * w0**2)
+    return field_amp_au**2 / (4 * omega0_au**2)
 
 
 def Keldysh(Ip_au, Up_au):
@@ -275,7 +275,7 @@ def Keldysh(Ip_au, Up_au):
     return np.sqrt(Ip_au / (2 * Up_au))
 
 
-def N_cutoff(Ip_au, Up_au):
+def N_cutoff(Ip_au, Up_au, omega0_au):
     r"""
     Harmonic cut-off order :math:`N_c`.
 
@@ -284,17 +284,17 @@ def N_cutoff(Ip_au, Up_au):
 
     :param Ip_au: Ionization potential (a.u.).
     :param Up_au: Ponderomotive energy (a.u.).
-    :param w0: Angular frequency of the laser field (a.u.).
+    :param omega0_au: Angular frequency of the laser field (a.u.).
     :return: Cut-off harmonic order (dimensionless).
     """
-    return (Ip_au + 3.17 * Up_au) / w0
+    return (Ip_au + 3.17 * Up_au) / omega0_au
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #      LASER electric field and interaction-potential      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def E_field(t):
+def E_field(t_val):
     r"""
     Laser electric field with a sine-squared envelope.
 
@@ -302,30 +302,30 @@ def E_field(t):
         E(t) = E_0 \, \sin(\omega_0 t) \,
         \left[ \sin\!\left(\frac{\omega_0 t}{2 N_c}\right) \right]^2
 
-    :param t: Time (a.u.).
+    :param t_val: Time (a.u.).
     :return: Electric field amplitude at time t (a.u.).
 
     References
     ----------
     - Section 2.3 — *Time evolution of the atomic wavefunction interacting with an external strong-field laser*
     """
-    return E0_au * np.sin(w0 * t) * (np.sin(w0 * t / (2 * cpp))) ** 2
+    return E0_au * np.sin(w0 * t_val) * (np.sin(w0 * t_val / (2 * cpp))) ** 2
 
 
-def V_int(r, theta, t):
+def V_int(r, theta, t_val):
     """
     Laser–atom interaction potential in the length gauge.
 
     :param r: Radial coordinate in atomic units (float).
     :param theta: Polar angle in radians (float).
-    :param t: Time in atomic units (float).
+    :param t_val: Time in atomic units (float).
     :return: Interaction potential at (r, θ, t) (float).
 
     Reference
     ----------
     - Section 2.3 -- *Time Evolution of atomic wavefunction interacting with external strong-field LASER
     """
-    return -E_field(t) * r * np.cos(theta)
+    return -E_field(t_val) * r * np.cos(theta)
 
 
 
@@ -429,15 +429,15 @@ def conf_pot_selector(input_model, r):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Helpful functions that simplify life           |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def V_eff(l, x):
+def V_eff(l_val, x):
     """
     Effective potential for a particle in a central field.
 
-    :param l: Angular momentum quantum number (int).
+    :param l_val: Angular momentum quantum number (int).
     :param x: Radial coordinate (float).
     :return: Effective potential value at x (float).
     """
-    return -1 / x + l*(l+1) / (2*x**2)
+    return -1 / x + l_val*(l_val + 1) / (2 * x ** 2)
 
 
 def P_N(x):
@@ -445,7 +445,6 @@ def P_N(x):
     Legendre polynomial of degree N at x.
 
     :param x: Point(s) of evaluation (float or array-like).
-    :param N: Polynomial degree (int).
     :return: Value(s) of P_N(x) (float or numpy.ndarray).
     """
     return legendre(N)(x)
@@ -468,7 +467,7 @@ def dydx(integrand, x):
     return dy_dx
 
 
-def generate_states(l):
+def generate_states(l_val):
     """
     Generate a list of electronic states for a given orbital angular momentum quantum number.
 
@@ -480,21 +479,21 @@ def generate_states(l):
     >>> generate_states(1)
     ['2p', '3p', '4p', ..., '199p']
 
-    :param l: Orbital angular momentum quantum number :math:`\ell` (int).
+    :param l_val: Orbital angular momentum quantum number :math:`\ell` (int).
               Supported up to :math:`\ell = 10` (m orbital).
     :return: List of state labels as strings (list of str).
     """
     orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h',
                      6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
-    return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
+    return [str(i) + orbital_types.get(l_val, '') for i in range(l_val + 1, 200)]
 
 
-def state_name(n, l):
+def state_name(n_val, l_val):
     """
     Converts quantum numbers n and l to a string representation of the atomic state.
 
-    :param n: Principal quantum number (n ≥ 1).
-    :param l: Orbital angular momentum quantum number (l ≥ 0).
+    :param n_val: Principal quantum number (n ≥ 1).
+    :param l_val: Orbital angular momentum quantum number (l ≥ 0).
     :return: Atomic state string (e.g., '1s', '2p', '3d').
     :raises ValueError: If l is outside the allowed range (0–6).
 
@@ -504,10 +503,10 @@ def state_name(n, l):
     '1s'
     """
     orbital_letters = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}
-    if l in orbital_letters:
-        return f"{n}{orbital_letters[l]}"
+    if l_val in orbital_letters:
+        return f"{n_val}{orbital_letters[l_val]}"
     else:
-        raise ValueError(f"Invalid orbital angular momentum quantum number l={l}. Allowed values are 0 to 6.")
+        raise ValueError(f"Invalid orbital angular momentum quantum number l={l_val}. Allowed values are 0 to 6.")
 
 
 
