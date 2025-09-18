@@ -41,7 +41,7 @@ SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = '
 
 confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
-save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will ve saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
+save_Egvals_with_Smatrix = False    # Eigenvalues for all l=(m, l_max+m) will ve saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

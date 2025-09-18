@@ -88,7 +88,7 @@ E, A = eigh(H_matrix, subset_by_index=[0, 5]); A = A.T
 
 Ip = -E[0]                          # Ionisation potential (a.u.)
 Up_au = Up(E0_au, w0)               # Ponderomotive force  (a.u.)
-N_cut = N_cutoff(Ip, Up_au)         # Cutoff position
+N_cut = N_cutoff(Ip, Up_au, w0)         # Cutoff position
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: u(r) ; φ(r) :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
