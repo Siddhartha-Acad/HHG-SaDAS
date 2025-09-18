@@ -58,14 +58,14 @@ A = A.T
 r = f(colloc_pt)                                    # radial coordinate in atomic unit. (Nonlinearly discretised)
 data_wavefunction = {'r (a.u.)': r}                 # First column of the data file is the radial grid.
 for Eth in range(total_states):
-    data_wavefunction[f'A_{Eth}'] = A[Eth]
+    data_wavefunction[f'A({state_name(Eth + l + 1, l)})'] = A[Eth]
 df_A_r = pd.DataFrame(data_wavefunction)
 df_A_r.to_excel(file_path, index=False)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Printing eigenvalues :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print(f'Total number of states  :', total_states)
-[print(f'E[{i}]~ {state_name(i + 1 + l, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
+[print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
 print(f"\n'{file_name}'\n")
 end_time = time.time()
