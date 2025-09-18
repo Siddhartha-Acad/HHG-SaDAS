@@ -34,6 +34,7 @@ def state_name(n, l):
     :raises ValueError: If l is outside the allowed range (0–6).
 
     Example:
+
     >>> state_name(1, 0)
     '1s'
     """

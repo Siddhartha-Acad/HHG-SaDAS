@@ -57,7 +57,6 @@ def mapped_integration(function):
     """
     return np.sum(function * int_w)
 
-
 # def norm_factor(function):
 #     """
 #     Computes the normalization factor for a wavefunction.
@@ -67,7 +66,6 @@ def mapped_integration(function):
 #     :return: Normalization factor (float).
 #     """
 #     return 1 / np.sqrt(mapped_integration(np.abs(function)**2))
-#
 #
 # def normalize(function):
 #     """

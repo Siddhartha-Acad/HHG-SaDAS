@@ -23,7 +23,7 @@ from Harmonic_generation.parameters import *
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#               radial mapping function f(x)               |
+#           radial mapping function f(x) & f'(x)           |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def f(x, Lmap=L_map):
     r"""
@@ -62,17 +62,9 @@ def f_p(x, Lmap=L_map):
 
 
 
-def P_N(x):
-    """
-    Legendre polynomial of degree N at x.
-
-    :param x: Point(s) of evaluation (float or array-like).
-    :param N: Polynomial degree (int).
-    :return: Value(s) of P_N(x) (float or numpy.ndarray).
-    """
-    return legendre(N)(x)
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#          Second-order derivative matrix : d2_ij          |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def d2(i, j):
     """
     Second-order derivative matrix of Gauss–Lobatto cardinal functions.
@@ -93,17 +85,10 @@ def d2(i, j):
         return -N*(N+1) / (3*(1 - colloc_pt[i]**2))
 
 
-def V_eff(l, x):
-    """
-    Effective potential for a particle in a central field.
 
-    :param l: Angular momentum quantum number (int).
-    :param x: Radial coordinate (float).
-    :return: Effective potential value at x (float).
-    """
-    return -1 / x + l*(l+1) / (2*x**2)
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                   H-matrix & S-matrix                    |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def H(l, i, j, model='SAE-M2'):
     r"""
     Real symmetric Hamiltonian matrix element in the radial mapped discrete Gauss-Lobatto collocation grid.
@@ -167,6 +152,7 @@ def S(E_l, A_l, i, j):
     return sum(A_l[k][i] * A_l[k][j] * np.exp(-1j * E_l[k] * dt / 2) for k in range(len(E_l)))
 
 
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Ponderomotive force;  Keldysh parameter; Harmonic cut-off |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,7 +200,9 @@ def N_cutoff(Ip_au, Up_au):
 
 
 
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#      LASER electric field and interaction-potential      |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def E_field(t):
     r"""
     Laser electric field with a sine-squared envelope.
@@ -233,7 +221,6 @@ def E_field(t):
     return E0_au * np.sin(w0 * t) * (np.sin(w0 * t / (2 * cpp))) ** 2
 
 
-
 def V_int(r, theta, t):
     """
     Laser–atom interaction potential in the length gauge.
@@ -250,6 +237,10 @@ def V_int(r, theta, t):
     return -E_field(t) * r * np.cos(theta)
 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                    Absorbing function                    |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def Absorber_func(r):
     """
     Radial absorber function.
@@ -266,6 +257,10 @@ def Absorber_func(r):
         return np.cos(np.pi * (r - r0) / (2 * (r_max - r0))) ** 0.25
 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#      Single-active-electron (SAE) model potentials       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def potential_V_SAE_M1(r, atom='Ne'):
     """
     Single-active-electron (SAE) model potential (Model-1).
@@ -311,6 +306,31 @@ def potential_V_SAE_M2(r, atom='Ne'):
 
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#           Helpful functions that simplify life           |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def V_eff(l, x):
+    """
+    Effective potential for a particle in a central field.
+
+    :param l: Angular momentum quantum number (int).
+    :param x: Radial coordinate (float).
+    :return: Effective potential value at x (float).
+    """
+    return -1 / x + l*(l+1) / (2*x**2)
+
+
+def P_N(x):
+    """
+    Legendre polynomial of degree N at x.
+
+    :param x: Point(s) of evaluation (float or array-like).
+    :param N: Polynomial degree (int).
+    :return: Value(s) of P_N(x) (float or numpy.ndarray).
+    """
+    return legendre(N)(x)
+
+
 def dydx(integrand, x):
     """
     FIRST ORDER DERIVATIVE
@@ -326,7 +346,6 @@ def dydx(integrand, x):
         dy_dx[i] = (integrand[i + 1] - integrand[i - 1]) / (x[i + 1] - x[i - 1])
     dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
     return dy_dx
-
 
 
 def generate_states(l):

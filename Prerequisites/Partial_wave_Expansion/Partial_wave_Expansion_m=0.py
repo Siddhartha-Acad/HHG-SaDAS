@@ -81,28 +81,29 @@ da.decorate_polar([ax2, ax3])
 
 def f(x):
     L_map = 1
-    r_max = 7
+    r_max = 5
     alpha = 2 * L_map / r_max
     return L_map*(1 + x) / (1 - x + alpha)
 
 def Y_l0(l, theta):     # JUST try rotating anti-clk by adding extra pi/2 with theta, (i.e., theta -> theta+np.pi/2)
     return np.sqrt((2*l + 1) / (4*np.pi)) * legendre(l)(np.cos(theta))
 
-l = 5
-def Psi(r, theta):
+def Psi(l, r, theta):
     return 2 * r * np.exp(-r**2) * Y_l0(l, theta)
+
+
+l = 5
+L = 5           # Number of angular collocation points: L+1   [NOTE]: L >= l     :: reason: Appendix-G - 'The GPS interpolation'
+l_max = 5       # Number of partial waves: l_max+1            [NOTE]: l_max >= l :: reason: Section-2.3.4 - 'The Partial wave expansion'
 
 x = np.linspace(-1, 1, 199)
 r = f(x)
 
+roots, weights = np.polynomial.legendre.leggauss(L+1)       # Gauss-Legendre collocation points (or, nodes) and quadrature weights.
 theta = np.linspace(0, 2*np.pi, 200)
 R, Theta = np.meshgrid(r, theta)
-wavefunction = Psi(R, Theta)
-ax2.contourf(R * np.sin(Theta), R * np.cos(Theta), wavefunction, 100, cmap='jet')
+wavefunction = Psi(l, R, Theta)
 
-L = 5           # Number of angular collocation points: L+1   [NOTE]: L >= l     :: reason: Appendix-G - 'The GPS interpolation'
-l_max = 5       # Number of partial waves: l_max+1            [NOTE]: l_max >= l :: reason: Section-2.3.4 - 'The Partial wave expansion'
-roots, weights = np.polynomial.legendre.leggauss(L+1)
 
 gl_array = []
 for l_ind in range(0, l_max+1):
@@ -110,7 +111,7 @@ for l_ind in range(0, l_max+1):
     for i in range(len(g_l)):
         g_k = 0
         for k in range(len(weights)):
-            g_k += weights[k] * legendre(l_ind)(roots[k]) * Psi(r[i], np.arccos(roots[k]))
+            g_k += weights[k] * legendre(l_ind)(roots[k]) * Psi(l, r[i], np.arccos(roots[k]))
         g_l[i] = g_k
     gl_array.append(g_l * np.sqrt(np.pi * (2*l_ind + 1)))
 
@@ -121,9 +122,9 @@ for j in range(len(theta)):
 
 for l_ind in range(len(gl_array)):
     ax1.plot(r, gl_array[l_ind], 'o-', label=rf'g$_{{{l_ind}}}$(r)')
-ax1.plot(r, Psi(r, 0) / (np.sqrt((2 * l + 1) / (4 * np.pi))), color='deeppink', label='radial part: ψ(r, θ=0) ', lw=2.5)         # plotting only the radial part at theta=0
+ax1.plot(r, Psi(l, r, 0) / (np.sqrt((2 * l + 1) / (4 * np.pi))), color='deeppink', label='radial part: ψ(r, θ=0) ', lw=2.5)         # plotting only the radial part at theta=0
+ax2.contourf(R * np.sin(Theta), R * np.cos(Theta), wavefunction, 100, cmap='jet')
 ax3.contourf(R * np.sin(Theta), R * np.cos(Theta), psi, 100, cmap='jet')
-
 
 ax2.set_title(r"ψ(r, θ) = $\sqrt{\frac{2\ell + 1}{4\pi}}$ 2r e$^{-r^2}$ P$_\ell$(cosθ); $\ell$=" +f"{l}", pad=30, fontsize=20)
 ax3.set_title(fr'ψ(r$_i$, θ$_j$) = $\sum_{{\ell=0}}^{{l_{{max}}}}$g$_{{\ell}}$(r$_i$)P$_{{\ell}}$(cosθ$_j$)', pad=30, fontsize=20)
