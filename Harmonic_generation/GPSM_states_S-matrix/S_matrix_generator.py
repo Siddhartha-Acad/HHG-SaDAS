@@ -1,0 +1,94 @@
+"""
+File: S_matrix_generator.py
+Project: HHG-SaDAS
+Code Description:
+    - Calculates the S-matrix for different angular momentum states (l).
+    - Summation over all states indexed by k_max (number of eigenstates S(l)-matrix is made of).
+    - Outputs a file where each column corresponds to a specific l value,
+      containing the flattened complex S_matrix.
+    - Each matrix element is stored as a string in the format: "Real_part, Imaginary_part".
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
+"""
+
+import time
+import pandas as pd
+from scipy.linalg import eigh
+from Harmonic_generation.parameters_and_functions import *
+start_time = time.time()
+
+
+print('Azimuthal quantum num. (m)  :', m)
+print(f'S matrix range              : S({m}) to S({m+L-1})')
+print('total S matrix (L)          :', L, '\n')
+data_S_matrix = {}
+energy_eigenvalues = {}
+for l in range(m, L+m+1):
+    # ------------------------------------: H matrix, E, A :------------------------------------
+    H_matrix = np.zeros((N - 1, N - 1))
+    for i in range(N - 1):
+        for j in range(i, N - 1):  # Only computing the upper triangle
+            H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
+
+    E, A = eigh(H_matrix, subset_by_index=[0, k_max-1])
+    A = A.T
+
+    energy_eigenvalues[f'l={l}'] = E                        # Store eigenvalues for l
+    # positive_energy_states = np.sum(E > 0)
+    # negative_energy_states = np.sum(E < 0)
+    print(f'S-matrix for l={l}     : DONE')
+    # print(f'negative energy states (E<0) : {negative_energy_states}')
+    # print(f'positive energy states (E>0) : {positive_energy_states}\n')
+
+    # ------------------------------------: S matrix :------------------------------------
+    S_matrix_real = np.zeros((N-1, N-1))
+    S_matrix_imag = np.zeros((N-1, N-1))
+    for i in range(N - 1):
+        for j in range(i, N - 1):                               # Only compute the upper triangle
+            matrix_ele = S(E, A, i, j)
+            S_matrix_real[i][j] = np.real(matrix_ele)
+            S_matrix_imag[i][j] = np.imag(matrix_ele)
+            if i != j:                                          # Mirror the values to the lower triangle
+                S_matrix_real[j][i] = np.real(matrix_ele)
+                S_matrix_imag[j][i] = np.imag(matrix_ele)
+    flat_S_matrix_real = S_matrix_real.flatten()
+    flat_S_matrix_imag = S_matrix_imag.flatten()
+    data_S_matrix[f'l={l}'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+conf_info_string = conf_pot_selector(confinement_model, 0)[1]
+
+if not confined:
+    file_name = f'{evolving_atom}_Smatrix__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
+else: file_name = f'{evolving_atom}@C60_Smatrix__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+
+
+df_S_matrix = pd.DataFrame(data_S_matrix)
+df_S_matrix.to_excel(file_name, index=False)
+print(f"'{file_name}'")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+output_file = f'EgVals_{evolving_atom}@C60_m={m}_{conf_info_string}_L={L}_N={N}_r_max={r_max}_L_map={L_map}.txt'
+with open(output_file, 'w') as f:
+    f.write(" ".join([f"l={l}" for l in range(m, L+m+1)]) + "\n")
+    max_rows = max(len(vals) for vals in energy_eigenvalues.values())
+    for row in range(max_rows):
+        row_data = []
+        for l in range(m, L+m+1):
+            row_data.append(f"{energy_eigenvalues[f'l={l}'][row]:.6f}" if row < len(energy_eigenvalues[f'l={l}']) else "")
+        f.write(" ".join(row_data) + "\n")
+print(f"EgVals saved             : '{output_file}'")
+
+end_time = time.time()
+print(f'Execution Time           : {end_time - start_time:.2f} seconds')
