@@ -24,13 +24,13 @@ def center_comment(text: str, width: int = 60, border: str = "~") -> str:
     middle = f"# {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
-def pretty_title(text: str, width: int = 90, fill: str = "~") -> str:
+def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     line = f": {text} :"
     return "# " + line.center(width - 1, fill)
 
 
-# comment_head_string = "Helpful functions that simplify life"
-# print(center_comment(comment_head_string))
+comment_head_string = "Smooth Square Well (SSW) potential"
+print(center_comment(comment_head_string))
 
-comment_title_string = "Ip, Up, N_cut"
-print(pretty_title(comment_title_string))
+# comment_title_string = "Ip, Up, N_cut"
+# print(pretty_title(comment_title_string))

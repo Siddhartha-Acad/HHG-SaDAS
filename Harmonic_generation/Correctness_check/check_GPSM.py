@@ -73,9 +73,9 @@ def Gauss_Lobatto_quadrature(function):
 
 
 
-r = f(colloc_pt)                    # converting length unit from a.u to meter
+r = f(colloc_pt)                    # radial coordinate in atomic unit. (Nonlinearly discretised)
 r_nm = r * a0 * 10**9               # radial coordinate in nanometer (nm)
-v = V_eff(l, r)                     # Effective potential: including centrifugal term
+v = V_eff(l, r)                     # Effective potential: including centrifugal term (a.u.)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
@@ -86,8 +86,8 @@ for i in range(N - 1):
 E, A = eigh(H_matrix, subset_by_index=[0, 5]); A = A.T
 
 
-Ip = -E[0]                          # Ionisation potential
-Up_au = Up(E0_au, w0)               # Ponderomotive force
+Ip = -E[0]                          # Ionisation potential (a.u.)
+Up_au = Up(E0_au, w0)               # Ponderomotive force  (a.u.)
 N_cut = N_cutoff(Ip, Up_au)         # Cutoff position
 
 
