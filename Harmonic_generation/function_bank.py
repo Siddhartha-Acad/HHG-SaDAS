@@ -26,31 +26,40 @@ from Harmonic_generation.parameters import *
 #               radial mapping function f(x)               |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def f(x, Lmap=L_map):
-    """
+    r"""
     Nonlinear radial mapping function.
 
-    :param x: Input variable, typically defined in the range [-1, 1] (float or array-like).
-    :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
-    :return: Transformed value(s) according to the nonlinear radial mapping (float or numpy.ndarray).
+    .. math::
+        f(x) = \frac{L_{\mathrm{map}} \, (1 + x)}{\,1 - x + \alpha\,},
+        \qquad \alpha = \frac{2 L_{\mathrm{map}}}{r_{\max}}
+
+    :param x: Input variable, typically in the range [-1, 1] (float or array-like).
+    :param Lmap: Mapping parameter controlling the scaling of the transformation (float).
+    :return: Transformed value(s) according to the nonlinear radial mapping (float or ndarray).
 
     Reference
     ----------
-    - Section 2.2.2 -- 'Grid discretization and nonlinear mapping'
+    - Section 2.2.2 — *Grid discretization and nonlinear mapping*
     """
     alpha = 2 * Lmap / r_max
     return Lmap * (1 + x) / (1 - x + alpha)
 
 
 def f_p(x, Lmap=L_map):
-    """
+    r"""
     First derivative of the nonlinear radial mapping function.
 
-    :param x: Input variable, typically defined in the range [-1, 1] (float or array-like).
-    :param Lmap: Mapping parameter that controls the scaling of the transformation (float).
-    :return: Value(s) of the derivative of the nonlinear radial mapping (float or numpy.ndarray).
+    .. math::
+        f'(x) = \frac{L_{\mathrm{map}} \, (\alpha + 2)}{(1 - x + \alpha)^2},
+        \qquad \alpha = \frac{2 L_{\mathrm{map}}}{r_{\max}}
+
+    :param x: Input variable, typically in the range [-1, 1] (float or array-like).
+    :param Lmap: Mapping parameter controlling the scaling of the transformation (float).
+    :return: Value(s) of the derivative of the nonlinear radial mapping (float or ndarray).
     """
     alpha = 2 * Lmap / r_max
     return Lmap * (alpha + 2) / (1 - x + alpha)**2
+
 
 
 def P_N(x):
@@ -76,7 +85,7 @@ def d2(i, j):
 
     Reference
     ----------
-    - Section 2.2.7 -- 'Applying GPSM to construct the matrix Hamiltonian'
+    - Section 2.2.7 -- *Applying GPSM to construct the matrix Hamiltonian*
     """
     if i != j:
         return -2 / (colloc_pt[i] - colloc_pt[j])**2
@@ -96,6 +105,34 @@ def V_eff(l, x):
 
 
 def H(l, i, j, model='SAE-M2'):
+    r"""
+    Real symmetric Hamiltonian matrix element in the radial mapped discrete Gauss-Lobatto collocation grid.
+
+    .. math::
+        \left[H^{\ell}\right]_{ij} =
+        -\frac{1}{2} \, \frac{1}{f'(x_i)} \, d^{2}_{ij} \, \frac{1}{f'(x_j)}
+        \;+\; \delta_{ij} \left[
+            \frac{\ell(\ell+1)}{2 f(x_i)^2}
+            + V_{\text{SAE}}(f(x_i))
+        \right]
+
+    where:
+        - :math:`f(x)` is the nonlinear radial mapping function,
+        - :math:`d^{2}_{ij}` is the second derivative matrix element,
+        - :math:`V_{\text{SAE}}` is the single-active-electron (SAE) potential,
+          with model choice ``SAE-M1`` or ``SAE-M2``.
+
+    :param l: Angular momentum quantum number :math:`\ell` (int).
+    :param i: Basis index (row) (int).
+    :param j: Basis index (column) (int).
+    :param model: SAE model to use, either ``'SAE-M1'`` or ``'SAE-M2'`` (str, default='SAE-M2').
+    :return: Hamiltonian matrix element :math:`\left[H^{\ell}\right]_{ij}` (float, a.u.).
+
+    References
+    ----------
+    - Section 2.2 -- *Numerical solution of hydrogen atom*
+    - Section 2.2.8 -- *Symmetrization of the Hamiltonian matrix*
+    """
     term1 = -0.5 * (1 / f_p(colloc_pt[i])) * d2(i, j) * (1 / f_p(colloc_pt[j]))
     if i != j:
         return term1
@@ -106,15 +143,17 @@ def H(l, i, j, model='SAE-M2'):
         term2 = l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) + potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom)
         return term1 + term2
 
+
 def S(E_l, A_l, i, j):
     r"""
-    The S-matrix.
+    The S-matrix elements.
 
     .. math::
         S_{\alpha\beta}(\ell) =
         \langle x_\alpha \,|\, \exp\!\left(-i \hat{h}^{(0)}_\ell(x) \, \delta t / 2\right) \,|\, x_\beta \rangle
 
-    :param E_l: Eigenenergies (array-like).
+    :param E_l: Eigenenergies (array-like, length k_max).
+                 Here k_max = len(E_l).
     :param A_l: Eigenvectors (2D array-like).
     :param i: Basis index (int).
     :param j: Basis index (int).
@@ -132,51 +171,67 @@ def S(E_l, A_l, i, j):
 # Ponderomotive force;  Keldysh parameter; Harmonic cut-off |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def Up(E0_au, w0):
-    """
-    Ponderomotive energy (Up).
+    r"""
+    Ponderomotive energy :math:`U_p`.
 
-    :param E0_au: Electric field amplitude in atomic units (float).
-    :param w0: Angular frequency of the laser field in atomic units (float).
-    :return: Ponderomotive energy in atomic units (float).
+    .. math::
+        U_p = \frac{E_0^2}{4 \omega_0^2}
+
+    :param E0_au: Electric field amplitude (a.u.).
+    :param w0: Angular frequency of the laser field (a.u.).
+    :return: Ponderomotive energy (a.u.).
     """
     return E0_au**2 / (4 * w0**2)
 
-def Keldysh(Ip_au, Up_au):
-    """
-    Keldysh parameter.
 
-    :param Ip_au: Ionization potential in atomic units (float).
-    :param Up_au: Ponderomotive energy in atomic units (float).
-    :return: Keldysh parameter (float).
+def Keldysh(Ip_au, Up_au):
+    r"""
+    Keldysh parameter :math:`\gamma`.
+
+    .. math::
+        \gamma = \sqrt{\frac{I_p}{2 U_p}}
+
+    :param Ip_au: Ionization potential (a.u.).
+    :param Up_au: Ponderomotive energy (a.u.).
+    :return: Keldysh parameter (dimensionless).
     """
-    return np.sqrt(Ip_au / (2*Up_au))
+    return np.sqrt(Ip_au / (2 * Up_au))
+
 
 def N_cutoff(Ip_au, Up_au):
-    """
-    Harmonic order cut-off position.
+    r"""
+    Harmonic cut-off order :math:`N_c`.
 
-    :param Ip_au: Ionization potential in atomic units (float).
-    :param Up_au: Ponderomotive energy in atomic units (float).
-    :param w0: Angular frequency of the laser field in atomic units (float).
-    :return: Cut-off harmonic order (float).
+    .. math::
+        N_c = \frac{I_p + 3.17 U_p}{\omega_0}
+
+    :param Ip_au: Ionization potential (a.u.).
+    :param Up_au: Ponderomotive energy (a.u.).
+    :param w0: Angular frequency of the laser field (a.u.).
+    :return: Cut-off harmonic order (dimensionless).
     """
-    return (Ip_au + 3.17*Up_au) / w0
+    return (Ip_au + 3.17 * Up_au) / w0
 
 
 
 
 def E_field(t):
-    """
+    r"""
     Laser electric field with a sine-squared envelope.
 
-    :param t: Time in atomic units (float).
-    :return: Electric field amplitude at time t (float).
+    .. math::
+        E(t) = E_0 \, \sin(\omega_0 t) \,
+        \left[ \sin\!\left(\frac{\omega_0 t}{2 N_c}\right) \right]^2
 
-    Reference
+    :param t: Time (a.u.).
+    :return: Electric field amplitude at time t (a.u.).
+
+    References
     ----------
-    - Section 2.3 -- 'Time Evolution of atomic wavefunction interacting with external strong-field LASER'
+    - Section 2.3 — *Time evolution of the atomic wavefunction interacting with an external strong-field laser*
     """
     return E0_au * np.sin(w0 * t) * (np.sin(w0 * t / (2 * cpp))) ** 2
+
 
 
 def V_int(r, theta, t):
@@ -190,7 +245,7 @@ def V_int(r, theta, t):
 
     Reference
     ----------
-    - Section 2.3 -- 'Time Evolution of atomic wavefunction interacting with external strong-field LASER'
+    - Section 2.3 -- *Time Evolution of atomic wavefunction interacting with external strong-field LASER
     """
     return -E_field(t) * r * np.cos(theta)
 
@@ -204,7 +259,7 @@ def Absorber_func(r):
 
     Reference
     ----------
-    - Section 2.3.9 -- 'The Absorber mask function and Absorbing layer'
+    - Section 2.3.9 -- *The Absorber mask function and Absorbing layer*
     """
     if 0 < r <= r0: return 1
     elif r0 < r < r_max:
@@ -222,7 +277,7 @@ def potential_V_SAE_M1(r, atom='Ne'):
 
     Reference
     ----------
-    - Section 3.1.1 -- 'Atomic model potential: SAE-M1'
+    - Section 3.1.1 -- *Atomic model potential: SAE-M1*
     """
     params = atomic_params_SAE_M1.get(atom)
     if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
@@ -240,7 +295,7 @@ def potential_V_SAE_M2(r, atom='Ne'):
 
     Reference
     ----------
-    - Section 3.1.2 -- 'Atomic model potential: SAE-M2'
+    - Section 3.1.2 -- *Atomic model potential: SAE-M2*
     """
     params = atomic_params_SAE_M2.get(atom)
     if params is None: raise ValueError(f"Atom or ion '{atom}' not found in table.")
@@ -272,7 +327,24 @@ def dydx(integrand, x):
     dy_dx[-1] = (integrand[-1] - integrand[-2]) / (x[-1] - x[-2])
     return dy_dx
 
-def generate_states(l):
-    orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
-    return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
 
+
+def generate_states(l):
+    """
+    Generate a list of electronic states for a given orbital angular momentum quantum number.
+
+    The states are labeled by the principal quantum number (starting from :math:`n = \ell + 1`)
+    followed by the spectroscopic orbital letter (s, p, d, f, g, ...).
+
+    Example:
+
+    >>> generate_states(1)
+    ['2p', '3p', '4p', ..., '199p']
+
+    :param l: Orbital angular momentum quantum number :math:`\ell` (int).
+              Supported up to :math:`\ell = 10` (m orbital).
+    :return: List of state labels as strings (list of str).
+    """
+    orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h',
+                     6: 'i', 7: 'j', 8: 'k', 9: 'l', 10: 'm'}
+    return [str(i) + orbital_types.get(l, '') for i in range(l + 1, 200)]
