@@ -39,9 +39,8 @@ n = 2; l = 0; m = 0         # defines initial state. [NOTE]: for a given l, n al
 evolving_atom = 'He'        # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'        # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
-confined = False                    # whether the atom is confined or not?
+confined = True                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
-conf_info_string = 'till_empty'
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
