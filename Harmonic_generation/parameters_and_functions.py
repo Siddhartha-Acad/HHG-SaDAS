@@ -210,10 +210,14 @@ def H(l, i, j, model='SAE-M2'):
     if i != j:
         return term1
     if model == 'SAE-M1':
-        term2 = l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) + potential_V_SAE_M1(f(colloc_pt[i]), atom=evolving_atom)
+        term2 = (l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) +
+                 potential_V_SAE_M1(f(colloc_pt[i]), atom=evolving_atom) +
+                 conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
         return term1 + term2
     elif model == 'SAE-M2':
-        term2 = l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) + potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom)
+        term2 = (l * (l + 1) / (2 * f(colloc_pt[i]) ** 2) +
+                 potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom) +
+                 conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
         return term1 + term2
 
 
