@@ -24,12 +24,13 @@ Notes:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 --------------------------------------------------------------------------------
 """
-
+import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 
 def f_rev(x_array):             # f(x) reversed to have dense grid towards far.
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     scaled_mean = mean_error / 10 ** power
     scaled_std_dev = std_dev_error / 10 ** power
     print(f'~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~')
-    print(f'# collocation point       : {len(colloc_pt)}')
+    print(f'no. of collocation point  : {len(colloc_pt)}')
     print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}")
 
     # Text file introduced on 2/12/2024: listening Pandit Ravi Shankar ESCONDITO 2011 full concert
