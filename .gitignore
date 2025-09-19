@@ -6,6 +6,7 @@ __pycache__/
 
 # Avoid data files too.
 *.xlsx
+*.npy
 Harmonic_generation/**/*.txt
 
 code_message.txt

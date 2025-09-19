@@ -26,10 +26,10 @@ Notes:
 import time
 import warnings
 import numpy as np
-from scipy.misc import derivative
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
+from scipy.optimize import approx_fprime
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -39,7 +39,9 @@ def P_N(x):
     return legendre(N)(x)
 
 def P_N_deriv(x):
-    return derivative(P_N, float(x), dx * 0.01, 1)
+    x = float(x)
+    epsilon = dx * 0.01
+    return approx_fprime([x], lambda arr: P_N(arr[0]), epsilon)[0]
 
 def P_N_AnaDeriv(x):
     return legendre(N-1)(x) - legendre(N+1)(x)
@@ -65,7 +67,7 @@ for nop_per_segment in nop_per_segment_values:
 
     for i in range(total_segments):
         x_segment = np.linspace(x_segment_pts[i], x_segment_pts[i + 1], nop_per_segment)
-        PN_deriv_array = np.array([derivative(P_N, float(xi), dx, 1) for xi in x_segment])
+        PN_deriv_array = np.array([approx_fprime([float(xi)], lambda arr: P_N(arr[0]), dx)[0] for xi in x_segment])
         pks_at = find_peaks(-PN_deriv_array ** 2)[0]
         colloc_pt_segment = np.array(
             [fsolve(P_N_deriv, x_segment[pks_at[j]], xtol=10 ** -15)[0] for j in range(len(pks_at))]
@@ -118,7 +120,7 @@ for _ in range(num_runs):
 
     for i in range(total_segments):
         x_segment = np.linspace(x_segment_pts[i], x_segment_pts[i + 1], nop_per_segment)
-        PN_deriv_array = np.array([derivative(P_N, float(xi), dx, 1) for xi in x_segment])
+        PN_deriv_array = np.array([approx_fprime([float(xi)], lambda arr: P_N(arr[0]), dx)[0] for xi in x_segment])
         pks_at = find_peaks(-PN_deriv_array ** 2)[0]
         colloc_pt_segment = np.array(
             [fsolve(P_N_deriv, x_segment[pks_at[j]], xtol=10 ** -15)[0] for j in range(len(pks_at))]
