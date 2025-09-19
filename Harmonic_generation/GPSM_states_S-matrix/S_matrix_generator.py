@@ -42,7 +42,7 @@ output_dir.mkdir(parents=True, exist_ok=True)  # Create if it doesn't exist
 
 file_path = output_dir / file_name
 if file_path.exists():
-    raise FileExistsError(f"File already exists:\nbound_states_file = '{file_name}'")
+    raise FileExistsError(f"File already exists in dir: '{output_dir}'\n'{file_name}'")
 
 
 print('Azimuthal quantum num. (m)  :', m)

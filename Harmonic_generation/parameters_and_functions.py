@@ -107,6 +107,7 @@ atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and
 }
 
 
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Function Bank :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -246,41 +247,123 @@ def S(E_l, A_l, i, j):
 
 
 
-
-def N_fact(l, m):
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#       Constant factors -- associated leg. poly -- Spherical Harmonics        |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def N_fact(l_val, m_val):
     """
     Normalization constant of Y_lm
     """
-    return (-1)**m * np.sqrt((2*l+1) * factorial(l-m) / (4*np.pi * factorial(l+m)))
+    return (-1)**m_val * np.sqrt((2 * l_val + 1) * factorial(l_val - m_val) / (4 * np.pi * factorial(l_val + m_val)))
 
 
-def C_fact(l, m):
+def C_fact(l_val, m_val):
     """
     Orthogonality constant factor of P_lm
     """
-    return 2 * factorial(l+m) / ((2*l+1)*factorial(l-m))
+    return 2 * factorial(l_val + m_val) / ((2 * l_val + 1) * factorial(l_val - m_val))
 
 
-def a_legendre(l, m, x):
+def a_legendre(l_val, m_val, x):
     """
     Associated Legendre polynomial without Condon-Shortley phase
     """
-    return lpmv(m, l, x) * (-1)**m
+    return lpmv(m_val, l_val, x) * (-1)**m_val
 
 
-def Y_lm(l, m, x):
+def Y_lm(l_val, m_val, x):
     """
     Y_lm(x) = N_lm * P_lm(x)
     """
-    return N_fact(l, m) * a_legendre(l, m, x)
+    return N_fact(l_val, m_val) * a_legendre(l_val, m_val, x)
 
 
-def G(Sl_matrix, gl_arr, l_ind):
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                  Partial-wave g_lm(r) calculating function                   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def gl(Psi_t, gl_arr):
+    r"""
+    Compute radial partial-wave projections :math:`g_\ell(r)` from an angular–radial
+    wavefunction using Gauss–Legendre quadrature, with optional memory reuse.
+
+    .. math::
+        g_\ell(r) = \sqrt{\pi (2\ell + 1)} \, \sum_k w_k \, P_\ell(\cos \theta_k) \, \psi(\theta_k, r)
+
+    where :math:`w_k` are Gauss–Legendre quadrature weights and
+    :math:`P_\ell(\cos \theta_k)` are precomputed Legendre polynomials.
+
+    :param Psi_t: Angular–radial wavefunction :math:`\psi(\theta, r)` at a fixed time,
+                  evaluated at Gauss–Legendre quadrature points.
+                  Shape = ``(n_theta, n_r)``, where
+                  ``Psi_t[k, i] = ψ(θ_k, r_i)``.
+    :type Psi_t: ndarray
+
+    :param gl_arr: Optional output array for storing results in-place to avoid
+                   repeated allocations. If None, a new array is created.
+                   Shape = ``(l_max+1, n_r)``.
+    :type gl_arr: ndarray or None
+
+    :return: Radial partial-wave projections :math:`g_\ell(r)` for
+             :math:`\ell = 0, \ldots, \ell_\text{max}`.
+             Each row corresponds to one angular momentum component.
+    :rtype: ndarray, shape ``(l_max+1, n_r)``
+
+    Notes
+    -----
+    This function is optimized for performance-critical use cases
+    (e.g. propagation loops), where avoiding memory reallocation
+    at each step is important.
+
+    Example
+    -------
+    >>> gl_empty = np.empty((l_max + 1, len_r), dtype=np.complex128)
+    >>> for t in range(time_steps):
+    ...     # Psi_t = updated wavefunction
+    ...     gl_vals = gl(Psi_t, gl_empty)  # memory reused each iteration
+
+    References
+    ----------
+    - Appendix D — *Derivation of the general partial wave formula*
+    - Section 2.3.4 -- *The Partial wave expansion*
+    - Section 3.3.2 -- *The partial-wave expansion problem*
+    - Section 3.3.3 -- *Generalization over magnetic quantum number m*
     """
-    G(l) = S(l) * g(l)
+
+
+    for l_ind in range(l_max+1):
+        gl_arr[l_ind] = np.sqrt(np.pi * (2*l_ind + 1)) * np.tensordot(weights * legendre_vals[l_ind], Psi_t, axes=([0], [0]))
+    return gl_arr
+legendre_vals = np.array([[legendre(l_index)(root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                  Partial-wave evolution                  |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def G(Sl_matrix, gl_arr, l_ind):
+    r"""
+    Compute the third bracket of Eq.(2.86),
+    which is a matrix multiplication of the S-matrix block with the partial-wave projection.
+
+    .. math::
+        G_\ell(r_i, t) = \sum_{j=1}^{N-1} S_{ij}(\ell) \, g_\ell(r_j, t)
+
+    Parameters
+    ----------
+    Sl_matrix : ndarray, shape (l_max+1, N-1, N-1)
+        S-matrix blocks :math:`S_\ell` for each angular momentum :math:`\ell`.
+    gl_arr : ndarray, shape (l_max+1, n_r)
+        Radial partial-wave projections :math:`g_\ell(r, t)`.
+    l_ind : int
+        Angular momentum index :math:`\ell`.
+
+    Returns
+    -------
+    ndarray, shape (N-1,)
+        Transformed radial component :math:`G_\ell(r, t)`.
     """
     return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
-
 
 
 
@@ -562,7 +645,7 @@ if __name__ != '__main__':
     print('radial colloc points (N-1)  :', N-1)
     print('angular colloc points (L+1) :', L+1, '\n')
 
-    # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')  # TODO: move to evolution.py
+    # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
     # print(f'Ip (a.u)              : {Ip:.3f}')
     # print(f'Up (a.u)              : {Up_au:.5f}')
     # print(f'N_cutoff              : {N_cut:.3f}')

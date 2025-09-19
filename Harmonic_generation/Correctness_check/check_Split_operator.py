@@ -1,10 +1,22 @@
 """
-~ Evolve_dt.py
+File: check_Split_operator.py
+Project: HHG-SaDAS
+Code Description:
+    - Evolution of the initial state for one time step.
+    - Normalisation and probability amplitude are checked to be okay.
 
-• r = f(x): nonlinear mapped radial coordinate.
-• Evolution of the initial state for one time step.
-• Normalisation, probability amplitude are checked to be okay.
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+--------------------------------------------------------------------------------
+Notes:
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
 """
+
 
 import time
 import pandas as pd
@@ -14,29 +26,7 @@ import Assistant.Decorate_axes.decorate_axes_L as da
 start_time = time.time()
 
 
-def gl(Psi_t):
-    """
-    Calculate partial waves for a given wavefunction.
-    Psi_t : Complex array representing the wavefunction at each combination of (r, θ, t).
-    Notes : θ must include θ_k, as they are required for the calculation.
-    ~~ Psi_t[k][i] = A(r_i, θ_k, t)
-    """
-    gl_arr = []
-    psi_vals = np.array([[Psi_t[k][i] for k in range(len_k)] for i in range(len_r)])
-    for l_ind in range(L):
-        g_l = (weights * a_legendre_vals[l_ind, :]) @ psi_vals.T
-        gl_arr.append(g_l / (N_fact(l_ind + m, m) * C_fact(l_ind + m, m)))
-    return gl_arr
 
-
-def G(Sl_matrix, gl_arr, l_ind):
-    """
-    G(l) = S(l) * g(l)
-    """
-    return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
-
-
-l = 1; n = 2
 print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
 
 # ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,15 +63,15 @@ psi_evolved = np.zeros((len_k, len_r), dtype=np.complex128)     # ψ(r, θ, t+dt
 cos_theta = np.cos(theta_k); len_theta = len_k
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, cos_theta[j]) for j in range(len_k)] for l_ind in range(L)])
 
-
-gl_0_array = gl(psi_0)
+gl_empty = np.empty((l_max+1, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
+gl_0_array = gl(psi_0, gl_empty)
 for j in range(len_k):
     for l_index in range(L):
         psi_0_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]
         psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]
 
-gl_2_array = gl(psi_2)
+gl_2_array = gl(psi_2, gl_empty)
 for j in range(len_k):
     for l_index in range(L):
         psi_evolved[j] += G(S_matrix, gl_2_array, l_index) * Y_lm_cos_theta_j[l_index, j]
