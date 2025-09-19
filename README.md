@@ -2,7 +2,7 @@
 > For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-3.9%2B-brightgreen)
+![Python](https://img.shields.io/badge/python-3.11%2B-brightgreen)
 ![Status](https://img.shields.io/badge/status-in%20development-orange)
 
 ---
@@ -38,24 +38,46 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 
 
-## Installation
+# Installation Guide
+
+### Prerequisites
+- Git installed on your system
+- Python 3.11 or higher
+- PowerShell (for Windows users)
+
 
 ### 1. Clone the repository
 ```bash
 git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
 cd HHG-SaDAS
 ```
-### 2. (Optional) Create and activate a virtual environment
+
+### 2. Create and activate a virtual environment
+
+**For Linux/macOS:**
 ```bash
 python3 -m venv venv_HHG
 source venv_HHG/bin/activate
+```
+
+**For Windows (PowerShell):**
+```powershell
+py -3.11 -m venv venv_HHG
+.\venv_HHG\Scripts\Activate.ps1
 ```
 
 ### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
+
+## Notes
+- The virtual environment step is optional but recommended to avoid package conflicts
+- For Windows users, ensure PowerShell execution policy allows script execution
+- If you encounter permission issues on Windows, you may need to run PowerShell as Administrator
+
 ---
+
 
 
 ## Project Status

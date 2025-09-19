@@ -32,6 +32,8 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import numpy as np
 import matplotlib.pyplot as plt
