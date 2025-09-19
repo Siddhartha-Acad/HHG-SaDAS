@@ -22,6 +22,7 @@ import warnings
 import numpy as np
 from pathlib import Path
 from scipy.special import legendre
+from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, a0, T0
 this_dir = Path(__file__).resolve().parent              # Relative path system
 
@@ -54,7 +55,7 @@ L_map = 20; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness: (r_max - r0) a.u.
 
 colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
-colloc_file = this_dir.parent / 'Harmonic_Generation' / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file
+colloc_file = this_dir / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
 
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
@@ -237,6 +238,45 @@ def S(E_l, A_l, i, j):
     - Section 2.3.5 — *Matrix time evolution operator: The S-matrix*
     """
     return sum(A_l[k][i] * A_l[k][j] * np.exp(-1j * E_l[k] * dt / 2) for k in range(len(E_l)))
+
+
+
+
+def N_fact(l, m):
+    """
+    Normalization constant of Y_lm
+    """
+    return (-1)**m * np.sqrt((2*l+1) * factorial(l-m) / (4*np.pi * factorial(l+m)))
+
+
+def C_fact(l, m):
+    """
+    Orthogonality constant factor of P_lm
+    """
+    return 2 * factorial(l+m) / ((2*l+1)*factorial(l-m))
+
+
+def a_legendre(l, m, x):
+    """
+    Associated Legendre polynomial without Condon-Shortley phase
+    """
+    return lpmv(m, l, x) * (-1)**m
+
+
+def Y_lm(l, m, x):
+    """
+    Y_lm(x) = N_lm * P_lm(x)
+    """
+    return N_fact(l, m) * a_legendre(l, m, x)
+
+
+def G(Sl_matrix, gl_arr, l_ind):
+    """
+    G(l) = S(l) * g(l)
+    """
+    return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
+
+
 
 
 
