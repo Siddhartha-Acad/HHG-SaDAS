@@ -24,9 +24,12 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.misc import derivative
+from scipy.optimize import approx_fprime
 from scipy.special import legendre
 from Assistant.Decorate_axes import decorate_axes_D as da
 
@@ -65,7 +68,7 @@ N = 20
 x = np.linspace(-1, 1, 500); dx = x[1] - x[0]
 x_mapped = f_rev(x)
 
-n_deriv = np.array([derivative(P_N, float(x[i]), float(dx), n=1) for i in range(len(x))])
+n_deriv = np.array([approx_fprime([float(x[i])], lambda arr: P_N(arr[0]), float(dx))[0] for i in range(len(x))])
 a_deriv = a_derivative_P_N(x)
 
 

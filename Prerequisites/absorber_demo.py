@@ -22,11 +22,15 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import numpy as np
 import matplotlib.pyplot as plt
 from Assistant.Color_schemes import manim_colors as mc
 from Assistant.Decorate_axes import decorate_axes_D as da
 from matplotlib.animation import FuncAnimation
+
 def integrate(y, x):
     """
     Simpson's 1/3rd method

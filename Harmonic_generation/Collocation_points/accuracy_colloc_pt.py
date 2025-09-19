@@ -22,6 +22,9 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -34,7 +37,7 @@ def a_derivative_P_N(x):
     return legendre(N-1)(x) - legendre(N+1)(x)
 
 
-N = 15
+N = 14
 colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
 colloc_file = this_dir / 'AnaDeriv_Colloc_pt' / colloc_file
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)

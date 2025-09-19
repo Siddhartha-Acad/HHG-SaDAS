@@ -26,6 +26,8 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import numpy as np
 from scipy.special import lpmv
@@ -103,7 +105,6 @@ roots, weights = np.polynomial.legendre.leggauss(L+1)
 gl_array = []
 for l_ind in range(0, l_max+1):
     l_eff = l_ind + m
-    print(l_eff)
     g_l = np.zeros(len(r))
     for i in range(len(g_l)):
         g_k = 0

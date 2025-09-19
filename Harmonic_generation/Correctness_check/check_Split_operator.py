@@ -17,6 +17,8 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
 import pandas as pd
@@ -37,8 +39,8 @@ psi_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_d
 psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
 
 S_matrix_file = 'He_Smatrix__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
-S_matrix_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
-S_matrix_data = pd.read_excel(S_matrix_file, header=None, skiprows=1).to_numpy().T
+S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
+S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(L+1, N-1, N-1)
 
 

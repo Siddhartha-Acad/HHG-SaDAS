@@ -25,12 +25,15 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import numpy as np
-from Assistant.Decorate_axes import decorate_axes_D as da
 import matplotlib.pyplot as plt
+from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
-from scipy.optimize import fsolve
+from Assistant.Decorate_axes import decorate_axes_D as da
 
 def find_roots(f, x):
     """

@@ -19,12 +19,15 @@ Notes:
 --------------------------------------------------------------------------------
 """
 
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import numpy as np
+from pathlib import Path
+from scipy.special import lpmv
 import matplotlib.pyplot as plt
 from scipy.special import legendre
 import Assistant.Decorate_axes.decorate_axes_D as da
-from scipy.special import lpmv
-from pathlib import Path
 this_dir = Path(__file__).resolve().parent  # Relative file path system
 
 
