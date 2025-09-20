@@ -34,6 +34,39 @@ print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(
 # ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
+"""
+Specify the data file names for the 'compatible' GPSM_states and S_matrix.
+
+[Extremely Important Notice]:
+By "compatible," the parameters used in these files must match those defined 
+in parameters_and_functions.py.
+
+Example:
+If parameters_and_functions.py defines:
+    L_map = 80
+but the chosen files are :
+    psi_file = 'He_States__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+    S_matrix_file = 'He_Smatrix__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+then the code will give wrong results. This is because the nonlinear radial mapping 
+function in parameters_and_functions.py:
+
+    def f(x, Lmap=L_map):
+        r"
+        Nonlinear radial mapping function.
+        ...
+        "
+
+produces a radial grid that does not match the one encoded in the data file.
+
+In short: ensure that the parameters in the data file names are consistent 
+with those in parameters_and_functions.py, otherwise the grid and data 
+will be incompatible.
+
+[For crosschecking]: running this file will show what parameter values 
+parameters_and_functions.py (and this script) is currently using.
+Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
+"""
+
 psi_file = 'He_States__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
 psi_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / psi_file
 psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
@@ -41,7 +74,7 @@ psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
 S_matrix_file = 'He_Smatrix__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
 S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
-S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(L+1, N-1, N-1)
+S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
 print('S_matrix file name       :', S_matrix_file)
@@ -92,10 +125,10 @@ ax2 = fig2.add_subplot(211)             # g0_l
 ax3 = fig2.add_subplot(223)             # dr
 ax4 = fig2.add_subplot(224)             # dθ
 ax5 = fig3.add_subplot(121)             # ψ0(r, θ, t=0) expanded in Legendre Polynomial
-ax6 = fig3.add_subplot(122)            # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ, t=0)
-ax7 = fig4.add_subplot(121)            # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
-ax8 = fig4.add_subplot(122)            # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
-ax9 = fig5.add_subplot(111)           # |A(r, t=0)|^2, |A(r, t=dt)|^2
+ax6 = fig3.add_subplot(122)             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ, t=0)
+ax7 = fig4.add_subplot(121)             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
+ax8 = fig4.add_subplot(122)             # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
+ax9 = fig5.add_subplot(111)             # |A(r, t=0)|^2, |A(r, t=dt)|^2
 
 da.decorate_polar([ax1, ax5, ax6, ax7, ax8])
 da.decorate_2d([ax2, ax3, ax4, ax9])

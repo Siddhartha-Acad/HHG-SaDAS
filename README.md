@@ -80,11 +80,6 @@ pip install -r requirements.txt
 
 
 
-## Project Status
-🚧 This project is still in **active development** and not yet ready for production use.
-
----
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
