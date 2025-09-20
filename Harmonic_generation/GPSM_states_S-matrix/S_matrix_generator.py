@@ -34,8 +34,8 @@ start_time = time.time()
 conf_info_string = conf_pot_selector(confinement_model, 0)[1]
 
 if not confined:
-    file_name = f'{evolving_atom}_Smatrix__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
-else: file_name = f'{evolving_atom}@C60_Smatrix__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
+else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 
 if confined:
     output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'

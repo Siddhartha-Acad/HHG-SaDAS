@@ -45,10 +45,10 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    psi_file = 'He_States__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-    S_matrix_file = 'He_Smatrix__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
-then the code will give wrong results. This is because the nonlinear radial mapping 
-function in parameters_and_functions.py:
+    psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+    S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+then the code will give wrong results. This is because the imported nonlinear radial mapping 
+function in this script from parameters_and_functions.py:
 
     def f(x, Lmap=L_map):
         r"
@@ -56,7 +56,7 @@ function in parameters_and_functions.py:
         ...
         "
 
-produces a radial grid that does not match the one encoded in the data file.
+produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
 with those in parameters_and_functions.py, otherwise the grid and data 
@@ -67,11 +67,11 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
 """
 
-psi_file = 'He_States__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
 psi_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / psi_file
 psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
 S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)

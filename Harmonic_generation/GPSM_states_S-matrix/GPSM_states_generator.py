@@ -34,8 +34,8 @@ total_states = 10
 conf_info_string = conf_pot_selector(confinement_model, 0)[1]
 
 if not confined:
-    file_name = f'{evolving_atom}_States__l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
-else: file_name = f'{evolving_atom}@C60_States__l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
+    file_name = f'{evolving_atom}_States_{SAE_model}__l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
+else: file_name = f'{evolving_atom}@C60_States_{SAE_model}__l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
 
 if confined:
     output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'
