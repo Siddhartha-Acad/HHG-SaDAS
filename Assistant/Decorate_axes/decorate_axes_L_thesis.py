@@ -16,7 +16,6 @@ Usage Example
 >>> fig, (ax1, ax2) = plt.subplots(2, 1)
 >>> da.decorate_2d([ax1, ax2], grid=True, visible_spine='left, bottom')
 
-
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
 License: MIT License
@@ -64,38 +63,40 @@ width (in) | height (in) | fig_scale_factor | tickslabel_size (pt) | label_fonts
 # fig.subplots_adjust(top=0.925, bottom=0.091, left=0.055, right=0.975, hspace=0.245, wspace=0.13)
 
 
-def decorate_2d(axes_list, plot_type='line', grid=True, minor_grid_col='#0078FF',
-                visible_spine='left, bottom', axis_ticks=True, grid_aplha=0.6):     # grid_alpha=0.3 for grid, visible in pdf, but invisible in printout.
+def decorate_2d(axes_list, plot_type='line', grid=True,
+                visible_spine='left, bottom', axis_ticks=True, grid_alpha=0.6):
+
+    # Spine configuration lookup table
+    spine_configs = {
+        'right, bottom': {'top': False, 'left': False},
+        'left, bottom': {'top': False, 'right': False},
+        'left, top': {'bottom': False, 'right': False},
+        'left, right': {'top': False},
+        'left': {'top': False, 'bottom': False, 'right': False},
+        'right': {'top': False, 'bottom': False, 'left': False},
+        'top': {'right': False, 'bottom': False, 'left': False},
+        'bottom': {'top': False, 'right': False, 'left': False},
+        'none': {'top': False, 'bottom': False, 'left': False, 'right': False},
+        'all': {'top': True, 'bottom': True, 'left': True, 'right': True}
+    }
+
     if not isinstance(axes_list, list):
         axes_list = [axes_list]
 
+    config = spine_configs.get(visible_spine, {})
     for ax in axes_list:
         if not axis_ticks:
             ax.set_xticks([])
             ax.set_yticks([])
-        if visible_spine == 'right, bottom':
-            ax.spines[['top', 'left']].set_visible(False)
-        if visible_spine == 'left, bottom':
-            ax.spines[['top', 'right']].set_visible(False)
-        if visible_spine == 'left, top':
-            ax.spines[['bottom', 'right']].set_visible(False)
-        if visible_spine == 'left, right':
-            ax.spines[['top']].set_visible(False)
-        if visible_spine == 'left':
-            ax.spines[['top', 'bottom', 'right']].set_visible(False)
-        if visible_spine == 'right':            # <----- for twinx axes
-            ax.spines[['top', 'bottom', 'left']].set_visible(False)
-        if visible_spine == 'top':
-            ax.spines[['right', 'bottom', 'left']].set_visible(False)
-        if visible_spine == 'bottom':
-            ax.spines[['top', 'right', 'left']].set_visible(False)
-        if visible_spine == 'none':
-            ax.spines[['top', 'bottom', 'left', 'right']].set_visible(False)
-        if visible_spine == 'all':
-            ax.spines[['top', 'bottom', 'left', 'right']].set_visible(True)
+
+        # Apply spine configuration
+        for spine, visible in config.items():
+            ax.spines[spine].set_visible(visible)
+
         if grid:
             if plot_type != 'contourf':
-                ax.grid(True, lw=0.4, alpha=grid_aplha, zorder=0)
+                ax.grid(True, lw=0.4, alpha=grid_alpha, zorder=0)
+                ax.set_axisbelow(True)
             else:
                 ax.set_aspect('equal', adjustable='box')
 

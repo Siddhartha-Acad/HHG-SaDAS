@@ -53,7 +53,7 @@ L = 20                      # must be >= l ; number of S matrix gl(r) in partial
 l_max = 20                  # Number of partial waves = number of S-matrices = l_max+1
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
 L_map = 20; r_max = 200     # radial mapping parameters
-r0 = 150                    # absorber layer thickness: (r_max - r0) a.u.
+r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 
 colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
 colloc_file = this_dir / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file

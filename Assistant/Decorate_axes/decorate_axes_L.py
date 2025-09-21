@@ -48,40 +48,46 @@ def decorate_imshow(axes_list):
         ax.grid(False)
 
 
-def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_minorticks=False, minor_grid_col='#0078FF',
-                visible_spine='left, bottom', axis_ticks=True, axis='on'):
+def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_minorticks=False,
+                minor_grid_col='#0078FF', visible_spine='left, bottom', axis_ticks=True, axis='on'):
+    # Spine configuration lookup table
+    spine_configs = {
+        'left, bottom': ['top', 'right'],
+        'left, right': ['top'],
+        'left': ['top', 'bottom', 'right'],
+        'right': ['top', 'bottom', 'left'],
+        'top': ['right', 'bottom', 'left'],
+        'bottom': ['top', 'right', 'left'],
+        'none': ['top', 'bottom', 'left', 'right'],
+        'all': []  # Empty list means don't hide any spines
+    }
+
     if not isinstance(axes_list, list):
-        axes_list = [axes_list]  # Convert to list if it's not already
+        axes_list = [axes_list]
+
+    spines_to_hide = spine_configs.get(visible_spine, [])
 
     for ax in axes_list:
         if not axis_ticks:
             ax.set_xticks([])
             ax.set_yticks([])
-        if visible_spine == 'left, bottom':
-            ax.spines[['top', 'right']].set_visible(False)
-        if visible_spine == 'left, right':
-            ax.spines[['top']].set_visible(False)
-        if visible_spine == 'left':
-            ax.spines[['top', 'bottom', 'right']].set_visible(False)
-        if visible_spine == 'right':
-            ax.spines[['top', 'bottom', 'left']].set_visible(False)
-        if visible_spine == 'top':
-            ax.spines[['right', 'bottom', 'left']].set_visible(False)
-        if visible_spine == 'bottom':
-            ax.spines[['top', 'right', 'left']].set_visible(False)
-        if visible_spine == 'none':
-            ax.spines[['top', 'bottom', 'left', 'right']].set_visible(False)
-        if visible_spine == 'all':
+
+        # Hide specified spines
+        if spines_to_hide:
+            ax.spines[spines_to_hide].set_visible(False)
+        elif visible_spine == 'all':
             ax.spines[['top', 'bottom', 'left', 'right']].set_visible(True)
+
         if grid:
             if grid_minorticks:
                 ax.minorticks_on()
                 ax.grid(True, alpha=0.5, which='major')
                 ax.grid(True, alpha=0.1, color=minor_grid_col, which='minor')
-            if plot_type != 'contourf':
+            elif plot_type != 'contourf':
                 ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
             else:
                 ax.set_aspect('equal', adjustable='box')
+
         if tick_param:
             ax.tick_params(color='red', width=4)
 
