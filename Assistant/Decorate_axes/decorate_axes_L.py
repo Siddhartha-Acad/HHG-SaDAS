@@ -100,13 +100,14 @@ def da_legend(axes_list, loc='upper right', fontsize=12):
         ax.legend(loc=loc, fontsize=fontsize, framealpha=0.5, edgecolor='k')
 
 
-def decorate_polar(axes_list):
+def decorate_polar(axes_list, axis=False):
     # ax21.set_rlabel_position(45)
     # ax21.set_theta_direction(-1)
     for ax in axes_list:
-        ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
+        # ax.grid(True, lw=0.4, alpha=0.5)
         # ax.spines['polar'].set_visible(False)
-        ax.axis('off')
+        if not axis:
+            ax.axis('off')
         ax.set_aspect('equal')
 
 

@@ -36,7 +36,7 @@ print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n = 1; l = 0; m = 0        # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
+n = 1; l = 1; m = 1        # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
 evolving_atom = 'He'       # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
@@ -282,16 +282,17 @@ def Y_lm(l_val, m_val, x):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                  Partial-wave g_lm(r) calculating function                   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def gl(Psi_t, gl_arr):
+def g_lm(Psi_t, glm_arr):
     r"""
-    Compute radial partial-wave projections :math:`g_\ell(r)` from an angular–radial
+    Compute radial partial-wave projections :math:`g_{\ell m}(r)` from an angular–radial
     wavefunction using Gauss–Legendre quadrature, with optional memory reuse.
 
     .. math::
-        g_\ell(r) = \sqrt{\pi (2\ell + 1)} \, \sum_k w_k \, P_\ell(\cos \theta_k) \, \psi(\theta_k, r)
+        g_{\ell m}(r) = \frac{1}{N_{\ell m} \cdot C_{\ell m}} \sum_k w_k \, P_\ell^{(m)}(\cos \theta_k) \, \psi(\theta_k, r)
 
-    where :math:`w_k` are Gauss–Legendre quadrature weights and
-    :math:`P_\ell(\cos \theta_k)` are precomputed Legendre polynomials.
+    where :math:`w_k` are Gauss–Legendre quadrature weights,
+    :math:`P_\ell^{(m)}(\cos \theta_k)` are precomputed associated Legendre polynomials,
+    :math:`N_{\ell m}` and :math:`C_{\ell m}` are normalization factors from ``N_fact`` and ``C_fact``.
 
     :param Psi_t: Angular–radial wavefunction :math:`\psi(\theta, r)` at a fixed time,
                   evaluated at Gauss–Legendre quadrature points.
@@ -299,42 +300,45 @@ def gl(Psi_t, gl_arr):
                   ``Psi_t[k, i] = ψ(θ_k, r_i)``.
     :type Psi_t: ndarray
 
-    :param gl_arr: Optional output array for storing results in-place to avoid
+    :param glm_arr: Optional output array for storing results in-place to avoid
                    repeated allocations. If None, a new array is created.
                    Shape = ``(l_max+1, n_r)``.
-    :type gl_arr: ndarray or None
+    :type glm_arr: ndarray or None
 
-    :return: Radial partial-wave projections :math:`g_\ell(r)` for
-             :math:`\ell = 0, \ldots, \ell_\text{max}`.
-             Each row corresponds to one angular momentum component.
+    :return: Radial partial-wave projections :math:`g_{\ell m}(r)` for
+             :math:`\ell = 0, \ldots, \ell_\text{max}` at fixed magnetic quantum number :math:`m`.
+             Each row corresponds to one angular momentum component :math:`\ell`.
     :rtype: ndarray, shape ``(l_max+1, n_r)``
 
     Notes
     -----
+    This function computes the partial-wave expansion coefficients for a specific
+    magnetic quantum number :math:`m`. The associated Legendre polynomials
+    :math:`P_\ell^{(m)}(\cos \theta)` are precomputed in ``a_legendre_vals`` using
+    the ``a_legendre`` function.
+
     This function is optimized for performance-critical use cases
     (e.g. propagation loops), where avoiding memory reallocation
     at each step is important.
 
     Example
     -------
-    >>> gl_empty = np.empty((l_max + 1, len_r), dtype=np.complex128)
+    >>> glm_empty = np.empty((l_max + 1, len_r), dtype=np.complex128)
     >>> for t in range(time_steps):
     ...     # Psi_t = updated wavefunction
-    ...     gl_vals = gl(Psi_t, gl_empty)  # memory reused each iteration
+    ...     gl_vals = g_lm(Psi_t, glm_empty)  # memory reused each iteration
 
     References
     ----------
-    - Appendix D — *Derivation of the general partial wave formula*
+    - Appendix D -- *Derivation of the general partial wave formula*
     - Section 2.3.4 -- *The Partial wave expansion*
     - Section 3.3.2 -- *The partial-wave expansion problem*
     - Section 3.3.3 -- *Generalization over magnetic quantum number m*
     """
-
-
     for l_ind in range(l_max+1):
-        gl_arr[l_ind] = np.sqrt(np.pi * (2*l_ind + 1)) * np.tensordot(weights * legendre_vals[l_ind], Psi_t, axes=([0], [0]))
-    return gl_arr
-legendre_vals = np.array([[legendre(l_index)(root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
+        glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
+    return glm_arr
+a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])   # will be used in g_lm(Psi_t, glm_arr)
 
 
 
@@ -653,7 +657,7 @@ if __name__ != '__main__':
 
     print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
     print(f'atom system   : {evolving_atom}')
-    print(f'initial state : {state_name(n, l)}')
+    print(f'initial state : {state_name(n+l, l)}')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)

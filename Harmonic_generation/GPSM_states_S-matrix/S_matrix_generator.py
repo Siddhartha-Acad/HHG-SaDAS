@@ -2,6 +2,7 @@
 File: S_matrix_generator.py
 Project: HHG-SaDAS
 Code Description:
+    - *** [MAIN S-MATRIX GENERATING CODE] ***
     - Calculates the S-matrix for different angular momentum states (l).
     - Summation over all states indexed by k_max (number of eigenstates S(l)-matrix is made of).
     - Outputs a file where each column corresponds to a specific l value,
@@ -91,7 +92,7 @@ for l in range(m, l_max+m+1):
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
 df_S_matrix = pd.DataFrame(data_S_matrix)
 df_S_matrix.to_excel(file_path, index=False)
-print(f"\n'{file_name}'\n")
+print(f"\n'S_matrix_file = {file_name}'\n")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
