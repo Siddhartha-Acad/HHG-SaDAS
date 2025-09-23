@@ -1,5 +1,5 @@
 """
-File: Conf_model_bank.py
+File: conf_model_bank.py
 Project: HHG-SaDAS
 Code Description:
     | Library of Confinement Potential Models used for simulating

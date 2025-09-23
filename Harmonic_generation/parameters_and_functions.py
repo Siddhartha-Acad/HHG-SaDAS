@@ -1,9 +1,38 @@
 """
 File: parameters_and_functions.py
 Project: HHG-SaDAS
+
 Code Description:
-    | This contains all parameters that defines the entire system and numerical requirements.
-    | All other simulating codes, fetch parameters and functions from this script.
+    - Contains all parameters that define the entire system and numerical requirements.
+    - All other simulation codes fetch parameters and functions from this script.
+
+*** [NAMING CONVENTION FOLLOWED IN THE ENTIRE PACKAGE] ***
+
+Quantum Number Convention:
+--------------------------
+- n here is the radial index for a given l.
+- For a given orbital angular momentum quantum number l ≥ 0,
+  the **actual principal quantum number** is: n_effective = n + l
+- This mapping corresponds to standard spectroscopic notation.
+
+Example mapping of quantum numbers (n, l, m) to standard orbitals:
+------------------------------------------
+  l   |   n   |   m   |   Orbital / State
+  ----------------------------------------
+  0   |   1   |   0   |    1s
+  1   |   1   |   0   |    2p_{z}
+  1   |   2   |   0   |    3p_{z}
+  1   |   1   |   1   |    2p_{x}
+  1   |   2   |   1   |    3p_{x}
+  3   |   1   |   0   |    4f_{z^3}
+------------------------------------------
+
+Key Ideas:
+-----------
+1. n is the **radial index**, starting from 1 for each l.
+2. l determines the **orbital type**: 0→s, 1→p, 2→d, 3→f, etc.
+3. m determines the **magnetic sublevel**, i.e., orbital orientation.
+4. The **actual principal quantum number** = n + l.
 
 
 Author: Siddhartha Mithiya
@@ -11,11 +40,10 @@ Affiliation: Indian Institute of Technology (IIT) Mandi
 License: MIT License
 Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 
---------------------------------------------------------------------------------
 Notes:
-- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+------
+- This file is part of the HHG-SaDAS package, developed during the MS(R) thesis:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
---------------------------------------------------------------------------------
 """
 
 import warnings
@@ -23,7 +51,7 @@ from pathlib import Path
 from scipy.special import legendre
 from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, T0
-from Harmonic_generation.Conf_model_bank import *
+from Harmonic_generation.conf_model_bank import *
 this_dir = Path(__file__).resolve().parent              # Relative path system
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -36,13 +64,13 @@ print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n = 1; l = 1; m = 1        # defines initial state. [NOTE]: for a given l, n always starts from 1. Ex: 1s=(1, 0, 0); 2pz=(1, 1, 0); 4px=(3, 1, 1)
+n = 1; l = 1; m = 1        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
 evolving_atom = 'He'       # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
 confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
-save_Egvals_with_Smatrix = False    # Eigenvalues for all l=(m, l_max+m) will ve saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
+save_Egvals_with_Smatrix = False    # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

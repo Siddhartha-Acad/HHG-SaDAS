@@ -91,7 +91,9 @@ S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
-n = 3
+
+
+n = 3       # index of the state you want to check for a given l value set in parameters_and_functions.py and psi_file
 # Principal quantum number index (n ≥ 1).
 # For a given orbital angular momentum quantum number l ≥ 0,
 # the actual principle quantum number = (n + l)
@@ -166,12 +168,29 @@ for l_index in range(l_max):
     else:
         ax2.plot(r, y, '-', label=f'l={l_index+m}', zorder=1, alpha=0.5)  # faded + behind
 
+
+"""
+Convert polar coordinates (r, theta) to Cartesian for plotting.
+Normally: 
+    x = r*cos(theta), y = r*sin(theta) 
+    -> theta=0 along the horizontal axis (x-axis), angles increase counterclockwise.
+Here we want:
+    - theta=0 to point along the vertical direction (z-axis) as per the axis arrangement in the thesis
+    - angles to increase anticlockwise from this vertical "north" direction
+Therefore, we set:
+    x = -r*sin(theta)  -> horizontal axis (negative sign ensures anticlockwise rotation from vertical)
+    z =  r*cos(theta)  -> vertical axis
+With this convention:
+    - theta = 0 points straight up along z (north)
+    - theta = pi/2 points along the horizontal -x direction (anticlockwise from vertical)
+[honestly this docstring is written by ChatGPT]
+"""
 cmap = 'nipy_spectral_r'
-sc = ax1.scatter(r_m * np.cos(theta_m), r_m * np.sin(theta_m), c=np.abs(psi_0)**2, s=20, cmap=cmap)  # s=marker size
-ax5.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_0_recon)**2, 200, cmap=cmap)
-ax6.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_1)**2, 200, cmap=cmap)
-ax7.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_2)**2, 200, cmap=cmap)
-ax8.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_evolved)**2, 200, cmap=cmap)
+sc = ax1.scatter(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), c=np.abs(psi_0)**2, s=20, cmap=cmap)
+ax5.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_0_recon)**2, 200, cmap=cmap)
+ax6.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_1)**2, 200, cmap=cmap)
+ax7.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_2)**2, 200, cmap=cmap)
+ax8.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_evolved)**2, 200, cmap=cmap)
 cbar = fig1.colorbar(sc, ax=ax1)
 
 ax3.plot(np.diff(r), 'o-', label=r'dr$_i$', color=da.mc.C_L[5])
