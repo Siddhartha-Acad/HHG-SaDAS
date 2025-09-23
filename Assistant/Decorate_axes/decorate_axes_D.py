@@ -30,7 +30,7 @@ Notes:
 """
 
 import numpy as np
-import matplotlib as mpl
+from cycler import cycler
 import matplotlib.pyplot as plt
 from Assistant.Color_schemes import manim_colors as mc
 
@@ -39,7 +39,7 @@ dec_color = np.concatenate((mc.C, mc.named_color_1, mc.des_col_2))
 
 plt.style.use('dark_background')
 plt.rc('font', **{'family': 'serif', 'size': 10})
-mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=dec_color)
+plt.rcParams['axes.prop_cycle'] = cycler(color=dec_color)
 
 
 def decorate_imshow(axes_list):

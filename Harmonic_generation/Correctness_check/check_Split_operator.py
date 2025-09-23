@@ -42,7 +42,7 @@ fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 
 dec_color = np.concatenate((da.mc.C_L, da.mc.des_col_1))
 plt.rc('font', **{'family': 'serif'})
-da.mpl.rcParams['axes.prop_cycle'] = da.mpl.cycler(color=dec_color)
+plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -166,12 +166,13 @@ for l_index in range(l_max):
     else:
         ax2.plot(r, y, '-', label=f'l={l_index+m}', zorder=1, alpha=0.5)  # faded + behind
 
-cf = ax1.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_0)**2, 150, cmap='jet')
-ax5.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_0_recon)**2, 200, cmap='jet')
-ax6.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_1)**2, 200, cmap='jet')
-ax7.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_2)**2, 200, cmap='jet')
-ax8.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_evolved)**2, 200, cmap='jet')
-cbar = fig1.colorbar(cf, ax=ax1)
+cmap = 'nipy_spectral_r'
+sc = ax1.scatter(r_m * np.cos(theta_m), r_m * np.sin(theta_m), c=np.abs(psi_0)**2, s=20, cmap=cmap)  # s=marker size
+ax5.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_0_recon)**2, 200, cmap=cmap)
+ax6.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_1)**2, 200, cmap=cmap)
+ax7.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_2)**2, 200, cmap=cmap)
+ax8.contourf(r_m * np.cos(theta_m), r_m * np.sin(theta_m), np.abs(psi_evolved)**2, 200, cmap=cmap)
+cbar = fig1.colorbar(sc, ax=ax1)
 
 ax3.plot(np.diff(r), 'o-', label=r'dr$_i$', color=da.mc.C_L[5])
 ax4.plot(np.diff(roots), 'o-', label=r'dx$_j$', color=da.mc.C_L[2])
@@ -180,9 +181,9 @@ ax9.plot(r, np.abs(gl_0_array[l-m])**2, 'o-', markersize=10, label=rf'|g(r, {l=}
 ax9.plot(r, np.abs(G(S_matrix, gl_0_array, l-m))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
 
 state_name = generate_states(l)[n-1]
-ax1.set_title(f'ψ$_0$(r, θ) : {evolving_atom}({state_name}, {m=})', pad=20, fontsize=15)
-ax2.set_title(f"ψ$_0$(r, θ) : {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
-ax5.set_title(fr'ψ$_0$(r$_i$, θ$_j$) = $\sum_{{\ell=m}}^{{\ell_{{max}}+m}}$g$_{{{{\ell}}}}$(r$_i$) N$_{{\ell m}}$ P$_{{\ell m}}$(cosθ$_j$); m={m}', pad=30, fontsize=15)
+ax1.set_title(rf'ψ$_0$(r, θ): {evolving_atom}({state_name}, {m=}); On actual collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
+ax2.set_title(rf"ψ$_0$(r, θ): {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
+ax5.set_title(rf'ψ$_0$(r$_i$, θ$_j$) = $\sum_{{\ell=m}}^{{\ell_{{max}}+m}}$g$_{{{{\ell}}}}$(r$_i$) N$_{{\ell m}}$ P$_{{\ell m}}$(cosθ$_j$); m={m}', pad=30, fontsize=15)
 ax6.set_title(r'ψ$_1$(r, θ) = exp{-iH$_0$(dt)/2} • ψ$_0$(r, θ)', pad=30, fontsize=15)
 ax7.set_title(r'ψ$_2$(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ$_1$(r, θ)', pad=30, fontsize=15)
 ax8.set_title(r'ψ(r, θ, t+dt) = exp{-iH$_0$(dt)/2} • ψ$_2$(r, θ)', pad=30, fontsize=15)
