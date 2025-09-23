@@ -657,7 +657,7 @@ if __name__ != '__main__':
 
     print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
     print(f'atom system   : {evolving_atom}')
-    print(f'initial state : {state_name(n+l, l)}')      # PRINCIPLE QUANTUM NUMBER = n+l
+    # print(f'initial state : {state_name(n+l, l)}')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)
