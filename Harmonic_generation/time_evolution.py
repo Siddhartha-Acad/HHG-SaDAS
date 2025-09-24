@@ -20,9 +20,14 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_D as da
 from Harmonic_generation.parameters_and_functions import t, roots, weights                                            # imported arrays
-from Harmonic_generation.parameters_and_functions import f, a_legendre, factorial, g_lm, Y_lm, Absorber_func, state_name    # imported funcns
+from Harmonic_generation.parameters_and_functions import f, a_legendre, factorial, Y_lm, Absorber_func, state_name    # imported funcns
 from Harmonic_generation.parameters_and_functions import N, l_max, r0, L, k_max, dt, r_max, L_map, evolving_atom      # imported params
 from Harmonic_generation.parameters_and_functions import cpp, E0_au, w0                                               # imported params
+
+
+
+
+
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
@@ -55,6 +60,10 @@ def alpha(l, m):
     """
     return 2*np.pi * N_fact(l+1, m) * N_fact(l, m) * C_fact(l, m) * (l + m + 1) / (2*l + 3)
 
+def g_lm(Psi_t, glm_arr):
+    for l_ind in range(l_max+1):
+        glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
+    return glm_arr
 
 def dipole_moment_gl(gl_arr):
     """
@@ -80,10 +89,10 @@ colloc_file = '199_AnaDeriv_collocation_points.txt'
 colloc_pt_file = rf'E:\Python_programs\Pythonic_Physics\HHG\GPSM_Y_l0\Collocation_points\AnaDeriv_Colloc_pt\{colloc_file}'
 colloc_pt = np.loadtxt(colloc_pt_file, skiprows=1, usecols=0)
 
-S_matrix_file = 'Xe_S-matrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+S_matrix_file = 'new_Xe_S-matrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
 file_S_matrix = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\File_Generator\{S_matrix_file}'
 S_matrix_data = pd.read_excel(file_S_matrix, header=None, skiprows=1).to_numpy().T
-S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max, N-1, N-1)
+S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 psi_file = 'Xe_SAE-M1_States__l=0_nos=6_N=200_rmax=200_Lmap=80.xlsx'
 file_psi = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\File_Generator\{psi_file}'
@@ -95,14 +104,14 @@ A_r = psi_data[1:][n-1]                               # Being the eigenstate of 
 absorber = np.array([Absorber_func(ri) for ri in r])
 
 theta_k = np.arccos(roots)
-l_ind_arr = np.arange(l_max-1)
+l_ind_arr = np.arange(l_max+1-1)
 l_factors_d = alpha(l_ind_arr+m, m)
 len_r = len(r); len_k = len(theta_k)
-a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max)])     # will be used in gl(r) function
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max)])
+a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
+Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
 
-init_gl = np.zeros((l_max, len_r), dtype=np.complex128)
+init_gl = np.zeros((l_max+1, len_r), dtype=np.complex128)
 init_gl[l-m] = A_r.astype(np.complex128)
 
 print('Initial state :~~~')
@@ -138,18 +147,18 @@ dipole_moment_data = {'t (a.u)' : t[0:time_step],
 zero_psi = np.zeros((len_k, len_r), dtype=np.complex128); gl_psi = zero_psi
 start_time = time.time()
 
-gl_empty = np.empty((l_max, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
+gl_empty = np.empty((l_max+1, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
 for ti in range(time_step):
     psi_1 = 0 * zero_psi             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
     psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
 
     for j in range(len_k):
-        for l_index in range(l_max):
+        for l_index in range(l_max+1):
             psi_1[j] += np.dot(S_matrix[l_index], init_gl[l_index]) * Y_lm_cos_theta_j[l_index, j]
         psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]
 
     gl_2_array = g_lm(psi_2, gl_empty)
-    for l_index in range(l_max):
+    for l_index in range(l_max+1):
         init_gl[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber
 
 

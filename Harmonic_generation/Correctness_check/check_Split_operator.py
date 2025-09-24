@@ -123,19 +123,19 @@ psi_1 = np.zeros((len_k, len_r), dtype=np.complex128)           # ψ1(r, θ) = e
 psi_2 = np.zeros((len_k, len_r), dtype=np.complex128)           # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
 psi_evolved = np.zeros((len_k, len_r), dtype=np.complex128)     # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
 cos_theta = np.cos(theta_k)
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, cos_theta[j]) for j in range(len_k)] for l_ind in range(l_max)])
+Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, cos_theta[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
 gl_empty = np.empty((l_max+1, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
 gl_0_array = g_lm(psi_0, gl_empty)                                        # [STEP-0]: partial wave expansion of the initial wavefunction.
 for j in range(len_k):
-    for l_index in range(l_max):
+    for l_index in range(l_max+1):
         psi_0_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]          # This will confirm whether the partial wave expansion was correctly done or not.
         psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
 gl_2_array = g_lm(psi_2, gl_empty)                                                    # again calculating partial waves after interaction term being applied.
 for j in range(len_k):
-    for l_index in range(l_max):
+    for l_index in range(l_max+1):
         psi_evolved[j] += G(S_matrix, gl_2_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 
