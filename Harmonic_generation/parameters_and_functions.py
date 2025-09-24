@@ -64,7 +64,7 @@ print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n = 1; l = 1; m = 1        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
+n = 1; l = 0; m = 0        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
 evolving_atom = 'He'       # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 

@@ -19,14 +19,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_D as da
-from Harmonic_generation.parameters_and_functions import t, roots, weights                                            # imported arrays
-from Harmonic_generation.parameters_and_functions import f, a_legendre, factorial, Y_lm, Absorber_func, state_name    # imported funcns
-from Harmonic_generation.parameters_and_functions import N, l_max, r0, L, k_max, dt, r_max, L_map, evolving_atom      # imported params
-from Harmonic_generation.parameters_and_functions import cpp, E0_au, w0                                               # imported params
-
-
-
-
+from Harmonic_generation.parameters_and_functions import t, roots                                                         # imported arrays
+from Harmonic_generation.parameters_and_functions import n, l, m, cpp, E0_au, w0                                          # imported params
+from Harmonic_generation.parameters_and_functions import N, l_max, r0, k_max, dt, evolving_atom                           # imported params
+from Harmonic_generation.parameters_and_functions import f, factorial, g_lm, Y_lm, Absorber_func, state_name  # imported funcns
 
 
 fig1 = plt.figure()
@@ -60,10 +56,6 @@ def alpha(l, m):
     """
     return 2*np.pi * N_fact(l+1, m) * N_fact(l, m) * C_fact(l, m) * (l + m + 1) / (2*l + 3)
 
-def g_lm(Psi_t, glm_arr):
-    for l_ind in range(l_max+1):
-        glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
-    return glm_arr
 
 def dipole_moment_gl(gl_arr):
     """
@@ -79,23 +71,20 @@ def Ps(gl_arr):
     return np.sum(np.sum(np.abs(gl_arr)**2, axis=1))
 
 
-eta_t = 0.03; time_step = 200
-m = 0; l = 0; n = 5
+eta_t = 0.03; time_step = 1000
 
-
-# replaced (l_max+1) by range (l_max) on 16June 2025, as l_max+1 was causing problem in calculating gl(r) in time_evolution.py
 # ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
 colloc_file = '199_AnaDeriv_collocation_points.txt'
 colloc_pt_file = rf'E:\Python_programs\Pythonic_Physics\HHG\GPSM_Y_l0\Collocation_points\AnaDeriv_Colloc_pt\{colloc_file}'
 colloc_pt = np.loadtxt(colloc_pt_file, skiprows=1, usecols=0)
 
-S_matrix_file = 'new_Xe_S-matrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
-file_S_matrix = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\File_Generator\{S_matrix_file}'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+file_S_matrix = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{S_matrix_file}'
 S_matrix_data = pd.read_excel(file_S_matrix, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
-psi_file = 'Xe_SAE-M1_States__l=0_nos=6_N=200_rmax=200_Lmap=80.xlsx'
-file_psi = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\File_Generator\{psi_file}'
+psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+file_psi = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{psi_file}'
 psi_data = pd.read_excel(file_psi, header=None, skiprows=1).to_numpy().T
 
 # ~~~~~~~: Some pre-computed arrays to make calculations faster :~~~~~~~
@@ -104,10 +93,10 @@ A_r = psi_data[1:][n-1]                               # Being the eigenstate of 
 absorber = np.array([Absorber_func(ri) for ri in r])
 
 theta_k = np.arccos(roots)
-l_ind_arr = np.arange(l_max+1-1)
+l_ind_arr = np.arange(l_max)
 l_factors_d = alpha(l_ind_arr+m, m)
 len_r = len(r); len_k = len(theta_k)
-a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
+# a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
 
@@ -125,7 +114,6 @@ print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
 print(f'θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
 print('S_matrix file name       :', S_matrix_file)
 print('Initial state file name  :', psi_file)
-print('k_max                    :', k_max)
 print('Absorber radius (r_0)    :', r0)
 print('Total time steps         :', time_step)
 print('Estimated time (h, m, s) :', secs_to_hr_min_sec(eta_t * time_step), '\n')
