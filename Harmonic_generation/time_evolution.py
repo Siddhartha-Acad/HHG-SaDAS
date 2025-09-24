@@ -32,11 +32,10 @@ from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation.parameters_and_functions import (
     n, l, m,                                                                                     # initial state
-    t, roots, colloc_pt, theta_k,                                                                         # arrays
+    t, roots, colloc_pt, theta_k,                                                                # arrays
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t,                   # parameters
     f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field    # functions
 )
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -53,7 +52,9 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                          Importing files                           |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
 """
@@ -89,50 +90,40 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
 """
 
-psi_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-psi_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / psi_file
-psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
+state_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
+state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
 
-# ~~~~~~~: Some pre-computed arrays to make calculations faster :~~~~~~~
-r = f(colloc_pt)                                      # Radial coordinate in a.u
-A_r = psi_data[1:][n-1]                               # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
-absorber = np.array([Absorber_func(ri) for ri in r])
-
-len_r = len(r); len_k = len(theta_k)
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
-
-
-init_gl = np.zeros((l_max+1, len_r), dtype=np.complex128)
-init_gl[l-m] = A_r.astype(np.complex128)
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#           Printing system info. and show Electric field.           |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print('~~~~~~~~~~~~~: Time Evolution :~~~~~~~~~~~~~')
 print('Evolving atom            :', evolving_atom)
 print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
 print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
 print(f'θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
 print('S_matrix file name       :', S_matrix_file)
-print('Initial state file name  :', psi_file)
+print('Initial state file name  :', state_file)
 print('Absorber radius (r_0)    :', r0)
 print('Total time steps         :', time_step)
 print('Estimated time (h, m, s) :', secs_to_hr_min_sec(eta_t * time_step), '\n')
 
 if show_E_field:
-    fig1 = plt.figure()
+    fig1 = plt.figure(figsize=fig_size)
     ax1 = fig1.add_subplot(111)
     da.decorate_2d(ax1)
 
     E_array = [E_field(ti) for ti in t]
     ax1.plot(t, E_array)
     ax1.set_title(f'E(t) ~ max step = {time_step}', fontsize=15)
-    ax1.axvline(t[time_step], color='red', label=f't[{time_step}]')
+    ax1.axvline(t[time_step], linestyle='--', color='royalblue', label=f't[{time_step}]')
     ax1.set_ylim(2*min(E_array), 2*max(E_array))
     ax1.fill_between(t, E_array, alpha=0.2)
     ax1.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
@@ -140,41 +131,62 @@ if show_E_field:
     plt.pause(5)                # Pause for 5 seconds
     plt.close()                 # Close the plot
 
-d_t_array = np.array([])          # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
-population_den_array = np.array([])
 
-dipole_moment_data = {'t (a.u)' : t[0:time_step],
-                      'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}
-zero_psi = np.zeros((len_k, len_r), dtype=np.complex128); gl_psi = zero_psi
-start_time = time.time()
 
-gl_empty = np.empty((l_max+1, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                   Arrays to hold evolution data                    |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+r = f(colloc_pt)                                        # Nonlinear Radial collocation grid (a.u)
+A_r = state_data[1:][n - 1]                             # Selecting the initial state from state_data array and storing in A_r
+absorber = np.array([Absorber_func(ri) for ri in r])    # The absorbing layer.
+
+init_glm = np.zeros((l_max + 1, N - 1), dtype=np.complex128)    # Empty zero array to hold all the time evolving partial waves.
+init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as the only living partial wave. (be careful with the indexing here)
+#                                               # Instead of making full 3d initial state and calculating partial waves, I can directly
+#         [Initializing: partial waves]         # use the A_nl(r) as the initial partial wave.
+#                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
+glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to be passed in gl() function.
+
+d_t_array = np.array([])                                      # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
+population_den_array = np.array([])                           # Array to store Population density
+zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)    # To initiate the wavefunction A(ri, θj) before each loop.
+dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
+                      'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                    STARTING MAIN TIME EVOLUTION                    |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+start_time = time.time()            # Start measuring execution time (serial time evolution)
+
+Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
-    psi_1 = 0 * zero_psi             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
-    psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
+    psi_1 = 0 * zero_psi             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
+    psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
 
-    for j in range(len_k):
-        for l_index in range(l_max):
-            psi_1[j] += np.dot(S_matrix[l_index], init_gl[l_index]) * Y_lm_cos_theta_j[l_index, j]
-        psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]
+    for j in range(L+1):                    # angular grid index j
+        for l_index in range(l_max):        # summation index on 'l' of Eq.~2.85.
+            psi_1[j] += np.dot(S_matrix[l_index], init_glm[l_index]) * Y_lm_cos_theta_j[l_index, j]     # calculating ψ1(r, θ)
+        psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]                       # calculating ψ2(r, θ)
 
-    gl_2_array = g_lm(psi_2, gl_empty)
-    for l_index in range(l_max):
-        init_gl[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber
+    gl_2_array = g_lm(psi_2, glm_empty)                                                  # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
+    for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
+        init_glm[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber    # Implementing Eq.~2.89 and updating init_glm with absorbing function
 
-    print(f'Evolution step {ti:<5}: {((ti + 1) / time_step) * 100:.4f}%')
+    print(f'Evolution step {ti:<5}: {((ti + 1) / time_step) * 100:.4f}%')                # It will show how much the process is completed.
+    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
+    population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density/
 
-    dipole_mom = dipole_moment(r, init_gl)
-    population_den_array = np.append(population_den_array, Ps(init_gl))
-    d_t_array = np.append(d_t_array, dipole_mom)
-
-end_time = time.time()
+end_time = time.time()            # ending time measurement.
 
 
-# ~~~~~~~~~~~~~~~~~~~: Saving dipole moment :~~~~~~~~~~~~~~~~~~~
-# In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Saving dipole moment; survival probability & correlation functions |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 dipole_file_name = f'd_len_Ps_{time_step}_{evolving_atom}_{state_name(n+l, l)}_m={m}__L={L}_k_max={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}_wAb_r0={r0}_all_ok.xlsx'
-dipole_moment_data['d(t)'] = d_t_array
+dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
 dipole_moment_data['Ps(t)'] = population_den_array
 df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
 d_file_path = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\Important_files\{dipole_file_name}'
@@ -182,7 +194,10 @@ d_file_path = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\Important_files\
 print(f"'{dipole_file_name}'")
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: plotting :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                              plotting                              |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig2 = plt.figure(figsize=(18, 9))
 ax2 = fig2.add_subplot(311)                         # Electric Field
 ax3 = fig2.add_subplot(312)                         # dipole moment, from t=0

@@ -46,7 +46,10 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                          Importing files                           |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
 """
@@ -82,67 +85,82 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
 """
 
-psi_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-psi_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / psi_file
-psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
+state_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+state_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
+state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
-
-n = 3       # index of the state you want to check for a given l value set in parameters_and_functions.py and psi_file
+n = 3
+# index of the state you want to check for a given l value set in parameters_and_functions.py and psi_file
 # Principal quantum number index (n ≥ 1).
 # For a given orbital angular momentum quantum number l ≥ 0,
 # the actual principle quantum number = (n + l)
-# Example mapping:
-#   l   |   n   |   state
-#   0   |   1   |    1s
-#   1   |   1   |    2p
-#   3   |   1   |    4f
+# Example mapping of quantum numbers (n, l, m) to standard orbitals:
+# ------------------------------------------
+#   l   |   n   |   m   |   Orbital / State
+#   ----------------------------------------
+#   0   |   1   |   0   |    1s
+#   1   |   1   |   0   |    2p_{z}
+#   1   |   2   |   0   |    3p_{z}
+#   1   |   1   |   1   |    2p_{x}
+#   1   |   2   |   1   |    3p_{x}
+#   3   |   1   |   0   |    4f_{z^3}
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 print(f'initial state       : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
 print('S_matrix file       :', S_matrix_file)
 print('S_matrix shape      :', np.shape(S_matrix))
 
-
 r = f(colloc_pt)                                      # Radial coordinate in a.u
-A_r = psi_data[1:][n-1]                               # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
+A_r = state_data[1:][n - 1]                           # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
 R_m, _ = np.meshgrid(A_r, theta_k)                # Initial wavefunction ~ determined by (n, l).
 r_m, theta_m = np.meshgrid(r, theta_k)            # creating a meshgrid of nonlinear radial grid and angular colloc. points
-psi_0 = R_m * Y_lm(l, m, np.cos(theta_m))             # ψ0(r, θ) = A(r) • Y_lm(cosθ)
+U_r = R_m * Y_lm(l, m, np.cos(theta_m))               # U(r, θ) = A(r) • Y_lm(cosθ)
 
-len_r = len(r); len_k = len(weights)
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: G(l) = S(l) * g(l) :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-psi_0_recon = np.zeros((len_k, len_r), dtype=np.complex128)     # Reconstructed ψ0(r, θ) = A(r) • P_l(cosθ)
-psi_1 = np.zeros((len_k, len_r), dtype=np.complex128)           # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
-psi_2 = np.zeros((len_k, len_r), dtype=np.complex128)           # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
-psi_evolved = np.zeros((len_k, len_r), dtype=np.complex128)     # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
-cos_theta = np.cos(theta_k)
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, cos_theta[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
-gl_empty = np.empty((l_max+1, len(r)), dtype=np.complex128)         # Empty gl_array to be passed in gl() function.
-gl_0_array = g_lm(psi_0, gl_empty)                                        # [STEP-0]: partial wave expansion of the initial wavefunction.
-for j in range(len_k):
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                Empty arrays to hold evolution data                 |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+U_r_recon = np.zeros((L+1, N-1), dtype=np.complex128)       # Reconstructed U(r, θ) = A(r) • P_l(cosθ)
+psi_1 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
+psi_2 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
+psi_evolved = np.zeros((L+1, N-1), dtype=np.complex128)     # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
+gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)      # Empty gl_array to be passed in gl() function.
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                       Single step evolution                        |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])
+gl_0_array = g_lm(U_r, gl_empty)                                          # [STEP-0]: partial wave expansion of the initial wavefunction.
+for j in range(L+1):
     for l_index in range(l_max+1):
-        psi_0_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]          # This will confirm whether the partial wave expansion was correctly done or not.
+        U_r_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]            # This will confirm whether the partial wave expansion was correctly done or not.
         psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
 gl_2_array = g_lm(psi_2, gl_empty)                                                    # again calculating partial waves after interaction term being applied.
-for j in range(len_k):
+for j in range(L+1):
     for l_index in range(l_max+1):
         psi_evolved[j] += G(S_matrix, gl_2_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 
-print(f'max(|A[{n-1}](t=0)|^2)  :', np.max(np.abs(psi_0)**2))          # These two should remain same.
+
+print(f'max(|A[{n-1}](t=0)|^2)  :', np.max(np.abs(U_r) ** 2))          # These two should remain same.
 print(f'max(|A[{n-1}](t=dt)|^2) :', np.max(np.abs(psi_evolved)**2))    # as at first step field amplitude is very nearly equal to zero.
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: plotting :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                              plotting                              |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig1 = plt.figure(figsize=fig_size)
 fig2 = plt.figure(figsize=fig_size)
 fig3 = plt.figure(figsize=fig_size)
@@ -186,8 +204,8 @@ With this convention:
 [honestly this docstring is written by ChatGPT]
 """
 cmap = 'nipy_spectral_r'
-sc = ax1.scatter(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), c=np.abs(psi_0)**2, s=20, cmap=cmap)
-ax5.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_0_recon)**2, 200, cmap=cmap)
+sc = ax1.scatter(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), c=np.abs(U_r) ** 2, s=20, cmap=cmap)
+ax5.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(U_r_recon) ** 2, 200, cmap=cmap)
 ax6.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_1)**2, 200, cmap=cmap)
 ax7.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_2)**2, 200, cmap=cmap)
 ax8.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_evolved)**2, 200, cmap=cmap)

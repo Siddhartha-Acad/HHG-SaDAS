@@ -89,7 +89,7 @@ r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
 time_step = 100             # Total number of time steps desired for program execution. Maximum possible steps = len(t)-1
-show_E_field = True        # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
+show_E_field = True         # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
