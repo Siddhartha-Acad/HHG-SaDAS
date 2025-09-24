@@ -229,7 +229,7 @@ fig2.subplots_adjust(
 )
 
 print('\n')
-print('Average time for each step     :', (end_time-start_time)/time_step, ' sec')
+print('time for each step (your eta)   :', np.round((end_time-start_time)/time_step, 4), ' sec')
 print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
 
 plt.show()
