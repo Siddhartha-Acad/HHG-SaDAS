@@ -324,19 +324,19 @@ def g_lm(Psi_t, glm_arr):
 
     :param Psi_t: Angular–radial wavefunction :math:`\psi(\theta, r)` at a fixed time,
                   evaluated at Gauss–Legendre quadrature points.
-                  Shape = ``(n_theta, n_r)``, where
+                  Shape = ``(n_theta, N-1)``, where
                   ``Psi_t[k, i] = ψ(θ_k, r_i)``.
     :type Psi_t: ndarray
 
     :param glm_arr: Optional output array for storing results in-place to avoid
                    repeated allocations. If None, a new array is created.
-                   Shape = ``(l_max+1, n_r)``.
+                   Shape = ``(l_max+1, N-1)``.
     :type glm_arr: ndarray or None
 
     :return: Radial partial-wave projections :math:`g_{\ell m}(r)` for
              :math:`\ell = 0, \ldots, \ell_\text{max}` at fixed magnetic quantum number :math:`m`.
              Each row corresponds to one angular momentum component :math:`\ell`.
-    :rtype: ndarray, shape ``(l_max+1, n_r)``
+    :rtype: ndarray, shape ``(l_max+1, N-1)``
 
     Notes
     -----
@@ -351,8 +351,8 @@ def g_lm(Psi_t, glm_arr):
 
     Example
     -------
-    >>> glm_empty = np.empty((l_max + 1, len_r), dtype=np.complex128)
-    >>> for t in range(time_steps):
+    >>> glm_empty = np.empty((l_max + 1, N-1), dtype=np.complex128)
+    >>> for ti in range(len(t)-1):
     ...     # Psi_t = updated wavefunction
     ...     gl_vals = g_lm(Psi_t, glm_empty)  # memory reused each iteration
 
@@ -385,7 +385,7 @@ def G(Sl_matrix, gl_arr, l_ind):
     ----------
     Sl_matrix : ndarray, shape (l_max+1, N-1, N-1)
         S-matrix blocks :math:`S_\ell` for each angular momentum :math:`\ell`.
-    gl_arr : ndarray, shape (l_max+1, n_r)
+    gl_arr : ndarray, shape (l_max+1, N-1)
         Radial partial-wave projections :math:`g_\ell(r, t)`.
     l_ind : int
         Angular momentum index :math:`\ell`.
@@ -397,6 +397,94 @@ def G(Sl_matrix, gl_arr, l_ind):
     """
     return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
 
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                      dipole moment                       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def alpha(l_val, m_val):
+    r"""
+    This factor appears in the expression of general dipole moment formula (see Eq.~E.18)
+
+    .. math::
+        \alpha_{l,m} = \sqrt{\frac{(l + 1)^2 - m^2}{(2l + 1)(2l + 3)}}
+
+    Parameters
+    ----------
+    l_val : int or ndarray
+        Angular momentum quantum number(s) :math:`\ell`. Can be a scalar or a NumPy array.
+    m_val : int or ndarray
+        Magnetic quantum number(s) :math:`m` (:math:`|m| \leq \ell`). Can be a scalar or a NumPy array.
+        If one is an array and the other is a scalar, broadcasting is applied.
+
+    Returns
+    -------
+    float
+        The computed dipole factor :math:`\alpha_{l,m}`.
+    """
+    return np.sqrt(((l_val + 1) ** 2 - m_val ** 2) / ((2 * l_val + 1) * (2 * l_val + 3)))
+
+
+def dipole_moment(r, glm_arr):
+    r"""
+    Computes the dipole moment for a given radial grid and a set of partial-waves at an instant of time.
+
+    .. math::
+        d_{i\sigma}(t) = 2 \sum_\ell \alpha_{\ell,m} \int r \, \mathrm{Re}\left[g_\ell^*(r, t) g_{\ell+1}(r, t)\right] \, dr
+
+    Parameters
+    ----------
+    r : ndarray, shape (N-1,)
+        Nonlinear Radial collocation grid points: r(x)
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Partial-wave amplitudes :math:`g_\ell(r)` of the wavefunction.
+
+        - `l_max+1` : number of angular momentum channels.
+        - `N-1`     : number of radial grid points.
+
+    Returns
+    -------
+    float
+        Total dipole moment computed from the partial-wave amplitudes.
+
+    Notes
+    -----
+    - `l_ind_arr = np.arange(l_max)` is used to iterate over angular momentum indices : precomputed
+    - `alpha_factor = alpha(l_ind_arr + m, m)` : precomputed
+    """
+    integrals = np.array([np.sum(r * np.real(np.conj(glm_arr[l_ind]) * glm_arr[l_ind + 1])) for l_ind in l_ind_arr])
+    return 2 * np.sum(alpha_factor * integrals)
+
+l_ind_arr = np.arange(l_max)            # l_max because in Eq.~E.21, the `l' index goes from (m) to (l_max+m-1). So, in total (l_max-1).
+alpha_factor = alpha(l_ind_arr+m, m)
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                   survival probability                   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def Ps(glm_arr):
+    r"""
+    Calculates the total survival probability at a given instant.
+
+    Parameters
+    ----------
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Array of radial partial-wave amplitudes :math:`g_\ell(r)`.
+
+        - `l_max+1` : number of angular momentum channels.
+        - `N-1`     : number of radial grid points.
+
+    Returns
+    -------
+    float
+        The survival probability :math:`P_s = \sum_\ell \sum_r |g_\ell(r)|^2`.
+
+    Reference
+    ----------
+    - Section 2.4.3 -- *Correlation function and Survival probability*
+    """
+    return np.sum(np.abs(glm_arr)**2)
 
 
 

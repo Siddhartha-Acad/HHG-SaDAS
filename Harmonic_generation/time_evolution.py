@@ -20,55 +20,15 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_D as da
 from Harmonic_generation.parameters_and_functions import t, roots, colloc_pt                                              # imported arrays
-from Harmonic_generation.parameters_and_functions import n, l, m, cpp, E0_au, w0                                          # imported params
+from Harmonic_generation.parameters_and_functions import n, l, m, L, k_max, r_max, L_map                                          # imported params
 from Harmonic_generation.parameters_and_functions import N, l_max, r0, dt, evolving_atom                                  # imported params
-from Harmonic_generation.parameters_and_functions import f, factorial, g_lm, Y_lm, Absorber_func, state_name  # imported funcns
+from Harmonic_generation.parameters_and_functions import f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int           # imported funcns
+from Harmonic_generation.parameters_and_functions import dipole_moment, Ps                                              # imported funcns
 
 
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
 da.decorate_2d(ax1)
-
-def E_field(t):           # Single color
-    return E0_au * np.sin(w0*t) * (np.sin(w0*t / (2*cpp))) ** 2
-
-# def E_field(t):             # Double color
-#     return (E0_au * np.sin(w0 * t) + E0_au_2 * np.sin(w0_2 * t)) * (np.sin(w0 * t / (2 * cpp))) ** 2
-
-def V_int(r, theta, t):
-    return -E_field(t) * r * np.cos(theta)
-
-def C_fact(l, m):
-    """
-    Orthogonality constant factor of P_lm
-    """
-    return 2 * factorial(l+m, exact=False) / ((2*l+1)*factorial(l-m, exact=False))
-
-def N_fact(l, m):
-    """
-    Normalization constant of Y_lm
-    """
-    return (-1)**m * np.sqrt((2*l+1) * factorial(l-m, exact=False) / (4*np.pi * factorial(l+m, exact=False)))
-
-def alpha(l, m):
-    """
-    General factor for dipole moment
-    """
-    return 2*np.pi * N_fact(l+1, m) * N_fact(l, m) * C_fact(l, m) * (l + m + 1) / (2*l + 3)
-
-
-def dipole_moment_gl(gl_arr):
-    """
-    gl_arr: partial waves of A(r, θ, t)
-    """
-    integrals = np.array([np.sum(r * np.real(np.conj(gl_arr[l_ind]) * gl_arr[l_ind + 1])) for l_ind in l_ind_arr])
-    return 2 * np.sum(l_factors_d * integrals)
-
-def Ps(gl_arr):
-    """
-    Survival probability
-    """
-    return np.sum(np.sum(np.abs(gl_arr)**2, axis=1))
 
 
 eta_t = 0.03; time_step = 100
@@ -89,8 +49,7 @@ A_r = psi_data[1:][n-1]                               # Being the eigenstate of 
 absorber = np.array([Absorber_func(ri) for ri in r])
 
 theta_k = np.arccos(roots)
-l_ind_arr = np.arange(l_max)
-l_factors_d = alpha(l_ind_arr+m, m)
+
 len_r = len(r); len_k = len(theta_k)
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
@@ -144,7 +103,7 @@ for ti in range(time_step):
 
     print(f'Evolution step {ti}    : {((ti+1)/time_step)*100:.4f}%')
 
-    dipole_mom = dipole_moment_gl(init_gl)
+    dipole_mom = dipole_moment(r, init_gl)
     population_den_array = np.append(population_den_array, Ps(init_gl))
     d_t_array = np.append(d_t_array, dipole_mom)
 
@@ -153,13 +112,13 @@ end_time = time.time()
 
 # ~~~~~~~~~~~~~~~~~~~: Saving dipole moment :~~~~~~~~~~~~~~~~~~~
 # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
-# dipole_file_name = f'd_len_Ps_{time_step}_{evolving_atom}_{state_name(n+l, l)}_m={m}__L={L}_k_max={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}_wAb_r0={r0}_all_ok.xlsx'
-# dipole_moment_data['d(t)'] = d_t_array
-# dipole_moment_data['Ps(t)'] = population_den_array
-# df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
-# d_file_path = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\Important_files\{dipole_file_name}'
+dipole_file_name = f'd_len_Ps_{time_step}_{evolving_atom}_{state_name(n+l, l)}_m={m}__L={L}_k_max={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}_wAb_r0={r0}_all_ok.xlsx'
+dipole_moment_data['d(t)'] = d_t_array
+dipole_moment_data['Ps(t)'] = population_den_array
+df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
+d_file_path = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\Important_files\{dipole_file_name}'
 # df_dipole_moment_data.to_excel(d_file_path, index=False)
-# print(f"'{dipole_file_name}'")
+print(f"'{dipole_file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: plotting :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,7 +136,7 @@ ax7.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
 ax8.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
 ax9.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
 fig3.subplots_adjust(top=0.92, bottom=0.06, right=0.97, left=0.048, hspace=0.14)
-# fig3.suptitle(dipole_file_name, fontsize=13)
+fig3.suptitle(dipole_file_name, fontsize=13)
 
 print('Average time  for each step     :', (end_time-start_time)/time_step, ' sec')
 print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
