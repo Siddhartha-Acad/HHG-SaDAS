@@ -19,9 +19,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_D as da
-from Harmonic_generation.parameters_and_functions import t, roots                                                         # imported arrays
+from Harmonic_generation.parameters_and_functions import t, roots, colloc_pt                                              # imported arrays
 from Harmonic_generation.parameters_and_functions import n, l, m, cpp, E0_au, w0                                          # imported params
-from Harmonic_generation.parameters_and_functions import N, l_max, r0, k_max, dt, evolving_atom                           # imported params
+from Harmonic_generation.parameters_and_functions import N, l_max, r0, dt, evolving_atom                                  # imported params
 from Harmonic_generation.parameters_and_functions import f, factorial, g_lm, Y_lm, Absorber_func, state_name  # imported funcns
 
 
@@ -71,19 +71,15 @@ def Ps(gl_arr):
     return np.sum(np.sum(np.abs(gl_arr)**2, axis=1))
 
 
-eta_t = 0.03; time_step = 1000
+eta_t = 0.03; time_step = 100
 
 # ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = '199_AnaDeriv_collocation_points.txt'
-colloc_pt_file = rf'E:\Python_programs\Pythonic_Physics\HHG\GPSM_Y_l0\Collocation_points\AnaDeriv_Colloc_pt\{colloc_file}'
-colloc_pt = np.loadtxt(colloc_pt_file, skiprows=1, usecols=0)
-
-S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 file_S_matrix = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{S_matrix_file}'
 S_matrix_data = pd.read_excel(file_S_matrix, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
-psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+psi_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
 file_psi = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{psi_file}'
 psi_data = pd.read_excel(file_psi, header=None, skiprows=1).to_numpy().T
 
@@ -96,16 +92,12 @@ theta_k = np.arccos(roots)
 l_ind_arr = np.arange(l_max)
 l_factors_d = alpha(l_ind_arr+m, m)
 len_r = len(r); len_k = len(theta_k)
-# a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])     # will be used in gl(r) function
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
 
 
 init_gl = np.zeros((l_max+1, len_r), dtype=np.complex128)
 init_gl[l-m] = A_r.astype(np.complex128)
 
-print('Initial state :~~~')
-print('dipole moment d(t)       :', dipole_moment_gl(init_gl))
-print(f'sum(|A[{n - 1}](t=0)|^2)       :', sum(np.abs(init_gl[l-m]) ** 2), '\n')
 
 print('~~~~~~~~~~~~~: Time Evolution :~~~~~~~~~~~~~')
 print('Evolving atom            :', evolving_atom)
@@ -141,12 +133,12 @@ for ti in range(time_step):
     psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
 
     for j in range(len_k):
-        for l_index in range(l_max+1):
+        for l_index in range(l_max):
             psi_1[j] += np.dot(S_matrix[l_index], init_gl[l_index]) * Y_lm_cos_theta_j[l_index, j]
         psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]
 
     gl_2_array = g_lm(psi_2, gl_empty)
-    for l_index in range(l_max+1):
+    for l_index in range(l_max):
         init_gl[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber
 
 
