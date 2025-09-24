@@ -83,9 +83,21 @@ k_max = 50                  # number of GPSM states (maximum k index) in S matri
 L_map = 80; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 
-colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
-colloc_file = this_dir / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file
-colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   Time evolution controls: time_evolution.py   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
+time_step = 100             # Total number of time steps desired for program execution. Maximum possible steps = len(t)-1
+show_E_field = True        # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#      collocation grid (radial & angular)       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'                           # File that holds the collocation points.
+colloc_file = this_dir / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file      # fetching collocation data from relative path.
+colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
 
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
 roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k

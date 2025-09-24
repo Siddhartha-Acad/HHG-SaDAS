@@ -1,54 +1,109 @@
 """
-~ time_evolution.py
+File: time_evolution.py
+Project: HHG-SaDAS
+Code Description:
+    | *** [Main time evolution code] ***
+    | Evolves initial m >= 0 states for n time steps using partial-wave expansion.
+    | Computes electric field and dipole moment, saving the data in Excel.
+    | Wavefunction evolution is calculated only at radial and angular collocation points (ri, theta_j).
 
-• Initial state: m >= 0 states.
-• Evolves the initial state for n time steps, controlled by `time_step`.
-• New Algo: Evolve only the partial waves: gl(t+dt) = S(l) * gl(t)
-            Partial wave expansion in terms of Y_lm.
-            Hence, formula for gl also modified.
-• Shows Electric field and dipole moment.
-• Saves Electric field and dipole moment data in Excel file.
-• Does not show final wavefunction after n steps.
-• Calculates the evolution of the wavefunction only for theta = theta_k
-• This increases efficiency and CPU time.
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 
+--------------------------------------------------------------------------------
+Notes:
+- Only partial waves are evolved: glm(t+dt/2) = S(l) * glm(t)
+- This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+--------------------------------------------------------------------------------
 """
+
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))   # Ensure project root (HHG-SaDAS) is in sys.path
+
 import time
 import numpy as np
 import pandas as pd
+from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
-from Assistant.Decorate_axes import decorate_axes_D as da
-from Harmonic_generation.parameters_and_functions import t, roots, colloc_pt                                              # imported arrays
-from Harmonic_generation.parameters_and_functions import n, l, m, L, k_max, r_max, L_map                                          # imported params
-from Harmonic_generation.parameters_and_functions import N, l_max, r0, dt, evolving_atom                                  # imported params
-from Harmonic_generation.parameters_and_functions import f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int           # imported funcns
-from Harmonic_generation.parameters_and_functions import dipole_moment, Ps                                              # imported funcns
+from Assistant.Decorate_axes import decorate_axes_L as da
+from Harmonic_generation.parameters_and_functions import (
+    n, l, m,                                                                                     # initial state
+    t, roots, colloc_pt, theta_k,                                                                         # arrays
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t,                   # parameters
+    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field    # functions
+)
 
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111)
-da.decorate_2d(ax1)
+# ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
+width = 6.2                         # Width in inches
+height = 4                          # Height in inches
+fig_scale_factor = 2                # big=2 ; medium=1.5; small=1
+tickslabel_size = 18
+label_fontsize = 19
+fig_size = (fig_scale_factor*width, fig_scale_factor*height)
+
+dec_color = np.concatenate((da.mc.C_L, da.mc.des_col_1))
+plt.rc('font', **{'family': 'serif'})
+plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-eta_t = 0.03; time_step = 100
 
 # ~~~~~~~~~~~~~~~~~~~~~~~: Importing files :~~~~~~~~~~~~~~~~~~~~~~~
-S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-file_S_matrix = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{S_matrix_file}'
-S_matrix_data = pd.read_excel(file_S_matrix, header=None, skiprows=1).to_numpy().T
+this_dir = Path(__file__).resolve().parent
+
+"""
+Specify the data file names for the 'compatible' GPSM_states and S_matrix.
+
+[Extremely Important Notice]:
+By "compatible," the parameters used in these files must match those defined 
+in parameters_and_functions.py.
+
+Example:
+If parameters_and_functions.py defines:
+    L_map = 80
+but the chosen files are :
+    psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+    S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+then the code will give wrong results. This is because the imported nonlinear radial mapping 
+function in this script from parameters_and_functions.py:
+
+    def f(x, Lmap=L_map):
+        r"
+        Nonlinear radial mapping function.
+        ...
+        "
+
+produces a radial grid that does not match the one encoded in the data files.
+
+In short: ensure that the parameters in the data file names are consistent 
+with those in parameters_and_functions.py, otherwise the grid and data 
+will be incompatible.
+
+[For crosschecking]: running this file will show what parameter values 
+parameters_and_functions.py (and this script) is currently using.
+Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
+"""
+
+psi_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+psi_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / psi_file
+psi_data = pd.read_excel(psi_file, header=None, skiprows=1).to_numpy().T
+
+S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
+S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
-psi_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-file_psi = rf'E:\Python_programs\HHG-SaDAS\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_and_Smatrix_data\Free_atom\{psi_file}'
-psi_data = pd.read_excel(file_psi, header=None, skiprows=1).to_numpy().T
+
 
 # ~~~~~~~: Some pre-computed arrays to make calculations faster :~~~~~~~
 r = f(colloc_pt)                                      # Radial coordinate in a.u
 A_r = psi_data[1:][n-1]                               # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
 absorber = np.array([Absorber_func(ri) for ri in r])
-
-theta_k = np.arccos(roots)
 
 len_r = len(r); len_k = len(theta_k)
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(len_k)] for l_ind in range(l_max+1)])
@@ -68,15 +123,22 @@ print('Initial state file name  :', psi_file)
 print('Absorber radius (r_0)    :', r0)
 print('Total time steps         :', time_step)
 print('Estimated time (h, m, s) :', secs_to_hr_min_sec(eta_t * time_step), '\n')
-E_array = [E_field(ti) for ti in t]
-ax1.plot(t, E_array)
-ax1.set_title(f'E(t) ~ max step = {time_step}', fontsize=15)
-ax1.axvline(t[time_step], color='yellow', label=f't[{time_step}]')
-ax1.set_ylim(2*min(E_array), 2*max(E_array))
-ax1.fill_between(t, E_array, alpha=0.2)
-ax1.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='k')
-plt.show()
 
+if show_E_field:
+    fig1 = plt.figure()
+    ax1 = fig1.add_subplot(111)
+    da.decorate_2d(ax1)
+
+    E_array = [E_field(ti) for ti in t]
+    ax1.plot(t, E_array)
+    ax1.set_title(f'E(t) ~ max step = {time_step}', fontsize=15)
+    ax1.axvline(t[time_step], color='red', label=f't[{time_step}]')
+    ax1.set_ylim(2*min(E_array), 2*max(E_array))
+    ax1.fill_between(t, E_array, alpha=0.2)
+    ax1.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
+    plt.show(block=False)       # Show plot without blocking code execution
+    plt.pause(5)                # Pause for 5 seconds
+    plt.close()                 # Close the plot
 
 d_t_array = np.array([])          # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.array([])
@@ -100,8 +162,7 @@ for ti in range(time_step):
     for l_index in range(l_max):
         init_gl[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber
 
-
-    print(f'Evolution step {ti}    : {((ti+1)/time_step)*100:.4f}%')
+    print(f'Evolution step {ti:<5}: {((ti + 1) / time_step) * 100:.4f}%')
 
     dipole_mom = dipole_moment(r, init_gl)
     population_den_array = np.append(population_den_array, Ps(init_gl))
@@ -122,23 +183,32 @@ print(f"'{dipole_file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: plotting :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fig3 = plt.figure(figsize=(18, 9))
-ax8 = fig3.add_subplot(311)                         # Electric Field
-ax7 = fig3.add_subplot(312)                         # dipole moment, from t=0
-ax9 = fig3.add_subplot(313)                         # dipole moment, from t=0
-da.decorate_2d([ax7, ax8, ax9])
+fig2 = plt.figure(figsize=(18, 9))
+ax2 = fig2.add_subplot(311)                         # Electric Field
+ax3 = fig2.add_subplot(312)                         # dipole moment, from t=0
+ax4 = fig2.add_subplot(313)                         # dipole moment, from t=0
+da.decorate_2d([ax2, ax3, ax4])
 
-ax7.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
-ax8.plot([E_field(ti) for ti in t[0:time_step]], lw=2, color='#58C4DD', label='E(t)')
-ax9.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
+ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
+ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=2, color='#58C4DD', label='E(t)')
+ax4.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
 
-ax7.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
-ax8.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
-ax9.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='k')
-fig3.subplots_adjust(top=0.92, bottom=0.06, right=0.97, left=0.048, hspace=0.14)
-fig3.suptitle(dipole_file_name, fontsize=13)
+ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+ax4.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+fig2.suptitle(dipole_file_name, fontsize=13)
 
-print('Average time  for each step     :', (end_time-start_time)/time_step, ' sec')
+fig2.subplots_adjust(
+    top=0.92,
+    bottom=0.06,
+    left=0.048,
+    right=0.97,
+    hspace=0.275,
+    wspace=0.205
+)
+
+print('\n')
+print('Average time for each step     :', (end_time-start_time)/time_step, ' sec')
 print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
 
 plt.show()
