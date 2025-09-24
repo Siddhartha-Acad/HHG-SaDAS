@@ -33,7 +33,7 @@ from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation.parameters_and_functions import (
     n, l, m,                                                                                     # initial state
     t, roots, colloc_pt, theta_k,                                                                # arrays
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t,                   # parameters
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model,        # parameters
     f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field    # functions
 )
 
@@ -185,12 +185,15 @@ end_time = time.time()            # ending time measurement.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-dipole_file_name = f'd_len_Ps_{time_step}_{evolving_atom}_{state_name(n+l, l)}_m={m}__L={L}_k_max={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}_wAb_r0={r0}_all_ok.xlsx'
+dipole_file_name = f'EvoData_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
 dipole_moment_data['Ps(t)'] = population_den_array
 df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
-d_file_path = rf'E:\Python_programs\HHG\GPSM\GPSM_Y_lm\free_SAE\Important_files\{dipole_file_name}'
-# df_dipole_moment_data.to_excel(d_file_path, index=False)
+
+output_dir = this_dir / 'Time_evolution_data'
+output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
+d_file_path = output_dir / f'{dipole_file_name}'
+df_dipole_moment_data.to_excel(d_file_path, index=False)
 print(f"'{dipole_file_name}'")
 
 
