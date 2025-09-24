@@ -31,10 +31,10 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation.parameters_and_functions import (
-    n, l, m,                                                                                     # initial state
-    t, roots, colloc_pt, theta_k,                                                                # arrays
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model,        # parameters
-    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field    # functions
+    n, l, m,                                                                                                    # initial state
+    t, roots, colloc_pt, theta_k,                                                                               # arrays
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model,    # parameters
+    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field, confined         # functions
 )
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
@@ -185,7 +185,10 @@ end_time = time.time()            # ending time measurement.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-dipole_file_name = f'EvoData_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+if not confined:
+    dipole_file_name = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+else:
+    dipole_moment_data = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
 dipole_moment_data['Ps(t)'] = population_den_array
 df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
