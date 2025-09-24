@@ -19,18 +19,18 @@ Notes:
 # for function_bank.py : comment box size = 60
 # for normal codes     : comment box size = 50
 
-def center_comment(text: str, width: int = 60, border: str = "~") -> str:
+def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     line = f"# {border * (width - 2)}"
     middle = f"# {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
-def pretty_title(text: str, width: int = 60, fill: str = "~") -> str:
+def pretty_title(text: str, width: int = 70, fill: str = "~") -> str:
     line = f": {text} :"
     return "# " + line.center(width - 1, fill)
 
 
-# comment_head_string = "Partial-wave evolution"
-# print(center_comment(comment_head_string))
+comment_head_string = "STARTING MAIN TIME EVOLUTION"
+print(center_comment(comment_head_string))
 
-comment_title_string = "[Figure developed for my thesis]"
-print(pretty_title(comment_title_string))
+# comment_title_string = "Some pre-computed arrays to make calculations faster"
+# print(pretty_title(comment_title_string))
