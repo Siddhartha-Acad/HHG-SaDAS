@@ -50,7 +50,7 @@ def decorate_imshow(axes_list):
 
 
 def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_minorticks=False,
-                minor_grid_col='#0078FF', visible_spine='left, bottom', axis_ticks=True, axis='on'):
+                minor_grid_col='#0078FF', visible_spine='none', axis_ticks=True, axis='on'):
     # Spine configuration lookup table
     spine_configs = {
         'left, bottom': ['top', 'right'],

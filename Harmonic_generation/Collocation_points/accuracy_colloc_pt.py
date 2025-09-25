@@ -39,11 +39,11 @@ def a_derivative_P_N(x):
 
 N = 14
 colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
-colloc_file = this_dir / 'AnaDeriv_Colloc_pt' / colloc_file
+colloc_file = this_dir / 'Colloc_pt_generator' / colloc_file
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
 
 # colloc_file = 'Algo-3_N=400_AnaDeriv_collocation_points_with_P400.txt'
-# colloc_file = this_dir / 'AnaDeriv_Colloc_pt' / colloc_file
+# colloc_file = this_dir / 'Colloc_pt_generator' / colloc_file
 # colloc_file = np.loadtxt(colloc_file, skiprows=1)
 # colloc_pt = colloc_file[:, 0]
 # PN_x   = colloc_file[:, 1]

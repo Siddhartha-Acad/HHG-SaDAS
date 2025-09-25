@@ -67,7 +67,7 @@ for l in range(m, l_max+m+1):
     A = A.T
 
     energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
-    print(f'S-matrix for l={l}  :  DONE')
+    print(f'S-matrix for l={l:<2}:  DONE')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
     # print(f'negative energy states (E<0) : {negative_energy_states}')
@@ -97,7 +97,10 @@ print(f"\nS_matrix_file = '{file_name}'\n")
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if save_Egvals_with_Smatrix:
-    output_name = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+    if not confined:
+        output_name = f'{evolving_atom}_EgVals__m={m}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+    else:
+        output_name = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
     output_path = output_dir / output_name
 
     with open(output_path, 'w') as f:

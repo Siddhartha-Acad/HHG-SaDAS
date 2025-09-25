@@ -146,10 +146,10 @@ for j in range(L+1):
         psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
-gl_2_array = g_lm(psi_2, gl_empty)                                                    # again calculating partial waves after interaction term being applied.
+glm_tilde = g_lm(psi_2, gl_empty)                                                     # again calculating partial waves after interaction term being applied.
 for j in range(L+1):
     for l_index in range(l_max+1):
-        psi_evolved[j] += G(S_matrix, gl_2_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
+        psi_evolved[j] += G(S_matrix, glm_tilde, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 
 

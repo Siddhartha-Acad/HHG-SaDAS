@@ -24,12 +24,13 @@ Notes:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 --------------------------------------------------------------------------------
 """
-
 import time
+import warnings
 import numpy as np
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def P_N_AnaDeriv(x, N):
     return legendre(N-1)(x) - legendre(N+1)(x)
@@ -42,7 +43,7 @@ def f_rev(x_array):
     return -map_func[::-1] + r_max
 
 
-N = 20
+N = 200
 nopx_values = np.arange(5, 10000, 5, dtype=int)
 print(f'~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~')
 
