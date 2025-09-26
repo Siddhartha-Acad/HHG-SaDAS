@@ -24,10 +24,12 @@ Notes:
 """
 
 import time
+import warnings
 import numpy as np
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def P_N_AnaDeriv(x, N):
     return legendre(N-1)(x) - legendre(N+1)(x)

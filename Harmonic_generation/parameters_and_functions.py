@@ -52,8 +52,8 @@ from scipy.special import legendre
 from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, T0
 from Harmonic_generation.conf_model_bank import *
-this_dir = Path(__file__).resolve().parent              # Relative path system
 
+this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
@@ -70,7 +70,9 @@ SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = '
 
 confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
-save_Egvals_with_Smatrix = False    # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
+save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
+                                    # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
+                                    # in: HHG-SaDAS/Harmonic_generation/GPSM_states_S-matrix/Energy_level_diagram.py
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,24 +86,18 @@ L_map = 80; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#   Time evolution controls: time_evolution.py   |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = 100             # Total number of time steps desired for program execution. Maximum possible steps = len(t)-1
-show_E_field = True         # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #      collocation grid (radial & angular)       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'                           # File that holds the collocation points.
-colloc_file = this_dir / 'Collocation_points' / 'AnaDeriv_Colloc_pt' / colloc_file      # fetching collocation data from relative path.
+colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
+colloc_file = this_dir / 'Collocation_points' / 'Colloc_pt_generator' / colloc_file     # fetching collocation data from relative path.
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
 
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
 roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
 theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,6 +110,16 @@ E0_au = np.sqrt(I0_au)                          # Field intensity (a.u)
 w0 = omega_au(lambda_nm); T = 2 * np.pi / w0    # Angular frequency and time period.
 cpp = 60; tf = cpp*T; dt = 0.1                  # cpp = cycles per pulse.
 t = np.arange(0, tf+dt, dt)                     # total number of time steps.
+
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   Time evolution controls: time_evolution.py   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
+time_step = 100             # Total number of time steps desired for program execution. Maximum possible steps = len(t)-1
+show_E_field = True         # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

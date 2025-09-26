@@ -67,7 +67,7 @@ for l in range(m, l_max+m+1):
     A = A.T
 
     energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
-    print(f'S-matrix for l={l}  :  DONE')
+    print(f'S-matrix for l={l:<2}:  DONE')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
     # print(f'negative energy states (E<0) : {negative_energy_states}')
@@ -96,19 +96,31 @@ print(f"\nS_matrix_file = '{file_name}'\n")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if save_Egvals_with_Smatrix:
-    output_name = f'{evolving_atom}@C60_EgVals__m={m}_{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
-    output_path = output_dir / output_name
+from pathlib import Path
 
-    with open(output_path, 'w') as f:
-        f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
-        max_rows = max(len(vals) for vals in energy_eigenvalues.values())
-        for row in range(max_rows):
-            row_data = []
-            for l in range(m, l_max+m+1):
-                row_data.append(f"{energy_eigenvalues[f'l={l}'][row]:.6f}" if row < len(energy_eigenvalues[f'l={l}']) else "")
-            f.write(" ".join(row_data) + "\n")
-    print(f"EgVals saved : '{output_name}'")
+if save_Egvals_with_Smatrix:
+    if not confined:
+        output_name = f'{evolving_atom}_EgVals__lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+    else:
+        output_name = f'{evolving_atom}@C60_EgVals__{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+
+    output_path = Path(output_dir) / output_name
+
+    if output_path.exists():
+        print(f"File already exists: '{output_name}' — skipping.")
+    else:
+        with open(output_path, 'w') as f:
+            f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
+            max_rows = max(len(vals) for vals in energy_eigenvalues.values())
+            for row in range(max_rows):
+                row_data = []
+                for l in range(m, l_max+m+1):
+                    row_data.append(
+                        f"{energy_eigenvalues[f'l={l}'][row]:.6f}"
+                        if row < len(energy_eigenvalues[f'l={l}']) else ""
+                    )
+                f.write(" ".join(row_data) + "\n")
+        print(f"EgVals saved: '{output_name}'")
 
 end_time = time.time()
 print(f'Execution Time : {end_time - start_time:.2f} seconds')

@@ -34,7 +34,7 @@ from Harmonic_generation.parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model,    # parameters
-    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field, confined         # functions
+    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field, confined         # functions & booleans
 )
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
@@ -122,9 +122,9 @@ if show_E_field:
 
     E_array = [E_field(ti) for ti in t]
     ax1.plot(t, E_array)
-    ax1.set_title(f'E(t) ~ max step = {time_step}', fontsize=15)
+    ax1.set_title(f'E(t) (a.u.) : max step = {time_step}', fontsize=15)
     ax1.axvline(t[time_step], linestyle='--', color='royalblue', label=f't[{time_step}]')
-    ax1.set_ylim(2*min(E_array), 2*max(E_array))
+    ax1.set_ylim(2 * min(E_array), 2 * max(E_array))
     ax1.fill_between(t, E_array, alpha=0.2)
     ax1.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
     plt.show(block=False)       # Show plot without blocking code execution
@@ -170,13 +170,13 @@ for ti in range(time_step):
             psi_1[j] += np.dot(S_matrix[l_index], init_glm[l_index]) * Y_lm_cos_theta_j[l_index, j]     # calculating ψ1(r, θ)
         psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]                       # calculating ψ2(r, θ)
 
-    gl_2_array = g_lm(psi_2, glm_empty)                                                  # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
+    glm_tilde = g_lm(psi_2, glm_empty)                                                   # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
     for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
-        init_glm[l_index] = np.dot(S_matrix[l_index], gl_2_array[l_index]) * absorber    # Implementing Eq.~2.89 and updating init_glm with absorbing function
+        init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
 
-    print(f'Evolution step {ti:<5}: {((ti + 1) / time_step) * 100:.4f}%')                # It will show how much the process is completed.
+    print(f'Evolution step {ti:<6}: {((ti + 1) / time_step) * 100:.4f}%')                # It will show how much the process is completed.
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
-    population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density/
+    population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
 
 end_time = time.time()            # ending time measurement.
 
@@ -185,9 +185,9 @@ end_time = time.time()            # ending time measurement.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if not confined:
+if not confined:        # evolution data for free atom
     dipole_file_name = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
-else:
+else:                   # evolution data for confined system
     dipole_moment_data = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
 dipole_moment_data['Ps(t)'] = population_den_array
@@ -197,17 +197,16 @@ output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
 d_file_path = output_dir / f'{dipole_file_name}'
 df_dipole_moment_data.to_excel(d_file_path, index=False)
-print(f"'{dipole_file_name}'")
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fig2 = plt.figure(figsize=(18, 9))
+fig2 = plt.figure(figsize=(16, 9))
 ax2 = fig2.add_subplot(311)                         # Electric Field
-ax3 = fig2.add_subplot(312)                         # dipole moment, from t=0
-ax4 = fig2.add_subplot(313)                         # dipole moment, from t=0
+ax3 = fig2.add_subplot(312)                         # dipole moment
+ax4 = fig2.add_subplot(313)                         # survival probability
 da.decorate_2d([ax2, ax3, ax4])
 
 ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
@@ -229,7 +228,9 @@ fig2.subplots_adjust(
 )
 
 print('\n')
-print('time for each step (your eta)   :', np.round((end_time-start_time)/time_step, 4), ' sec')
+print(f"'{dipole_file_name}'")
+print('\n')
+print('time for each step (your eta_t) :', np.round((end_time-start_time)/time_step, 4), ' sec')
 print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
 
 plt.show()
