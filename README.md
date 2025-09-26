@@ -79,41 +79,13 @@ pip install -r requirements.txt
 ---
 
 ## Workflow
-<div style="
-    background: linear-gradient(145deg, #f0f4f8, #d9e2ec);
-    padding: 25px; 
-    border-radius: 20px; 
-    box-shadow: 0 8px 25px rgba(0,0,0,0.15); 
-    text-align: center;
-    transition: transform 0.3s;
-">
-  <h1 style="color:#2c3e50;">HHG-SaDAS Workflow</h1>
 
-  <hr style="
-      width: 60px;
-      border: 2px solid #2575fc;
-      border-radius: 5px;
-      margin: 15px auto;
-  "/>
-  <p style="
-      color: #34495e; 
-      font-size: 1.1rem; 
-      line-height: 1.5;
-      max-width: 800px; 
-      margin: 0 auto 20px;
-  ">
-    The <code style="color:#757575ff; font-weight:600;">HHG-SaDAS/Harmonic_generation/</code> directory contains the essential scripts for generating HHG spectra for a given atom or atomic system under the interaction of an external laser field.
+The following block diagram provides an overview of the **HHG-SaDAS** workflow,  
+illustrating the flow of parameters, functions, and data throughout the simulation process.
 
-  </p>
-  <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="700" style="
-      border-radius: 15px; 
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      transition: transform 0.3s, box-shadow 0.3s;
-  " 
-  onmouseover="this.style.transform='scale(1.03)'; this.style.boxShadow='0 12px 30px rgba(0,0,0,0.25)';"
-  onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)';"/>
-</div>
-
+<p align="center">
+  <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="800"/>
+</p>
 
 ---
 
