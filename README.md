@@ -78,6 +78,16 @@ pip install -r requirements.txt
 
 ---
 
+## Workflow
+
+The following block diagram provides an overview of the **HHG-SaDAS** workflow,  
+illustrating the flow of parameters, functions, and data throughout the simulation process.
+
+<p align="center">
+  <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="700"/>
+</p>
+
+---
 
 
 ## License
