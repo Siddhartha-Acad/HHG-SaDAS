@@ -1,5 +1,5 @@
 """
-File: Algo-3_AnaDeriv_colloc_pt.py
+File: Algo-3_Gauss_Lobatto_colloc_pt.py
 Project: HHG-SaDAS
 Code Description:
     | *** [Main Gauss-Lobatto collocation point generating code] ***
@@ -54,8 +54,8 @@ N = 200
 Write_PN = False
 
 
-nopx = 2760
-xi = np.linspace(-1, 1, nopx); x_mapped = f_rev(xi)
+
+xi = np.linspace(-1, 1, 200000); x_mapped = f_rev(xi)
 PN_deriv_array = P_N_AnaDeriv(x_mapped, N)
 pks_at = find_peaks(-PN_deriv_array ** 2)[0]
 colloc_pt = np.array([fsolve(P_N_AnaDeriv, x_mapped[pks_at[j]], args=(N,))[0] for j in range(len(pks_at))])
@@ -86,16 +86,16 @@ print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f})
 # Text file introduced on 2/12/2024: listening Pandit Ravi Shankar ESCONDITO 2011 full concert
 if len(colloc_pt) == N - 1:
     if not Write_PN:
-        txt_file_name = f'Algo-3_{N=}_AnaDeriv_collocation_points.txt'
+        txt_file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
         file_path = this_dir / txt_file_name
-        # if file_path.exists():
-        #     raise FileExistsError(f"File already exists: {file_path.name}")
+        if file_path.exists():
+            raise FileExistsError(f"File already exists: {file_path.name}")
 
         header = f'{"colloc_pt":>12} (N={N})'
         np.savetxt(file_path, colloc_pt, fmt='%20.15f', header=header, comments='')
 
     else:
-        txt_file_name = f'Algo-3_{N=}_AnaDeriv_collocation_points_with_P{N}.txt'
+        txt_file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
         file_path = this_dir / txt_file_name
         if file_path.exists():
             raise FileExistsError(f"File already exists: {file_path.name}")

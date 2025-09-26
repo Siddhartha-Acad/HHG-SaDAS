@@ -67,7 +67,7 @@ N = 14                                   # number of grid points [Thesis: 4, 8, 
 exact = np.pi / 4               # 1 / (1 + x**2) over [-5, 5]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Calculation :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'
+colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'
 colloc_file = this_dir.parent / 'Harmonic_Generation' / 'Collocation_points' / 'Colloc_pt_generator' / colloc_file
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
 colloc_pt = np.insert(colloc_pt, [0, len(colloc_pt)], [-1, 1])

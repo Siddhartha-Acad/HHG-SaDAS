@@ -89,7 +89,7 @@ r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #      collocation grid (radial & angular)       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = f'Algo-3_N={N}_AnaDeriv_collocation_points.txt'                           # File that holds the collocation points.
+colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
 colloc_file = this_dir / 'Collocation_points' / 'Colloc_pt_generator' / colloc_file     # fetching collocation data from relative path.
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
 
