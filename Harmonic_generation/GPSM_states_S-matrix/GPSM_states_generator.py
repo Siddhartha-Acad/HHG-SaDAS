@@ -59,7 +59,7 @@ A = A.T
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                    # radial coordinate in atomic unit. (Nonlinearly discretised)
-data_wavefunction = {'r (a.u.)': r}                 # First column of the data file is the radial grid.
+data_wavefunction = {'r(x) (a.u.)': r}                 # First column of the data file is the radial grid.
 for Eth in range(total_states):
     data_wavefunction[f'A({state_name(Eth + l + 1, l)})'] = A[Eth]
 df_A_r = pd.DataFrame(data_wavefunction)

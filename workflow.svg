@@ -400,9 +400,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.78691437"
-     inkscape:cx="431.90154"
-     inkscape:cy="887.84156"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="256.23636"
+     inkscape:cy="501.55043"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -437,7 +437,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -487,7 +487,9 @@
          width="121.61507"
          height="10.290697"
          x="44.192467"
-         y="7.6519847" />
+         y="7.6519847"
+         ry="2.0909228"
+         rx="0" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -512,7 +514,8 @@
            width="101.334"
            height="10.290697"
            x="53.313713"
-           y="26.563942" />
+           y="26.563942"
+           ry="1.9761068" />
         <text
            xml:space="preserve"
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -535,7 +538,8 @@
          width="90.83194"
          height="10.290697"
          x="59.58403"
-         y="72.428215" />
+         y="72.428215"
+         ry="2.09093" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -557,7 +561,8 @@
          width="80.759804"
          height="10.290697"
          x="64.620102"
-         y="87.351288" />
+         y="87.351288"
+         ry="2.09093" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -595,7 +600,8 @@
          width="67.33326"
          height="10.290697"
          x="71.333374"
-         y="173.40099" />
+         y="173.40099"
+         ry="2.0909235" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -617,7 +623,8 @@
          width="57.108757"
          height="10.290697"
          x="76.445618"
-         y="201.42822" />
+         y="201.42822"
+         ry="2.0909238" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -639,7 +646,8 @@
          width="87.353836"
          height="10.290697"
          x="61.323082"
-         y="134.81044" />
+         y="134.81044"
+         ry="2.0909328" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
@@ -661,7 +669,8 @@
          width="54.240246"
          height="10.290697"
          x="77.879875"
-         y="116.13898" />
+         y="116.13898"
+         ry="2.0909245" />
       <text
          xml:space="preserve"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:Consolas;-inkscape-font-specification:Consolas;stroke-width:0.264583"
