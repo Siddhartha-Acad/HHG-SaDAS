@@ -105,7 +105,7 @@ pip install -r requirements.txt
 
 > Inside the directory `/HHG-SaDAS/Harmonic_generation/GPSM_states_S-matrix/`
 > 
-> `GPSM_states_generator.py` solves the time independent Schrödinger equation for atomic system (free or confined) defined inside the `parameters_and_functions.py` script.
+> **`GPSM_states_generator.py`** solves the time independent Schrödinger equation for atomic system (free or confined) defined inside the `parameters_and_functions.py` script.
 > 
 > Thereafter, it saves the solutions, for a particular `l` value inside the self-generated path: `/GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/` as an `.xlsx` file with the given format:
 >```
@@ -124,7 +124,7 @@ pip install -r requirements.txt
 >+-----+-------------+----------+----------+----------+-----+----------+
 >```
 
-> `S_matrix_generator.py` script solves the time independent Schrödinger equation and calculates the **S-matrix** for all `l` values in the range `l = (m, l_max+m)`.
+> **`S_matrix_generator.py`** script solves the time independent Schrödinger equation and calculates the **S-matrix** for all `l` values in the range `l = (m, l_max+m)`.
 > 
 > The S-matrix elements are shown below, with detailed derivation and analysis in `Appendix B`.
 >
