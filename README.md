@@ -73,19 +73,35 @@ pip install -r requirements.txt
 
 ## Notes
 - The virtual environment step is optional but recommended to avoid package conflicts
-- For Windows users, ensure PowerShell execution policy allows script execution
 - If you encounter permission issues on Windows, you may need to run PowerShell as Administrator
 
 ---
 
-## Workflow
-
-The following block diagram provides an overview of the **HHG-SaDAS** workflow,  
-illustrating the flow of parameters, functions, and data throughout the simulation process.
+# Workflow
 
 <p align="center">
   <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="800"/>
 </p>
+
+### A brief description of the workflow diagram:
+
+**Step 1**  
+> Navigate to:  
+> `/HHG-SaDAS/Harmonic_generation/Collocation_points/Colloc_pt_generator/`  
+>  
+> Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in Appendix A of the thesis:  
+>> *“An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points.”*  
+>  
+> After computation, the collocation points are automatically written to a `.txt` file for later use.  
+
+**Step 2**  
+> The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
+> As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.  
+>  
+> Users only need to modify a given parameter once inside this file. All other scripts will then read the updated values and functions directly from it.  
+>  
+> As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.  
+
 
 ---
 

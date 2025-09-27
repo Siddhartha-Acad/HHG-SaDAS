@@ -296,7 +296,7 @@
        x2="12.311136"
        y2="-3.1865649"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(0.98892576,0,0,0.98512964,-3.0386634,3.6933723)" />
+       gradientTransform="matrix(0.98892576,0,0,0.98512964,2.78217,3.6933723)" />
     <marker
        style="overflow:visible"
        id="Arrow1Mend-43"
@@ -400,9 +400,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="1"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.80828276"
-     inkscape:cx="713.32999"
-     inkscape:cy="505.51329"
+     inkscape:zoom="0.78691437"
+     inkscape:cx="431.90154"
+     inkscape:cy="887.84156"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
@@ -747,20 +747,20 @@
        points="101.5,63.999 64,85.65 26.5,107.301 26.5,64 26.5,20.699 64,42.35 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060402,20.71727)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881236,20.71727)" />
     <path
        style="fill:none;stroke:url(#linearGradient6731);stroke-width:0.690918;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker6579)"
-       d="M 9.1361361,7.0140709 V 248.37127"
+       d="M 14.95697,7.0140709 V 248.37127"
        id="path6569" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="25.283735"
        id="text7527"><tspan
          sodipodi:role="line"
          id="tspan7525"
-         x="3.3762233"
+         x="9.1970558"
          y="25.283735"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">1.</tspan></text>
     <text
@@ -778,96 +778,96 @@
        points="26.5,20.699 64,42.35 101.5,63.999 64,85.65 26.5,107.301 26.5,64 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-3"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,90.92923)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,90.92923)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="95.495697"
        id="text7527-3"><tspan
          sodipodi:role="line"
          id="tspan7525-6"
-         x="3.3762233"
+         x="9.1970558"
          y="95.495697"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">2.</tspan></text>
     <polygon
        points="26.5,64 26.5,20.699 64,42.35 101.5,63.999 64,85.65 26.5,107.301 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-1"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,105.8523)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,105.8523)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="110.39674"
        id="text7527-5"><tspan
          sodipodi:role="line"
          id="tspan7525-9"
-         x="3.3762233"
+         x="9.1970558"
          y="110.39674"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">3.</tspan></text>
     <polygon
        points="26.5,107.301 26.5,64 26.5,20.699 64,42.35 101.5,63.999 64,85.65 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-5"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,152.35462)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,152.35462)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="157.92291"
        id="text7527-58"><tspan
          sodipodi:role="line"
          id="tspan7525-1"
-         x="3.3762233"
+         x="9.1970558"
          y="157.92291"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">*</tspan></text>
     <polygon
        points="26.5,107.301 26.5,64 26.5,20.699 64,42.35 101.5,63.999 64,85.65 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-0"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,167.27769)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,167.27769)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="172.84599"
        id="text7527-57"><tspan
          sodipodi:role="line"
          id="tspan7525-5"
-         x="3.3762233"
+         x="9.1970558"
          y="172.84599"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">*</tspan></text>
     <polygon
        points="26.5,107.301 26.5,64 26.5,20.699 64,42.35 101.5,63.999 64,85.65 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-8"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,202.29789)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,202.29789)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="206.86435"
        id="text7527-4"><tspan
          sodipodi:role="line"
          id="tspan7525-16"
-         x="3.3762233"
+         x="9.1970558"
          y="206.86435"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">4.</tspan></text>
     <polygon
        points="26.5,107.301 26.5,64 26.5,20.699 64,42.35 101.5,63.999 64,85.65 "
        style="fill:#4caf50;fill-opacity:1;stroke:#4caf50;stroke-width:11.9907;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
        id="polygon6559-4"
-       transform="matrix(0.04161557,0,0,0.04161557,10.060209,231.79317)" />
+       transform="matrix(0.04161557,0,0,0.04161557,15.881043,231.79317)" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;line-height:1.25;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583"
-       x="3.3762233"
+       x="9.1970558"
        y="236.35963"
        id="text7527-2"><tspan
          sodipodi:role="line"
          id="tspan7525-2"
-         x="3.3762233"
+         x="9.1970558"
          y="236.35963"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.64444px;font-family:'Cambria Math';-inkscape-font-specification:'Cambria Math';stroke-width:0.264583">5.</tspan></text>
     <text
@@ -909,7 +909,7 @@
              id="tspan8793"
              x="74.671242"
              y="266.68866"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583">Import parameters/functions from scripts</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583">Import parameters/functions from script</tspan></text>
       </g>
       <g
          id="g1726">
@@ -946,7 +946,7 @@
              id="tspan8793-9"
              x="74.671242"
              y="259.69608"
-             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583">Run script</tspan></text>
+             style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583">Run the script</tspan></text>
       </g>
     </g>
     <g
@@ -1293,5 +1293,21 @@
         </g>
       </g>
     </g>
+    <text
+       xml:space="preserve"
+       style="font-size:5.29167px;line-height:1.25;font-family:sans-serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+       x="16.956072"
+       y="257.08444"
+       id="text8795-4-0"><tspan
+         sodipodi:role="line"
+         id="tspan8793-9-2"
+         x="16.956072"
+         y="257.08444"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;text-align:center;text-anchor:middle;stroke-width:0.264583">Script running</tspan><tspan
+         sodipodi:role="line"
+         x="16.956072"
+         y="263.82977"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;font-family:serif;-inkscape-font-specification:serif;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         id="tspan1218">sequence</tspan></text>
   </g>
 </svg>
