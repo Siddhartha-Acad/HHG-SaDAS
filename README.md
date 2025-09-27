@@ -88,9 +88,9 @@ pip install -r requirements.txt
 **Step 1 : `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
 > Navigate to: `/HHG-SaDAS/Harmonic_generation/Collocation_points/Colloc_pt_generator/`  
 >  
-> Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in Appendix A of the thesis:  
->> *“An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points.”*  
->  
+> Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
+>> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*  
+> 
 > After computation, the collocation points are automatically written to a `.txt` file for later use.  
 
 **Step 2 : `parameters_and_functions.py`**  
