@@ -80,7 +80,7 @@ pip install -r requirements.txt
 # Workflow
 
 <p align="center">
-  <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="800"/>
+  <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
 </p>
 
 ### A brief description of the workflow diagram:
