@@ -77,7 +77,7 @@ pip install -r requirements.txt
 
 ---
 
-# Workflow ---test---
+# Workflow
 
 <p align="center">
   <img src="workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
