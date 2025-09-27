@@ -177,8 +177,8 @@ def f(x, Lmap=L_map):
     ----------
     - Section 2.2.2 — *Grid discretization and nonlinear mapping*
     """
-    alpha = 2 * Lmap / r_max
-    return Lmap * (1 + x) / (1 - x + alpha)
+    alpha_map = 2 * Lmap / r_max
+    return Lmap * (1 + x) / (1 - x + alpha_map)
 
 
 def f_p(x, Lmap=L_map):
@@ -193,8 +193,8 @@ def f_p(x, Lmap=L_map):
     :param Lmap: Mapping parameter controlling the scaling of the transformation (float).
     :return: Value(s) of the derivative of the nonlinear radial mapping (float or ndarray).
     """
-    alpha = 2 * Lmap / r_max
-    return Lmap * (alpha + 2) / (1 - x + alpha)**2
+    alpha_map = 2 * Lmap / r_max
+    return Lmap * (alpha_map + 2) / (1 - x + alpha_map)**2
 
 
 
@@ -790,8 +790,12 @@ if __name__ != '__main__':
     # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
 
     print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
-    print(f'atom system   : {evolving_atom}')
-    # print(f'initial state : {state_name(n+l, l)}')      # PRINCIPLE QUANTUM NUMBER = n+l
+    if not confined:
+        print(f'atom system   : {evolving_atom}')
+    else:
+        print(f'atom system   : {evolving_atom}@C60')
+        print(f'conf. model   : {confinement_model}')
+    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)
