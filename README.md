@@ -257,6 +257,8 @@ pip install -r requirements.txt
 > </picture>
 > </div>
 >
+>> Reference: *Section 2.3: "Time Evolution of atomic wavefunction interacting with external strong-field LASER"*.
+> 
 > At each time step, the dipole moment and other observables are computed using the time-evolved partial waves.
 > Upon completion, it shows a plot of computed dipole moment `d(t)` and Survival probability `Ps(t)`.
 > Thereafter, these data are written (column wise) to an `.xlsx` file for further analysis. The format is given by:
