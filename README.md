@@ -262,7 +262,7 @@ pip install -r requirements.txt
 > Thereafter, these data are written (column wise) to an `.xlsx` file for further analysis. The format is given by:
 >
 >```
->time_evolution_data = 'Evo_steps=88036_He(2p)_m=1_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+>evolution_data = 'Evo_steps=88036_He(2p)_m=1_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
 >
 >+-------+-------------+-------------+-------------+-------------+
 >| Row   | t (a.u.)    |    E(t)     |    d(t)     |   Ps(t)     |
