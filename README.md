@@ -177,7 +177,7 @@ pip install -r requirements.txt
 > Using the GPSM solutions (eigenvalues and eigenvectors for a particular `l`), it also calculates the **S-matrix** and displays it as a 2D color-mapped matrix.  
 >
 > In addition to plotting eigenvectors, the script verifies their **normalization**, prints the results, and outputs other important information regarding the parameters used.
->```bash
+>```console
 >$ python3 check_GPSM.py
 >~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~
 >mapping param (L_map)       : 80
