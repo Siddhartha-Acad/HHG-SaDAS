@@ -236,6 +236,50 @@ pip install -r requirements.txt
 > 
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
+**Step 5: `time_evolution.py`**
+> This module imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
+> 
+> With these compatible input parameters and data, it evolves the initial wavefunction iteratively using the **Split-Operator method**:
+> 
+> <div align="center">
+> <picture>
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+>   <img alt="Time evolution operator equation" src="https://latex.codecogs.com/svg.latex?U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+> </picture>
+> </div>
+> 
+> <div align="center">
+> <picture>
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+>   <img alt="Trotter splitting approximation" src="https://latex.codecogs.com/svg.latex?%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+> </picture>
+> </div>
+>
+> At each time step, the dipole moment and other observables are computed using the time-evolved partial waves.
+> Upon completion, it shows a plot of computed dipole moment `d(t)` and Survival probability `Ps(t)`.
+> Thereafter, these data are written (column wise) to an `.xlsx` file for further analysis. The format is given by:
+>
+>```
+>time_evolution_data = 'Evo_steps=88036_He(2p)_m=1_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+>
+>+-------+-------------+-------------+-------------+-------------+
+>| Row   | t (a.u.)    |    E(t)     |    d(t)     |   Ps(t)     |
+>+-------+-------------+-------------+-------------+-------------+
+>|   1   | 0           | 0           | 3.84E-16    | 1.00        |
+>|   2   | 0.1         | 2.06E-13    | 4.28E-15    | 1.00        |
+>|   3   | 0.2         | 1.65E-12    | 2.73E-14    | 1.00        |
+>|   4   | 0.3         | 5.56E-12    | 1.09E-13    | 1.00        |
+>|   5   | 0.4         | 1.32E-11    | 3.27E-13    | 1.00        |
+>|  ...  | ...         | ...         | ...         | ...         |
+>+-------+-------------+-------------+-------------+-------------+
+>| 88036 | 8803.5      | -8.51E-15   | -2.60E-05   | 0.96527917  |
+>+-------+-------------+-------------+-------------+-------------+
+>```                             
+
+
+
 ---
 
 
