@@ -6,6 +6,22 @@ Code Description:
     - it automatically creates data directory if not previously created.
     - it checks, if for a particular file is already existing or not.
     - it runs and computes only if the calculation is unique.
+    - The format of a generated file is shown below.
+
+state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+
++-----+-------------+----------+----------+----------+-----+----------+
+| Row | r(x) (a.u.) |   A(1s)  |   A(2s)  |   A(3s)  | ... |  A(10s)  |
++-----+-------------+----------+----------+----------+-----+----------+
+|  1  | 0.00166     | -0.00041 |  4.6E-05 | 0.000118 | ... | 8.64E-06 |
+|  2  | 0.005566    |  0.001819| -0.00021 | -0.00053 | ... | -3.9E-05 |
+|  3  | 0.011707    | -0.00454 |  0.000513| 0.001318 | ... | 9.63E-05 |
+|  4  | 0.020085    |  0.00877 | -0.00099 | -0.00254 | ... | -0.00019 |
+| ... | ...         | ...      | ...      | ...      | ... | ...      |
++-----+-------------+----------+----------+----------+-----+----------+
+| 199 | 199.7993166 |-7.14E-13 |-1.38E-10 | 5.80E-11 | ... |-0.000331 |
++-----+-------------+----------+----------+----------+-----+----------+
+
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
