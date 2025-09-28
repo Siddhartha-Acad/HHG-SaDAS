@@ -85,11 +85,11 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
 """
 
-state_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
 state_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
@@ -118,9 +118,9 @@ print('S_matrix shape      :', np.shape(S_matrix))
 
 r = f(colloc_pt)                                      # Radial coordinate in a.u
 A_r = state_data[1:][n - 1]                           # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
-R_m, _ = np.meshgrid(A_r, theta_k)                # Initial wavefunction ~ determined by (n, l).
+A_mesh, _ = np.meshgrid(A_r, theta_k)             # Initial wavefunction ~ determined by (n, l).
 r_m, theta_m = np.meshgrid(r, theta_k)            # creating a meshgrid of nonlinear radial grid and angular colloc. points
-U_r = R_m * Y_lm(l, m, np.cos(theta_m))               # U(r, θ) = A(r) • Y_lm(cosθ)
+U_r = A_mesh * Y_lm(l, m, np.cos(theta_m))            # U(r, θ) = A(r) • Y_lm(cosθ)
 
 
 
@@ -204,8 +204,8 @@ With this convention:
 [honestly this docstring is written by ChatGPT]
 """
 cmap = 'nipy_spectral_r'
-sc = ax1.scatter(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), c=np.abs(U_r) ** 2, s=20, cmap=cmap)
-ax5.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(U_r_recon) ** 2, 200, cmap=cmap)
+sc = ax1.scatter(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), c=np.abs(U_r)**2, s=20, cmap=cmap)
+ax5.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(U_r_recon)**2, 200, cmap=cmap)
 ax6.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_1)**2, 200, cmap=cmap)
 ax7.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_2)**2, 200, cmap=cmap)
 ax8.contourf(-r_m * np.sin(theta_m), r_m * np.cos(theta_m), np.abs(psi_evolved)**2, 200, cmap=cmap)
@@ -218,13 +218,13 @@ ax9.plot(r, np.abs(gl_0_array[l-m])**2, 'o-', markersize=10, label=rf'|g(r, {l=}
 ax9.plot(r, np.abs(G(S_matrix, gl_0_array, l-m))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
 
 state_name = generate_states(l)[n-1]
-ax1.set_title(rf'ψ$_0$(r, θ): {evolving_atom}({state_name}, {m=}); On actual collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
-ax2.set_title(rf"ψ$_0$(r, θ): {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
-ax5.set_title(rf'ψ$_0$(r$_i$, θ$_j$) = $\sum_{{\ell=m}}^{{\ell_{{max}}+m}}$g$_{{{{\ell}}}}$(r$_i$) N$_{{\ell m}}$ P$_{{\ell m}}$(cosθ$_j$); m={m}', pad=30, fontsize=15)
-ax6.set_title(r'ψ$_1$(r, θ) = exp{-iH$_0$(dt)/2} • ψ$_0$(r, θ)', pad=30, fontsize=15)
-ax7.set_title(r'ψ$_2$(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ$_1$(r, θ)', pad=30, fontsize=15)
-ax8.set_title(r'ψ(r, θ, t+dt) = exp{-iH$_0$(dt)/2} • ψ$_2$(r, θ)', pad=30, fontsize=15)
-ax9.set_title(r'g$_{\ell m}$(r, t=dt/2) = S($\ell$) • g$_{\ell m}$(r, t=0)', pad=30, fontsize=15)
+ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
+ax2.set_title(rf"U(r$_i$, θ$_j$) = A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$): {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
+ax5.set_title(rf'U(r$_i$, θ$_j$) = $\sum_{{\ell=m}}^{{\ell_{{max}}+m}}$g$_{{{{\ell}}}}$(r$_i$) N$_{{\ell m}}$ P$_{{\ell m}}$(cosθ$_j$); m={m}', pad=30, fontsize=15)
+ax6.set_title(r'ψ$_1$(r$_i$, θ$_j$, t+dt/2) = exp{-iH$_0$(dt)/2} $\cdot$ U(r$_i$, θ$_j$)', pad=30, fontsize=15)
+ax7.set_title(r'ψ$_2$(r$_i$, θ$_j$, t+dt/2) = exp{-iV(r$_i$, θ$_j$, t+dt/2) dt/2} $\cdot$ ψ$_1$(r$_i$, θ$_j$, t+dt/2)', pad=30, fontsize=15)
+ax8.set_title(r'ψ(r$_i$, θ$_j$, t+dt) = exp{-iH$_0$(dt)/2} $\cdot$ ψ$_2$(r$_i$, θ$_j$, t+dt/2)', pad=30, fontsize=15)
+ax9.set_title(r'g$_{\ell m}$(r, dt/2) = S($\ell$) $\cdot$ g$_{\ell m}$(r, t=0)', pad=30, fontsize=15)
 
 ax1.set_xlabel('X-axis (a.u.)', fontsize=15); ax1.set_ylabel('Z-axis (a.u.)', fontsize=15)
 ax5.set_xlabel('X-axis (a.u.)', fontsize=15); ax5.set_ylabel('Z-axis (a.u.)', fontsize=15)
