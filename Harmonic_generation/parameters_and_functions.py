@@ -423,7 +423,7 @@ def G(Sl_matrix, gl_arr, l_ind):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                      dipole moment                       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def alpha(l_val, m_val):
+def alpha_lm(l_val, m_val):
     r"""
     This factor appears in the expression of general dipole moment formula (see Eq.~E.18)
 
@@ -477,7 +477,7 @@ def dipole_moment(r, glm_arr):
     return 2 * np.sum(alpha_factor * integrals)
 
 l_ind_arr = np.arange(l_max)            # l_max because in Eq.~E.21, the `l' index goes from (m) to (l_max+m-1). So, in total (l_max-1).
-alpha_factor = alpha(l_ind_arr+m, m)
+alpha_factor = alpha_lm(l_ind_arr+m, m)
 
 
 
