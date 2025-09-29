@@ -635,6 +635,7 @@ def potential_V_SAE_M1(r, atom='Ne'):
     Zc, a1, a2, a3, a4, a5, a6 = params["Zc"], params["a1"], params["a2"], params["a3"], params["a4"], params["a5"], params["a6"]
     return -(Zc + a1*np.exp(-a2*r) + a3*r*np.exp(-a4*r) + a5*np.exp(-a6*r)) / r
 
+
 def potential_V_SAE_M2(r, atom='Ne'):
     """
     Single-active-electron (SAE) model potential (Model-2).
