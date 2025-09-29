@@ -71,11 +71,6 @@ py -3.11 -m venv venv_HHG
 pip install -r requirements.txt
 ```
 
-## Notes
-- The virtual environment step is optional but recommended to avoid package conflicts
-- For Windows users, ensure PowerShell execution policy allows script execution
-- If you encounter permission issues on Windows, you may need to run PowerShell as Administrator
-
 ---
 
 
