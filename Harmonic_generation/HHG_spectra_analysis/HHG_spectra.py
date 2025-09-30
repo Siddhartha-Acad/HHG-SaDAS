@@ -8,9 +8,9 @@
 
 """
 import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))   # Ensure project root (HHG-SaDAS) is in sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
-from parameters_and_functions import dt, tf, w0, T
+from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
 from Assistant.Decorate_axes import decorate_axes_D as da
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -20,7 +20,7 @@ import numpy as np
 this_dir = Path(__file__).resolve().parent
 
 dip_mom_file = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
-file_dip_mom = this_dir / 'Time_evolution_data' / f'{dip_mom_file}'
+file_dip_mom = this_dir.parent / 'Time_evolution_data' / f'{dip_mom_file}'
 file_dip_mom = pd.read_excel(file_dip_mom, header=None, skiprows=1).to_numpy().T
 
 t = file_dip_mom[0]; E_t = file_dip_mom[1]; dipole_moment = file_dip_mom[2]
