@@ -10,13 +10,13 @@
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
-from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
-from Assistant.Decorate_axes import decorate_axes_D as da
-import matplotlib.pyplot as plt
-from pathlib import Path
-import scipy.fft as ft
-import pandas as pd
 import numpy as np
+import pandas as pd
+import scipy.fft as ft
+from pathlib import Path
+import matplotlib.pyplot as plt
+from Assistant.Decorate_axes import decorate_axes_D as da
+from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
 this_dir = Path(__file__).resolve().parent
 
 dip_mom_file = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
@@ -35,8 +35,8 @@ dip_mom_power_spectra = dip_mom_power_spectra[positive_freq_mask]       # P(w) :
 
 
 # ~~~~~~~~: Conversion efficiency :~~~~~~~~~~
-harmonic_energy = np.trapz(dip_mom_power_spectra, freq_pos)
-laser_energy = np.trapz(E_t**2, t)
+harmonic_energy = np.trapezoid(dip_mom_power_spectra, freq_pos)
+laser_energy = np.trapezoid(E_t**2, t)
 
 eta = harmonic_energy / laser_energy
 print(f"Conversion efficiency: {eta:.10f}")
