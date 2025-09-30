@@ -29,6 +29,7 @@ Notes:
 """
 
 import numpy as np
+from cycler import cycler
 from Assistant.Color_schemes import manim_colors as mc
 
 dec_color = np.concatenate((mc.C_L_reordered, mc.des_col_1))
