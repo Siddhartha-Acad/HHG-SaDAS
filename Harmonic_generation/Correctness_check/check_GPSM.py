@@ -137,8 +137,8 @@ print(f'norm A[{n-1}] = sum(A^2)     :', sum(A[n-1]**2))
 print(f'norm φ[{n-1}] = int(|φ|^2)   :', Gauss_Lobatto_quadrature(phi[n - 1] ** 2))
 [print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) + f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
-print('u(r) shape               :', np.shape(u_r))
-print('S shape                  :', np.shape(S_matrix_real), '\n')
+print('u(r) dataset shape       :', np.shape(u_r))
+print(f'S(l={l})-matrix shape      :', np.shape(S_matrix_real), '\n')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -117,7 +117,7 @@ for l in range(m, l_max+m+1):
                 S_matrix_imag[j][i] = np.imag(matrix_ele)
     flat_S_matrix_real = S_matrix_real.flatten()
     flat_S_matrix_imag = S_matrix_imag.flatten()
-    data_S_matrix[f'l={l}'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
+    data_S_matrix[f'S(l={l})'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
