@@ -99,7 +99,7 @@ da.decorate_2d(ax4, visible_spine='right', grid=False)
 da.decorate_2d(ax6, visible_spine='right, bottom')
 
 ax1.plot(t/T, dipole_moment, color='#7F3FBF', lw=2, label='d(t)')
-ax2.plot(harmonic_order, np.log10(dip_mom_power_spectra), color='#2CA02C', label=r'log$_{10}$(P($\omega$))')
+ax2.plot(harmonic_order, np.log10(dip_mom_power_spectra), color='#2CA02C', label=r'log$_{10}$[P($\omega$)]')
 
 ax3.plot(t/T, E_t, color=da.mc.C[0], label='E(t)')
 ax4.plot(t/T, survival_probability, color='m', label=r'P$_s$(t)')

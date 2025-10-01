@@ -64,7 +64,7 @@ print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n = 1; l = 1; m = 1        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
+n = 1; l = 0; m = 0        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
 evolving_atom = 'He'       # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
@@ -225,7 +225,7 @@ def d2(i, j):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                   H-matrix & S-matrix                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def H(l_val, i, j, model='SAE-M2'):
+def H(l_val, i, j, model=SAE_model):
     r"""
     Real symmetric Hamiltonian matrix element in the radial mapped discrete Gauss-Lobatto collocation grid.
 
@@ -257,15 +257,18 @@ def H(l_val, i, j, model='SAE-M2'):
     term1 = -0.5 * (1 / f_p(colloc_pt[i])) * d2(i, j) * (1 / f_p(colloc_pt[j]))
     if i != j:
         return term1
+
+    conf_term = conf_pot_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
+
     if model == 'SAE-M1':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
                  potential_V_SAE_M1(f(colloc_pt[i]), atom=evolving_atom) +
-                 conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
+                 conf_term)
         return term1 + term2
     elif model == 'SAE-M2':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
                  potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom) +
-                 conf_pot_selector(confinement_model, f(colloc_pt[i]))[0])
+                 conf_term)
         return term1 + term2
 
 
@@ -369,8 +372,8 @@ def g_lm(Psi_t, glm_arr):
 
     Example
     -------
-    >>> glm_empty = np.empty((l_max + 1, N-1), dtype=np.complex128)
-    >>> for ti in range(len(t)-1):
+    >> glm_empty = np.empty((l_max + 1, N-1), dtype=np.complex128)
+    >> for ti in range(len(t)-1):
     ...     # Psi_t = updated wavefunction
     ...     gl_vals = g_lm(Psi_t, glm_empty)  # memory reused each iteration
 
@@ -420,7 +423,7 @@ def G(Sl_matrix, gl_arr, l_ind):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                      dipole moment                       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def alpha(l_val, m_val):
+def alpha_lm(l_val, m_val):
     r"""
     This factor appears in the expression of general dipole moment formula (see Eq.~E.18)
 
@@ -474,7 +477,7 @@ def dipole_moment(r, glm_arr):
     return 2 * np.sum(alpha_factor * integrals)
 
 l_ind_arr = np.arange(l_max)            # l_max because in Eq.~E.21, the `l' index goes from (m) to (l_max+m-1). So, in total (l_max-1).
-alpha_factor = alpha(l_ind_arr+m, m)
+alpha_factor = alpha_lm(l_ind_arr+m, m)
 
 
 
@@ -632,6 +635,7 @@ def potential_V_SAE_M1(r, atom='Ne'):
     Zc, a1, a2, a3, a4, a5, a6 = params["Zc"], params["a1"], params["a2"], params["a3"], params["a4"], params["a5"], params["a6"]
     return -(Zc + a1*np.exp(-a2*r) + a3*r*np.exp(-a4*r) + a5*np.exp(-a6*r)) / r
 
+
 def potential_V_SAE_M2(r, atom='Ne'):
     """
     Single-active-electron (SAE) model potential (Model-2).
@@ -738,7 +742,7 @@ def generate_states(l_val):
 
     Example:
 
-    >>> generate_states(1)
+    >> generate_states(1)
     ['2p', '3p', '4p', ..., '199p']
 
     :param l_val: Orbital angular momentum quantum number :math:`\ell` (int).
