@@ -300,9 +300,7 @@ pip install -r requirements.txt
 >> References:  Section 2.4.2: “The HHG spectra”  
 >> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Section 3.4.2: “The conversion efficiency”
 > 
-> Finally, the results are plotted in the figures shown below, as illustrated by the example for:
->  
-> `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
+> Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
 > 
 > <p align="center">
 >  <img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="750"/>
