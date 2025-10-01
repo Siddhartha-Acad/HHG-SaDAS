@@ -282,18 +282,19 @@ pip install -r requirements.txt
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
->   <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+>   <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
 > </picture>
 > </div>
 > 
 > Upon computing the HHG spectra, it also calculates the Conversion Efficiency `eta`:
+> 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
+>   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
 > </picture>
 > </div>
 >
