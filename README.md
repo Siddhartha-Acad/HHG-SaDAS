@@ -292,9 +292,9 @@ pip install -r requirements.txt
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20%3D%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bwhite%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+>   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
 > </picture>
 > </div>
 >
