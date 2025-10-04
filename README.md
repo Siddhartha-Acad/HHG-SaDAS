@@ -89,11 +89,11 @@ pip install -r requirements.txt
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
 
 >- Linux/macOS (terminal):
->```bash
+>```console
 >python3 ./Harmonic_generation/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 >- windows (powershell)
->```powershell
+>```console
 >python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 
@@ -176,17 +176,17 @@ pip install -r requirements.txt
 >```
 
 >- Linux/macOS (terminal):
->```bash
+>```console
 >python3 ./Harmonic_generation/GPSM_states_S-matrix/GPSM_states_generator.py
 >```
->```bash
+>```console
 >python3 ./Harmonic_generation/GPSM_states_S-matrix/S_matrix_generator.py
 >```
 >- windows (powershell)
->```powershell
+>```console
 >python .\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_generator.py
 >```
->```powershell
+>```console
 >python .\Harmonic_generation\GPSM_states_S-matrix\S_matrix_generator.py
 >```
 
@@ -258,17 +258,17 @@ pip install -r requirements.txt
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
 >- Linux/macOS (terminal):
->```bash
+>```console
 >python3 ./Harmonic_generation/correctness_check/check_GPSM.py
 >```
->```bash
+>```console
 >python3 ./Harmonic_generation/correctness_check/check_Split_operator.py
 >```
 >- windows (powershell)
->```powershell
+>```console
 >python .\Harmonic_generation\correctness_check\check_GPSM.py
 >```
->```powershell
+>```console
 >python .\Harmonic_generation\correctness_check\check_Split_operator.py
 >```
 
@@ -317,11 +317,11 @@ pip install -r requirements.txt
 >```
 
 >- Linux/macOS (terminal):
->```bash
+>```console
 >python3 ./Harmonic_generation/time_evolution.py
 >```
 >- windows (powershell)
->```powershell
+>```console
 >python .\Harmonic_generation\time_evolution.py
 >```
 
@@ -364,11 +364,11 @@ pip install -r requirements.txt
 > </p>
 
 >- Linux/macOS (terminal):
->```bash
+>```console
 >python3 ./Harmonic_generation/HHG_spectra_analysis/HHG_spectra.py
 >```
 >- windows (powershell)
->```powershell
+>```console
 >python .\Harmonic_generation\HHG_spectra_analysis\HHG_spectra.py
 >```
 
