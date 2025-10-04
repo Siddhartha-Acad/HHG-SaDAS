@@ -34,7 +34,6 @@ Key Ideas:
 3. m determines the **magnetic sublevel**, i.e., orbital orientation.
 4. The **actual principal quantum number** = n + l.
 
-
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
 License: MIT License
@@ -91,7 +90,7 @@ r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 #      collocation grid (radial & angular)       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
-colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file     # fetching collocation data from relative path.
+colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file               # fetching collocation data from relative path.
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
 
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
