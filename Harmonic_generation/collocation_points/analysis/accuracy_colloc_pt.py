@@ -33,7 +33,7 @@ from Assistant.Decorate_axes import decorate_axes_D as da
 this_dir = Path(__file__).resolve().parent  # Relative file path system
 
 
-def a_derivative_P_N(x):
+def Lambda_N(x):
     return legendre(N-1)(x) - legendre(N+1)(x)
 
 
@@ -50,7 +50,7 @@ colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)
 
 
 print('\n~~~~~~~~~~: Error Analysis :~~~~~~~~~~')
-errors = a_derivative_P_N(colloc_pt)
+errors = Lambda_N(colloc_pt)
 mean_error = np.mean(errors)
 std_dev_error = np.std(errors, ddof=1)  # Using ddof=1 for sample standard deviation
 
