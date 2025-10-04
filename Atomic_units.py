@@ -36,7 +36,6 @@ def wavelength_nm(w_au):
     """
     return 45.5633526 / w_au
 
-
 def I_to_E_0(I_w_per_cm_sq):
     I = I_w_per_cm_sq * 10**4               # converting to W/m^2
     E_0 = np.sqrt(2 * I / (c * epsilon_0))

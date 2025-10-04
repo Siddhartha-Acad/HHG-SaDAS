@@ -68,7 +68,7 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+    state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
     S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
@@ -87,7 +87,7 @@ will be incompatible.
 
 [For crosschecking]: running this file will show what parameter values 
 parameters_and_functions.py (and this script) is currently using.
-Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
+Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
 state_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
@@ -158,7 +158,7 @@ dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # T
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.time()            # Start measuring execution time (serial time evolution)
+start_time = time.time()             # Start measuring execution time (serial time evolution)
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
@@ -178,17 +178,18 @@ for ti in range(time_step):
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
     population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
 
-end_time = time.time()            # ending time measurement.
+end_time = time.time()             # ending time measurement.
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if not confined:        # evolution data for free atom
+if not confined:
     dipole_file_name = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
-else:                   # evolution data for confined system
+else:
     dipole_moment_data = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+
 dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
 dipole_moment_data['Ps(t)'] = population_den_array
 df_dipole_moment_data = pd.DataFrame(dipole_moment_data)

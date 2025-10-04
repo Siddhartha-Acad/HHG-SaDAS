@@ -91,7 +91,7 @@ r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 #      collocation grid (radial & angular)       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
-colloc_file = this_dir / 'Collocation_points' / 'Colloc_pt_generator' / colloc_file     # fetching collocation data from relative path.
+colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file     # fetching collocation data from relative path.
 colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
 
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
@@ -799,6 +799,7 @@ if __name__ != '__main__':
     else:
         print(f'atom system   : {evolving_atom}@C60')
         print(f'conf. model   : {confinement_model}')
+
     print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)

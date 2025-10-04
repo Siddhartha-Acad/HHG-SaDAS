@@ -86,6 +86,6 @@ df_A_r.to_excel(file_path, index=False)
 print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
-print(f"\npsi_file = '{file_name}'\n")
+print(f"\nstate_file = '{file_name}'\n")
 end_time = time.time()
 print(f'Execution Time           : {end_time - start_time:.2f} seconds')

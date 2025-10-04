@@ -61,7 +61,7 @@ source venv_HHG/bin/activate
 
 **For Windows (PowerShell):**
 ```powershell
-py -3.11 -m venv venv_HHG
+python -m venv venv_HHG
 .\venv_HHG\Scripts\Activate.ps1
 ```
 
@@ -86,7 +86,16 @@ pip install -r requirements.txt
 > Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
 >> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*  
 > 
-> After computation, the collocation points are automatically written to a `.txt` file for later use.  
+> After computation, the collocation points are automatically written to a `.txt` file for later use.
+
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
 
 **Step 2: `parameters_and_functions.py`**  
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
@@ -282,25 +291,27 @@ pip install -r requirements.txt
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
->   <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P(\omega)%20=%20\left|\frac{1}{t_f-t_i}\int_{t_i}^{t_f}d(t)\,e^{-i\omega%20t}\,dt\right|^2">
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+>   <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
 > </picture>
 > </div>
 > 
 > Upon computing the HHG spectra, it also calculates the Conversion Efficiency `eta`:
+> 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
->   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\eta%20\equiv%20\frac{\text{Energy%20radiated%20through%20high%20harmonics}}{\text{Total%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field}}%20=%20\frac{\int_{0}^{\infty}%20P(\omega)\,d\omega}{\int_{0}^{\infty}%20E^2(t)\,dt}">
+>   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bwhite%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+>   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+>   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
 > </picture>
 > </div>
 >
 >> References:  Section 2.4.2: “The HHG spectra”  
 >> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Section 3.4.2: “The conversion efficiency”
 > 
-> Finally, the results are plotted in the figures shown below:
+> Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
+> 
 > <p align="center">
 >  <img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="750"/>
 > </p>
