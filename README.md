@@ -93,8 +93,14 @@ pip install -r requirements.txt
 > 
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
 
-> (linux-terminal) ```python3 ./Harmonic_generation/Collocation_points/Colloc_pt_generator/Algo-3_Gauss_Lobatto_colloc_pt.py```
-> (windows-powershell) ```python .\Harmonic_generation\Collocation_points\Colloc_pt_generator\Algo-3_Gauss_Lobatto_colloc_pt.py```
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/Collocation_points/Colloc_pt_generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
+>- windows (powershell)
+>```bash
+>python .\Harmonic_generation\Collocation_points\Colloc_pt_generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
 
 **Step 2: `parameters_and_functions.py`**  
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
