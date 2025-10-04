@@ -61,7 +61,7 @@ source venv_HHG/bin/activate
 
 **For Windows (PowerShell):**
 ```powershell
-py -3.11 -m venv venv_HHG
+python -m venv venv_HHG
 .\venv_HHG\Scripts\Activate.ps1
 ```
 
@@ -86,7 +86,16 @@ pip install -r requirements.txt
 > Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
 >> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*  
 > 
-> After computation, the collocation points are automatically written to a `.txt` file for later use.  
+> After computation, the collocation points are automatically written to a `.txt` file for later use.
+
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>```
 
 **Step 2: `parameters_and_functions.py`**  
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
