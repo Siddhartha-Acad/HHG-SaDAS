@@ -40,7 +40,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 # Installation Guide
 
 ### Prerequisites
-- Git installed on your system
+- Git installed on your system (optional)
 - Python 3.11 or higher
 - PowerShell (for Windows users)
 
@@ -97,6 +97,7 @@ pip install -r requirements.txt
 >python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 
+
 **Step 2: `parameters_and_functions.py`**  
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
 > As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.  
@@ -104,6 +105,7 @@ pip install -r requirements.txt
 > Users only need to modify a given parameter once inside this file. All other scripts will then read the updated values and functions directly from it.  
 >  
 > As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.  
+
 
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 
@@ -173,6 +175,21 @@ pip install -r requirements.txt
 >+-----+---------------+---------------+---------------+---------------+-----+---------------+
 >```
 
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/GPSM_states_S-matrix/GPSM_states_generator.py
+>```
+>```bash
+>python3 ./Harmonic_generation/GPSM_states_S-matrix/S_matrix_generator.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_generator.py
+>```
+>```powershell
+>python .\Harmonic_generation\GPSM_states_S-matrix\S_matrix_generator.py
+>```
+
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 
@@ -240,6 +257,22 @@ pip install -r requirements.txt
 > 
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/correctness_check/check_GPSM.py
+>```
+>```bash
+>python3 ./Harmonic_generation/correctness_check/check_Split_operator.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\correctness_check\check_GPSM.py
+>```
+>```powershell
+>python .\Harmonic_generation\correctness_check\check_Split_operator.py
+>```
+
+
 **Step 5: `time_evolution.py`**
 > This module imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
 > 
@@ -283,6 +316,16 @@ pip install -r requirements.txt
 >+-------+-------------+-------------+-------------+-------------+
 >```
 
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/time_evolution.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\time_evolution.py
+>```
+
+
 **Step 6: `HHG_spectra.py`**
 > Located in `/HHG-SaDAS/Harmonic_generation/HHG_spectra_analysis/`,
 >
@@ -319,6 +362,15 @@ pip install -r requirements.txt
 > <p align="center">
 >  <img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="750"/>
 > </p>
+
+>- Linux/macOS (terminal):
+>```bash
+>python3 ./Harmonic_generation/HHG_spectra_analysis/HHG_spectra.py
+>```
+>- windows (powershell)
+>```powershell
+>python .\Harmonic_generation\HHG_spectra_analysis\HHG_spectra.py
+>```
 
 ---
 
