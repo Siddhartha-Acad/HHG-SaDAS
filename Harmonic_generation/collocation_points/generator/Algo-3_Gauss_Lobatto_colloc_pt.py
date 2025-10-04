@@ -92,7 +92,7 @@ def Lambda_N(x: float, N: int) -> float:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Main control                            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N = 50                      # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
+N = 200                     # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
 Write_PN = False            # setting True : creates data file (.txt) with P_N(xj) to the second column.
 
 
