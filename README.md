@@ -95,11 +95,11 @@ pip install -r requirements.txt
 
 >- Linux/macOS (terminal):
 >```bash
->python3 ./Harmonic_generation/Collocation_points/Colloc_pt_generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>python3 ./Harmonic_generation/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 >- windows (powershell)
->```bash
->python .\Harmonic_generation\Collocation_points\Colloc_pt_generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>```powershell
+>python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 
 **Step 2: `parameters_and_functions.py`**  
