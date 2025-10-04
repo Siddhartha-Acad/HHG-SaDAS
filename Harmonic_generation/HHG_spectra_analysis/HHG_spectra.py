@@ -51,7 +51,7 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+evo_data_file_name = 'Evo_steps=88036_H(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
 evo_data_file_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file_name}'
 evo_data = pd.read_excel(evo_data_file_path, header=None, skiprows=1).to_numpy().T
 
