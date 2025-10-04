@@ -799,6 +799,7 @@ if __name__ != '__main__':
     else:
         print(f'atom system   : {evolving_atom}@C60')
         print(f'conf. model   : {confinement_model}')
+
     print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)

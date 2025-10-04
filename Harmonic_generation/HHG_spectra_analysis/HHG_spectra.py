@@ -35,14 +35,15 @@ import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L_thesis as da
 from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
 
-# ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
 height = 4                          # Height in inches
 fig_scale_factor = 2                # big=2 ; medium=1.5; small=1
 fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 
 plt.rc('font', **{'family': 'serif', 'size': 14})
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -59,6 +60,8 @@ E_t = evo_data[1]                       # Electric field             : (a.u.)
 dipole_moment = evo_data[2]             # dipole moment d(t)         : (a.u.)
 survival_probability = evo_data[3]      # survival probability ps(t) : (a.u.)
 
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    Calculating the HHG Spectra                     |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +76,7 @@ harmonic_order = freq_pos / w0                                          # Harmon
 dip_mom_power_spectra = dip_mom_power_spectra[positive_freq_mask]       # P(w) : The power spectra you want!
 
 
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                       Conversion efficiency                        |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +85,7 @@ laser_energy = np.trapezoid(E_t**2, t)
 
 eta = harmonic_energy / laser_energy
 print(f"Conversion efficiency: {eta:.10f}")
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

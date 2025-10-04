@@ -63,7 +63,7 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    psi_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+    state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
     S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
@@ -82,7 +82,7 @@ will be incompatible.
 
 [For crosschecking]: running this file will show what parameter values 
 parameters_and_functions.py (and this script) is currently using.
-Make sure these parameters are matching with the given datafile names: `psi_file' and `S_matrix_file'.
+Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
 state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
@@ -96,7 +96,7 @@ S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] 
 
 
 n = 3
-# index of the state you want to check for a given l value set in parameters_and_functions.py and psi_file
+# index of the state you want to check for a given l value set in parameters_and_functions.py and state_file
 # Principal quantum number index (n ≥ 1).
 # For a given orbital angular momentum quantum number l ≥ 0,
 # the actual principle quantum number = (n + l)
@@ -139,16 +139,16 @@ gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)      # Empty gl_array t
 #                       Single step evolution                        |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])
-gl_0_array = g_lm(U_r, gl_empty)                                          # [STEP-0]: partial wave expansion of the initial wavefunction.
-for j in range(L+1):
-    for l_index in range(l_max+1):
+gl_0_array = g_lm(U_r, gl_empty)                                                      # [STEP-0]: partial wave expansion of the initial wavefunction.
+for j in range(L+1):                          # looping over all angular colloc grid
+    for l_index in range(l_max+1):            # looping over all partial waves
         U_r_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]            # This will confirm whether the partial wave expansion was correctly done or not.
         psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
 glm_tilde = g_lm(psi_2, gl_empty)                                                     # again calculating partial waves after interaction term being applied.
-for j in range(L+1):
-    for l_index in range(l_max+1):
+for j in range(L+1):                          # looping over all angular colloc grid
+    for l_index in range(l_max+1):            # looping over all partial waves
         psi_evolved[j] += G(S_matrix, glm_tilde, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 

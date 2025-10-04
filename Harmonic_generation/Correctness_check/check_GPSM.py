@@ -218,8 +218,8 @@ ax2.plot(r_nm, v, color='m', label='V(x)')
 ax2.fill_between(r_nm, v, color='m', alpha=0.10)
 ax2.axis([min(r_nm), max(r_nm), -0.55, 0.05])
 
-# interpolation = 'spline36'
-interpolation = 'none'
+interpolation = 'spline36'
+# interpolation = 'none'
 ax7.imshow(H_matrix, interpolation=interpolation, cmap='nipy_spectral_r')
 ax7.set_xlim(-0.5, 20); ax7.set_ylim(20, -0.5)
 
@@ -240,8 +240,8 @@ ax13.plot(weights, 'o-', color='m', label=f'LG Quadrature weights (n={L + 1})')
 
 ax15.imshow(S_matrix_real, interpolation=interpolation, cmap='jet')
 ax16.imshow(S_matrix_imag, interpolation=interpolation, cmap='jet')
-ax17.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag), interpolation=interpolation, cmap='jet')
-ax18.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag) ** 2, interpolation=interpolation, cmap='jet')
+ax17.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag), interpolation=interpolation, cmap='nipy_spectral_r')
+ax18.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag) ** 2, interpolation=interpolation, cmap='nipy_spectral_r')
 
 ax19.plot(r_nm, along_S_diag, 'o-', label=rf'$\sum_k$  ψ$_k$(r) $\cdot$ ψ$_k$(r) ~ l={l}')
 ax19.fill_between(r_nm, along_S_diag, alpha=0.2)
