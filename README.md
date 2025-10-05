@@ -81,9 +81,9 @@ pip install -r requirements.txt
 ### A brief description of the workflow diagram:
 
 **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
-> Navigate to: `/HHG-SaDAS/Harmonic_generation/Collocation_points/Colloc_pt_generator/`  
+> Inside the directory `/HHG-SaDAS/Harmonic_generation/collocation_points/generator/`  
 >  
-> Here you will find the script `Algo-3_Gauss_Lobatto_colloc_pt.py`, which computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
+> `Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
 >> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*  
 > 
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
@@ -92,7 +92,7 @@ pip install -r requirements.txt
 >```console
 >python3 ./Harmonic_generation/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
->- windows (powershell)
+>- Windows (powershell)
 >```console
 >python .\Harmonic_generation\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
@@ -351,7 +351,7 @@ pip install -r requirements.txt
 > </div>
 >
 >> References:  Section 2.4.2: “The HHG spectra”  
->> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Section 3.4.2: “The conversion efficiency”
+>> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section 3.4.2: “The conversion efficiency”
 > 
 > Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
 > 
