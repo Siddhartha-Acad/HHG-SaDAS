@@ -182,7 +182,7 @@ pip install -r requirements.txt
 >```console
 >python3 ./Harmonic_generation/GPSM_states_S-matrix/S_matrix_generator.py
 >```
->- windows (powershell)
+>- Windows (powershell)
 >```console
 >python .\Harmonic_generation\GPSM_states_S-matrix\GPSM_states_generator.py
 >```
@@ -264,7 +264,7 @@ pip install -r requirements.txt
 >```console
 >python3 ./Harmonic_generation/correctness_check/check_Split_operator.py
 >```
->- windows (powershell)
+>- Windows (powershell)
 >```console
 >python .\Harmonic_generation\correctness_check\check_GPSM.py
 >```
@@ -320,7 +320,7 @@ pip install -r requirements.txt
 >```console
 >python3 ./Harmonic_generation/time_evolution.py
 >```
->- windows (powershell)
+>- Windows (powershell)
 >```console
 >python .\Harmonic_generation\time_evolution.py
 >```
@@ -367,7 +367,7 @@ pip install -r requirements.txt
 >```console
 >python3 ./Harmonic_generation/HHG_spectra_analysis/HHG_spectra.py
 >```
->- windows (powershell)
+>- Windows (powershell)
 >```console
 >python .\Harmonic_generation\HHG_spectra_analysis\HHG_spectra.py
 >```
