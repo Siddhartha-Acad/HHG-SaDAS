@@ -33,7 +33,7 @@ import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L_thesis as da
-from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
+from Harmonic_generation_py.parameters_and_functions import dt, tf, w0, T
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches

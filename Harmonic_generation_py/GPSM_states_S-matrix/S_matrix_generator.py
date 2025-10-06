@@ -58,7 +58,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import time
 import pandas as pd
 from scipy.linalg import eigh
-from Harmonic_generation.parameters_and_functions import *
+from Harmonic_generation_py.parameters_and_functions import *
 start_time = time.time()
 
 

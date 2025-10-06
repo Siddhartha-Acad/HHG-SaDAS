@@ -28,7 +28,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-from Harmonic_generation.parameters_and_functions import *
+from Harmonic_generation_py.parameters_and_functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
 start_time = time.time()
 

@@ -50,7 +50,7 @@ from pathlib import Path
 from scipy.special import legendre
 from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, T0
-from Harmonic_generation.conf_model_bank import *
+from Harmonic_generation_py.conf_model_bank import *
 
 this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -71,7 +71,7 @@ confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
                                     # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
-                                    # in: HHG-SaDAS/Harmonic_generation/GPSM_states_S-matrix/Energy_level_diagram.py
+                                    # in: HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/Energy_level_diagram.py
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
