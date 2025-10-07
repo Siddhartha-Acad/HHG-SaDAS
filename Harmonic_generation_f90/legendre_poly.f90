@@ -3,19 +3,22 @@
 program main
     implicit none
     integer :: N
-    real (kind=8) :: x
-    real (kind=8) :: legendre_p
-    external :: legendre_p
+    real (kind=8) :: x(3) = [0.0d0, 0.5d0, 1.0d0]
 
-    N = 0
-    x = 0.5d0
+    interface
+        elemental real (kind=8) function legendre_p(n, x)
+            integer, intent(in) :: n
+            real (kind=8), intent(in) :: x
+        end function legendre_p
+    end interface
 
+    N = 1
     print *, legendre_p(N, x)
 
 end program main
 
 
-pure real (kind=8) function legendre_p(n, x)
+elemental real (kind=8) function legendre_p(n, x)
     implicit none
     integer, intent(in) :: n
     real (kind=8), intent(in) :: x
