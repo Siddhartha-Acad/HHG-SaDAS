@@ -12,6 +12,8 @@ Harmonic_generation/**/*.txt
 
 code_message.txt
 
+*.exe
+*.out
 
 trial_1.py
 trial_2.py
