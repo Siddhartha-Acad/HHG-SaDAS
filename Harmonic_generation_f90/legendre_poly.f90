@@ -1,25 +1,27 @@
-! legendre polynomial at a given x.
+! legendre polynomial at a given x :: FORWARD RECURSION ALGORITHM
 
-program legender_poly
+program main
     implicit none
     integer :: N
     real (kind=8) :: x
     real (kind=8) :: legendre_p
+    external :: legendre_p
 
     N = 0
     x = 0.5d0
 
     print *, legendre_p(N, x)
 
-end program legender_poly
+end program main
 
 
-real (kind=8) function legendre_p(n, x)
+pure real (kind=8) function legendre_p(n, x)
     implicit none
-    real (kind=8) :: x
+    integer, intent(in) :: n
+    real (kind=8), intent(in) :: x
     real (kind=8) :: Pk
     real (kind=8) :: P0, P1
-    integer :: k, n
+    integer :: k
 
     P0 = 1.0d0
     P1 = x
