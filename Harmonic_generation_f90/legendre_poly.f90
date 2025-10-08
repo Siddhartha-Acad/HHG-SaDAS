@@ -2,38 +2,37 @@
 
 program main
     implicit none
-    integer :: N
-    real (kind=8) :: x(3) = [0.0d0, 0.5d0, 1.0d0]
+    integer :: n
+    real (kind=8) :: x = 0.5d0
+    real (kind=8) :: legendre_fwd
+    external :: legendre_fwd
 
-    interface
-        elemental real (kind=8) function legendre_p(n, x)
-            integer, intent(in) :: n
-            real (kind=8), intent(in) :: x
-        end function legendre_p
-    end interface
+    open(unit=10, file='legendre_fwd.dat', status='replace', action='write')
 
-    N = 1
-    print *, legendre_p(N, x)
+    do n = 1, 500
+        write (10, *) n, legendre_fwd(n, x)
+    end do
+
+    close(10)
 
 end program main
 
 
-elemental real (kind=8) function legendre_p(n, x)
+pure real (kind=8) function legendre_fwd(n, x)
     implicit none
     integer, intent(in) :: n
     real (kind=8), intent(in) :: x
-    real (kind=8) :: Pk
-    real (kind=8) :: P0, P1
+    real (kind=8) :: P0, P1, Pk
     integer :: k
 
     P0 = 1.0d0
     P1 = x
 
     if (n==0) then
-        legendre_p = 1.0d0
+        legendre_fwd = 1.0d0
         return
     else if (n==1) then
-        legendre_p = x
+        legendre_fwd = x
         return
     end if
 
@@ -43,5 +42,5 @@ elemental real (kind=8) function legendre_p(n, x)
         P1 = Pk
     end do
 
-    legendre_p = Pk
-end function legendre_p
+    legendre_fwd = Pk
+end function legendre_fwd

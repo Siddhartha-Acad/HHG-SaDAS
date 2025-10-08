@@ -14,6 +14,7 @@ code_message.txt
 
 *.exe
 *.out
+*.dat
 
 trial_1.py
 trial_2.py
