@@ -24,7 +24,7 @@ def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     middle = f"# {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
-def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
+def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     line = f": {text} :"
     return "# " + line.center(width - 1, fill)
 
@@ -32,5 +32,5 @@ def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
 # comment_head_string = "Main control"
 # print(center_comment(comment_head_string))
 
-comment_title_string = "Algo-3 :: N = {N}"
+comment_title_string = "Time Evolution"
 print(pretty_title(comment_title_string))

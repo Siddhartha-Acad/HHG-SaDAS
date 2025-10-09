@@ -33,7 +33,7 @@ import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L_thesis as da
-from Harmonic_generation.parameters_and_functions import dt, tf, w0, T
+from Harmonic_generation_py.parameters_and_functions import dt, tf, w0, T
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -51,7 +51,7 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+evo_data_file_name = 'Evo_steps=88036_H(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
 evo_data_file_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file_name}'
 evo_data = pd.read_excel(evo_data_file_path, header=None, skiprows=1).to_numpy().T
 

@@ -33,8 +33,9 @@ from Assistant.Decorate_axes import decorate_axes_L as da
 from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model,    # parameters
-    f, g_lm, Y_lm, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps, show_E_field, confined         # functions & booleans
+    show_E_field, print_serial_prog, confined,                                                                  # booleans
+    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps,                 # functions
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
@@ -45,9 +46,8 @@ tickslabel_size = 18
 label_fontsize = 19
 fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 
-dec_color = np.concatenate((da.mc.C_L, da.mc.des_col_1))
 plt.rc('font', **{'family': 'serif'})
-plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
+plt.rcParams['axes.prop_cycle'] = da.cycler(color=da.mc.C_L)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -90,11 +90,11 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'He_States_SAE-M1__l=1_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
 state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
@@ -104,7 +104,20 @@ S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Printing system info. and show Electric field.           |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-print('~~~~~~~~~~~~~: Time Evolution :~~~~~~~~~~~~~')
+if confined:
+    conf_string = conf_selector(confinement_model, 0)[1]
+
+    print("~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~")
+    parts = conf_string.split('_')                  # Split by underscores
+    conf_model = parts[0]                           # The first part (before first '_') is the confinement model
+    params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
+
+    print(f"{'Conf. model':<10}: {conf_model}")
+    for p in params:
+        key, val = p.split('=')
+        print(f"{key:<10}: {val}")
+
+print('~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
 print('Evolving atom            :', evolving_atom)
 print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
 print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
@@ -159,6 +172,7 @@ dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # T
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 start_time = time.time()             # Start measuring execution time (serial time evolution)
+last_percent = -1                    # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
@@ -173,8 +187,14 @@ for ti in range(time_step):
     glm_tilde = g_lm(psi_2, glm_empty)                                                   # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
     for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
         init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
+    # main time evolution algorithm ends here...
 
-    print(f'Evolution step {ti:<6}: {((ti + 1) / time_step) * 100:.4f}%')                # It will show how much the process is completed.
+    if print_serial_prog:
+        percent = int(((ti + 1) / time_step) * 100)
+        if percent > last_percent:                                      # update progress only after one percent.
+            print(f"Evolution step {ti:<6}: {percent}%")                # It will show how much the process is completed.
+            last_percent = percent
+
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
     population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
 
@@ -229,7 +249,7 @@ fig2.subplots_adjust(
 )
 
 print('\n')
-print(f"'{dipole_file_name}'")
+print(f"evo_data_file_name = '{dipole_file_name}'")
 print('\n')
 print('time for each step (your eta_t) :', np.round((end_time-start_time)/time_step, 4), ' sec')
 print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))

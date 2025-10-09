@@ -1,5 +1,6 @@
 desktop.ini
 commit_HHG-SaDAS.txt
+tag_HHG-SaDAS.txt
 
 .idea/
 __pycache__/
@@ -7,7 +8,7 @@ __pycache__/
 # Avoid data files too.
 *.xlsx
 *.npy
-Harmonic_generation/**/*.txt
+Harmonic_generation_py/**/*.txt
 
 code_message.txt
 

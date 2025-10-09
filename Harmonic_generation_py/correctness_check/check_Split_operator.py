@@ -28,7 +28,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-from Harmonic_generation.parameters_and_functions import *
+from Harmonic_generation_py.parameters_and_functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
 start_time = time.time()
 
@@ -85,18 +85,21 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
+state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
 state_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
 S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
 n = 3
-# index of the state you want to check for a given l value set in parameters_and_functions.py and state_file
+# Index of the state you want to check for a given l value set in parameters_and_functions.py and state_file
+# This state will be considered as the initial state, for the Split Operator check here.
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~: [Remember] :~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Principal quantum number index (n ≥ 1).
 # For a given orbital angular momentum quantum number l ≥ 0,
 # the actual principle quantum number = (n + l)
@@ -110,7 +113,7 @@ n = 3
 #   1   |   1   |   1   |    2p_{x}
 #   1   |   2   |   1   |    3p_{x}
 #   3   |   1   |   0   |    4f_{z^3}
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 print(f'initial state       : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
 print('S_matrix file       :', S_matrix_file)

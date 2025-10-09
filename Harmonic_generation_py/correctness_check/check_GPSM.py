@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
-from Harmonic_generation.parameters_and_functions import *
+from Harmonic_generation_py.parameters_and_functions import *
 start_time = time.time()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
