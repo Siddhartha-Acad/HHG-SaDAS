@@ -138,7 +138,7 @@ scaled_std_dev = std_dev_error / 10 ** power
 print(f'\n~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'CPU time : {CPU_time} seconds')
+print(f'CPU time : {CPU_time:.4f} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

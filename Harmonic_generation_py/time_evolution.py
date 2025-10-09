@@ -263,6 +263,6 @@ if CPU_time > 300.0:
     print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
 else:
     print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps      : {CPU_time:.2f} seconds')
+    print(f'Total CPU time for all steps      : {CPU_time:.3f} seconds')
 
 plt.show()
