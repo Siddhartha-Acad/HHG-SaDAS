@@ -57,6 +57,11 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=da.mc.C_L)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
+if confined:
+    data_dir = 'Confined_atom'
+else:
+    data_dir = 'Free_atom'
+
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
 
@@ -91,11 +96,11 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
+state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
 S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
+S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
@@ -171,7 +176,7 @@ dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # T
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.time()             # Start measuring execution time (serial time evolution)
+start_time = time.process_time()     # Start measuring execution time (serial time evolution)
 last_percent = -1                    # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
@@ -198,8 +203,8 @@ for ti in range(time_step):
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
     population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
 
-end_time = time.time()             # ending time measurement.
-
+end_time = time.process_time()             # ending time measurement.
+CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,9 +230,9 @@ df_dipole_moment_data.to_excel(d_file_path, index=False)
 #                              plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig2 = plt.figure(figsize=(16, 9))
-ax2 = fig2.add_subplot(311)                         # Electric Field
-ax3 = fig2.add_subplot(312)                         # dipole moment
-ax4 = fig2.add_subplot(313)                         # survival probability
+ax2 = fig2.add_subplot(221)                         # Electric Field
+ax3 = fig2.add_subplot(223)                         # dipole moment
+ax4 = fig2.add_subplot(122)                         # survival probability
 da.decorate_2d([ax2, ax3, ax4])
 
 ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
@@ -251,7 +256,12 @@ fig2.subplots_adjust(
 print('\n')
 print(f"evo_data_file_name = '{dipole_file_name}'")
 print('\n')
-print('time for each step (your eta_t) :', np.round((end_time-start_time)/time_step, 4), ' sec')
-print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
+
+if CPU_time > 300.0:
+    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+else:
+    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps      : {CPU_time:.2f} seconds')
 
 plt.show()
