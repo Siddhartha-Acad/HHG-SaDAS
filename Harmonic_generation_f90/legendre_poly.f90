@@ -1,4 +1,5 @@
 ! legendre polynomial at a given x :: FORWARD RECURSION ALGORITHM
+! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
 
 program main
     implicit none

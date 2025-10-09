@@ -1,9 +1,10 @@
 ! Bessel function at a given x :: FORWARD RECURSION ALGORITHM
+! J_{n}(x) = \frac{2(n-1)}{x} J_{n-1}(x) - J_{n-2}(x)
 
 program main
     implicit none
     integer :: n_val, N = 20     ! Forward recursion stable if (n < x)
-    real (kind=8) :: x = 1.0d0
+    real (kind=8) :: x = 50.0d0
     real (kind=8) :: bessel_fwd
     external :: bessel_fwd
 

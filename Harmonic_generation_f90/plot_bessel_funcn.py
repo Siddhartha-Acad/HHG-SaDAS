@@ -5,7 +5,7 @@ from scipy.special import jn
 
 data = np.loadtxt('bessel_fwd.dat')
 
-x = 1.0
+x = 50.0
 n_array = data[:, 0]
 Jn_rec = data[:, 1]
 Jn_f90 = data[:, 2]
