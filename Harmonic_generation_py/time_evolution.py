@@ -168,8 +168,8 @@ glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to b
 d_t_array = np.array([])                                      # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.array([])                           # Array to store Population density
 zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)    # To initiate the wavefunction A(ri, θj) before each loop.
-dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
-                      'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
+Evolution_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
+                  'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
 
 
 
@@ -207,22 +207,23 @@ end_time = time.process_time()             # ending time measurement.
 CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
 
 
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    dipole_file_name = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 else:
-    dipole_moment_data = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 
-dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
-dipole_moment_data['Ps(t)'] = population_den_array
-df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
+Evolution_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
+Evolution_data['Ps(t)'] = population_den_array
+df_Evolution_data = pd.DataFrame(Evolution_data)
 
 output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
-d_file_path = output_dir / f'{dipole_file_name}'
-df_dipole_moment_data.to_excel(d_file_path, index=False)
+d_file_path = output_dir / f'{Evo_data_file}'
+df_Evolution_data.to_excel(d_file_path, index=False)
 
 
 
@@ -242,7 +243,7 @@ ax4.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
 ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax4.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-fig2.suptitle(dipole_file_name, fontsize=13)
+fig2.suptitle(Evo_data_file, fontsize=13)
 
 fig2.subplots_adjust(
     top=0.92,
@@ -254,7 +255,7 @@ fig2.subplots_adjust(
 )
 
 print('\n')
-print(f"evo_data_file_name = '{dipole_file_name}'")
+print(f"evo_data_file_name = '{Evo_data_file}'")
 print('\n')
 
 if CPU_time > 300.0:
