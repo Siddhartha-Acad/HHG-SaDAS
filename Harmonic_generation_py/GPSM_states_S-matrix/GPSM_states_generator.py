@@ -42,7 +42,7 @@ import time
 import pandas as pd
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.time()
+start_time = time.process_time()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,5 +87,6 @@ print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
 print(f"\nstate_file = '{file_name}'\n")
-end_time = time.time()
-print(f'Execution Time           : {end_time - start_time:.2f} seconds')
+
+end_time = time.process_time()
+print(f'CPU Time : {end_time - start_time:.2f} seconds')

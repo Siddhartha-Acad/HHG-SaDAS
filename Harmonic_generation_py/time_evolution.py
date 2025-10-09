@@ -57,6 +57,11 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=da.mc.C_L)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
+if confined:
+    data_dir = 'Confined_atom'
+else:
+    data_dir = 'Free_atom'
+
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
 
@@ -91,11 +96,11 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
+state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
 S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
+S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
 S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
@@ -163,15 +168,15 @@ glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to b
 d_t_array = np.array([])                                      # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.array([])                           # Array to store Population density
 zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)    # To initiate the wavefunction A(ri, θj) before each loop.
-dipole_moment_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
-                      'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
+Evolution_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
+                  'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.time()             # Start measuring execution time (serial time evolution)
+start_time = time.process_time()     # Start measuring execution time (serial time evolution)
 last_percent = -1                    # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
@@ -198,7 +203,8 @@ for ti in range(time_step):
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
     population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
 
-end_time = time.time()             # ending time measurement.
+end_time = time.process_time()             # ending time measurement.
+CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
 
 
 
@@ -206,18 +212,18 @@ end_time = time.time()             # ending time measurement.
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    dipole_file_name = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 else:
-    dipole_moment_data = f'Evo_steps={time_step}_{evolving_atom}({state_name(n+l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
 
-dipole_moment_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
-dipole_moment_data['Ps(t)'] = population_den_array
-df_dipole_moment_data = pd.DataFrame(dipole_moment_data)
+Evolution_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
+Evolution_data['Ps(t)'] = population_den_array
+df_Evolution_data = pd.DataFrame(Evolution_data)
 
 output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
-d_file_path = output_dir / f'{dipole_file_name}'
-df_dipole_moment_data.to_excel(d_file_path, index=False)
+d_file_path = output_dir / f'{Evo_data_file}'
+df_Evolution_data.to_excel(d_file_path, index=False)
 
 
 
@@ -225,9 +231,9 @@ df_dipole_moment_data.to_excel(d_file_path, index=False)
 #                              plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig2 = plt.figure(figsize=(16, 9))
-ax2 = fig2.add_subplot(311)                         # Electric Field
-ax3 = fig2.add_subplot(312)                         # dipole moment
-ax4 = fig2.add_subplot(313)                         # survival probability
+ax2 = fig2.add_subplot(221)                         # Electric Field
+ax3 = fig2.add_subplot(223)                         # dipole moment
+ax4 = fig2.add_subplot(122)                         # survival probability
 da.decorate_2d([ax2, ax3, ax4])
 
 ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
@@ -237,7 +243,7 @@ ax4.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
 ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax4.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-fig2.suptitle(dipole_file_name, fontsize=13)
+fig2.suptitle(Evo_data_file, fontsize=13)
 
 fig2.subplots_adjust(
     top=0.92,
@@ -249,9 +255,14 @@ fig2.subplots_adjust(
 )
 
 print('\n')
-print(f"evo_data_file_name = '{dipole_file_name}'")
+print(f"evo_data_file_name = '{Evo_data_file}'")
 print('\n')
-print('time for each step (your eta_t) :', np.round((end_time-start_time)/time_step, 4), ' sec')
-print('Total Execution Time (h, m, s)  :', secs_to_hr_min_sec(end_time - start_time))
+
+if CPU_time > 300.0:
+    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+else:
+    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps      : {CPU_time:.2f} seconds')
 
 plt.show()

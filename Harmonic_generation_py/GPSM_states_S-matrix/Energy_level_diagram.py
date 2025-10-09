@@ -42,22 +42,21 @@ ax1 = fig.add_subplot(111)
 da.decorate_2d(ax1)
 
 
-file_name = 'He_EgVals__lmax=20_N=200_rmax=200_Lmap=80.txt'
-file = this_dir / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / f'{file_name}'
-data = np.loadtxt(file, skiprows=1).T
+EgVals_file = 'H_EgVals__lmax=20_N=200_rmax=200_Lmap=80.txt'
+EgVals_file_path = this_dir / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / f'{EgVals_file}'
+EgVals_data = np.loadtxt(EgVals_file_path, skiprows=1).T
 
 l_max = 5; E_max = 0
 l_values = np.arange(0, l_max, 1)
 for l in l_values:
-    energy_levels = data[l][data[l] < E_max]
+    energy_levels = EgVals_data[l][EgVals_data[l] < E_max]
     x_vals = np.full_like(energy_levels, l)
     ax1.hlines(energy_levels, x_vals - 0.3, x_vals + 0.3, colors='b', lw=2)
 
 
-
 ax1.set_xlabel(r'Azimuthal Quantum Number ($\ell$) $\longrightarrow$', fontsize=15)
 ax1.set_ylabel(r'Energy Eigenvalues (a.u) $\longrightarrow$', fontsize=15, labelpad=5)
-ax1.set_title(f'{file_name}', fontsize=16, pad=30)
+ax1.set_title(f'{EgVals_file}', fontsize=16, pad=30)
 fig.suptitle('Energy Level Diagram', fontsize=17)
 ax1.set_xticks(ticks=l_values, labels=l_values)
 fig.subplots_adjust(
