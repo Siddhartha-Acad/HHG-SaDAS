@@ -63,7 +63,7 @@ start_time = time.time()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-conf_info_string = conf_pot_selector(confinement_model, 0)[1]
+conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'

@@ -46,8 +46,8 @@ start_time = time.time()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 10
-conf_info_string = conf_pot_selector(confinement_model, 0)[1]
+total_states = 10           # how many states you want to keep in the GPSM_state file (.xlsx)
+conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_States_{SAE_model}__l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
@@ -57,7 +57,7 @@ if confined:
     output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'
 else:
     output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom'
-output_dir.mkdir(parents=True, exist_ok=True)  # Create if it doesn't exist
+output_dir.mkdir(parents=True, exist_ok=True)          # Create if it doesn't exist
 
 file_path = output_dir / file_name
 if file_path.exists():
@@ -67,14 +67,14 @@ if file_path.exists():
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
 for i in range(N - 1):
-    for j in range(i, N - 1):                       # Only computing the upper triangle
+    for j in range(i, N - 1):                          # Only computing the upper triangle
         H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
 E, A = eigh(H_matrix, subset_by_index=[0, total_states-1])
 A = A.T
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~
-r = f(colloc_pt)                                    # radial coordinate in atomic unit. (Nonlinearly discretised)
+r = f(colloc_pt)                                       # radial coordinate in atomic unit. (Nonlinearly discretised)
 data_wavefunction = {'r(x) (a.u.)': r}                 # First column of the data file is the radial grid.
 for Eth in range(total_states):
     data_wavefunction[f'A({state_name(Eth + l + 1, l)})'] = A[Eth]
