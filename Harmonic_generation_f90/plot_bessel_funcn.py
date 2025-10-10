@@ -1,7 +1,7 @@
 import numpy as np
+from scipy.special import jn
 import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_D as da
-from scipy.special import jn
 
 data = np.loadtxt('bessel_funcn.dat')
 
