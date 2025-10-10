@@ -96,12 +96,12 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
-state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
+state_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
+state_data = pd.read_excel(state_file_path, header=None, skiprows=1).to_numpy().T
 
 S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
-S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
+S_matrix_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
+S_matrix_data = pd.read_excel(S_matrix_file_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
@@ -236,22 +236,25 @@ ax3 = fig2.add_subplot(223)                         # dipole moment
 ax4 = fig2.add_subplot(122)                         # survival probability
 da.decorate_2d([ax2, ax3, ax4])
 
-ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
-ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=2, color='#58C4DD', label='E(t)')
-ax4.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
+ax3.plot(d_t_array, lw=1.5, color='deeppink', label='d(t)')
+ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=1.5, color='#58C4DD', label='E(t)')
+ax4.plot(population_den_array, lw=1.5, color='orangered', label=r'P$_s$(t)')
+
+ax3.set_xlabel('time steps', fontsize=15)
+ax4.set_xlabel('time steps', fontsize=15)
 
 ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-ax4.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
 fig2.suptitle(Evo_data_file, fontsize=13)
 
 fig2.subplots_adjust(
-    top=0.92,
-    bottom=0.06,
-    left=0.048,
-    right=0.97,
-    hspace=0.275,
-    wspace=0.205
+    top=0.91,
+    bottom=0.075,
+    left=0.04,
+    right=0.985,
+    hspace=0.16,
+    wspace=0.125
 )
 
 print('\n')
