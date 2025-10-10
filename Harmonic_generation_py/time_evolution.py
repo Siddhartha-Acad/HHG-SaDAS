@@ -96,12 +96,12 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
-state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
+state_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
+state_data = pd.read_excel(state_file_path, header=None, skiprows=1).to_numpy().T
 
 S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
-S_matrix_data = pd.read_excel(S_matrix_full_path, header=None, skiprows=1).to_numpy().T
+S_matrix_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
+S_matrix_data = pd.read_excel(S_matrix_file_path, header=None, skiprows=1).to_numpy().T
 S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
 
 
@@ -176,13 +176,13 @@ Evolution_data = {'t (a.u)' : t[0:time_step],                            # The f
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.process_time()     # Start measuring execution time (serial time evolution)
-last_percent = -1                    # keeps track of the last printed percent
+start_time = time.process_time()            # Start measuring execution time (serial time evolution)
+last_percent = -1                           # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
-    psi_1 = 0 * zero_psi             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
-    psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
+    psi_1 = 0 * zero_psi                    # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
+    psi_2 = 0 * zero_psi                    # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
 
     for j in range(L+1):                    # angular grid index j
         for l_index in range(l_max):        # summation index on 'l' of Eq.~2.85.
@@ -192,16 +192,17 @@ for ti in range(time_step):
     glm_tilde = g_lm(psi_2, glm_empty)                                                   # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
     for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
         init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
-    # main time evolution algorithm ends here...
+    # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
+
 
     if print_serial_prog:
         percent = int(((ti + 1) / time_step) * 100)
         if percent > last_percent:                                      # update progress only after one percent.
-            print(f"Evolution step {ti:<6}: {percent}%")                # It will show how much the process is completed.
+            print(f"Evolution step {ti:<6}: {percent:.2f}%")            # It will show how much the process is completed.
             last_percent = percent
 
-    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
-    population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
+    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                    # calculating and storing the dipole moment of this instant.
+    population_den_array = np.append(population_den_array, Ps(init_glm))            # calculating and storing the population density
 
 end_time = time.process_time()             # ending time measurement.
 CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
@@ -221,9 +222,20 @@ Evolution_data['Ps(t)'] = population_den_array
 df_Evolution_data = pd.DataFrame(Evolution_data)
 
 output_dir = this_dir / 'Time_evolution_data'
-output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
+output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
 d_file_path = output_dir / f'{Evo_data_file}'
 df_Evolution_data.to_excel(d_file_path, index=False)
+
+print('\n')
+print(f"evo_data_file_name = '{Evo_data_file}'")
+print('\n')
+
+if CPU_time > 300.0:
+    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+else:
+    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps      : {CPU_time:.3f} seconds')
 
 
 
@@ -236,33 +248,25 @@ ax3 = fig2.add_subplot(223)                         # dipole moment
 ax4 = fig2.add_subplot(122)                         # survival probability
 da.decorate_2d([ax2, ax3, ax4])
 
-ax3.plot(d_t_array, lw=2, color='deeppink', label='d(t)')
-ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=2, color='#58C4DD', label='E(t)')
-ax4.plot(population_den_array, lw=2, color='orangered', label=r'P$_s$(t)')
+ax3.plot(d_t_array, lw=1.5, color='deeppink', label='d(t)')
+ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=1.5, color='#58C4DD', label='E(t)')
+ax4.plot(population_den_array, lw=1.5, color='orangered', label=r'P$_s$(t)')
+
+ax3.set_xlabel('time steps', fontsize=15)
+ax4.set_xlabel('time steps', fontsize=15)
 
 ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-ax4.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
 fig2.suptitle(Evo_data_file, fontsize=13)
 
 fig2.subplots_adjust(
-    top=0.92,
-    bottom=0.06,
-    left=0.048,
-    right=0.97,
-    hspace=0.275,
-    wspace=0.205
+    top=0.91,
+    bottom=0.075,
+    left=0.04,
+    right=0.985,
+    hspace=0.16,
+    wspace=0.125
 )
-
-print('\n')
-print(f"evo_data_file_name = '{Evo_data_file}'")
-print('\n')
-
-if CPU_time > 300.0:
-    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
-else:
-    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps      : {CPU_time:.2f} seconds')
 
 plt.show()

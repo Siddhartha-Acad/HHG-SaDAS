@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
-from Assistant.Decorate_axes import decorate_axes_L_thesis as da
+from Assistant.Decorate_axes import decorate_axes_L as da
 
 this_dir = Path(__file__).resolve().parent                       # Relative file path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -138,7 +138,7 @@ scaled_std_dev = std_dev_error / 10 ** power
 print(f'\n~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'CPU time : {CPU_time} seconds')
+print(f'CPU time : {CPU_time:.4f} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -160,4 +160,4 @@ CPU_time = end_time - start_time
 if CPU_time > 300.0:
     print(f'\nCPU Time (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
 else:
-    print(f'\nCPU Time : {CPU_time:.2f} seconds')
+    print(f'\nCPU Time : {CPU_time:.3f} seconds')
