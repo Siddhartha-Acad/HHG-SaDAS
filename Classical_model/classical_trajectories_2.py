@@ -40,7 +40,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from Atomic_units import Int_0, omega_au
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import Assistant.Decorate_axes.decorate_axes_L_thesis as da
+import Assistant.Decorate_axes.decorate_axes_L as da
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # ---------------------- Common Figure Settings ----------------------

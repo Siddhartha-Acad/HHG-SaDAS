@@ -32,112 +32,90 @@ Notes:
 import numpy as np
 from cycler import cycler
 from Assistant.Color_schemes import manim_colors as mc
-import matplotlib.pyplot as plt
-
-# dec_color = np.concatenate((mc.C_L, mc.des_col_1))
-dec_color = np.concatenate((mc.C_L, mc.named_color_1, mc.des_col_2))
-
-plt.rc('font', **{'family': 'serif', 'size': 14})
-plt.rcParams['axes.prop_cycle'] = cycler(color=dec_color)
 
 
-def decorate_imshow(axes_list):
-    if not isinstance(axes_list, list):
-        axes_list = [axes_list]  # Convert to list if it's not already
-    for ax in axes_list:
-        ax.grid(False)
+# although tex fontsize is set to 12pt, using 14pt fontsize in figure looks better.
+# plt.rc('font', **{'family': 'serif', 'size': tickslabel_size})
+# mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=dec_color)
+
+# legend(fontsize=label_fontsize, framealpha=0.7, edgecolor='w')
+# ax1.set_xlabel(r'x_label :$\longrightarrow$', fontsize=label_fontsize)
+# fig.subplots_adjust(top=0.925, bottom=0.091, left=0.055, right=0.975, hspace=0.245, wspace=0.13)
 
 
-def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_minorticks=False,
-                minor_grid_col='#0078FF', visible_spine='left, bottom', axis_ticks=True, axis='on'):
+def decorate_2d(axes_list, plot_type='line', grid=True,
+                visible_spine='left, bottom', axis_ticks=True, grid_alpha=0.6):
+
     # Spine configuration lookup table
     spine_configs = {
-        'left, bottom': ['top', 'right'],
-        'left, right': ['top'],
-        'left': ['top', 'bottom', 'right'],
-        'right': ['top', 'bottom', 'left'],
-        'top': ['right', 'bottom', 'left'],
-        'bottom': ['top', 'right', 'left'],
-        'none': ['top', 'bottom', 'left', 'right'],
-        'all': []  # Empty list means don't hide any spines
+        'right, bottom': {'top': False, 'left': False},
+        'left, bottom': {'top': False, 'right': False},
+        'left, top': {'bottom': False, 'right': False},
+        'left, right': {'top': False},
+        'left': {'top': False, 'bottom': False, 'right': False},
+        'right': {'top': False, 'bottom': False, 'left': False},
+        'top': {'right': False, 'bottom': False, 'left': False},
+        'bottom': {'top': False, 'right': False, 'left': False},
+        'none': {'top': False, 'bottom': False, 'left': False, 'right': False},
+        'all': {'top': True, 'bottom': True, 'left': True, 'right': True}
     }
 
     if not isinstance(axes_list, list):
         axes_list = [axes_list]
 
-    spines_to_hide = spine_configs.get(visible_spine, [])
-
+    config = spine_configs.get(visible_spine, {})
     for ax in axes_list:
         if not axis_ticks:
             ax.set_xticks([])
             ax.set_yticks([])
 
-        # Hide specified spines
-        if spines_to_hide:
-            ax.spines[spines_to_hide].set_visible(False)
-        elif visible_spine == 'all':
-            ax.spines[['top', 'bottom', 'left', 'right']].set_visible(True)
+        # Apply spine configuration
+        for spine, visible in config.items():
+            ax.spines[spine].set_visible(visible)
 
         if grid:
-            if grid_minorticks:
-                ax.minorticks_on()
-                ax.grid(True, alpha=0.5, which='major')
-                ax.grid(True, alpha=0.1, color=minor_grid_col, which='minor')
-            elif plot_type != 'contourf':
-                ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
+            if plot_type != 'contourf':
+                ax.grid(True, lw=0.4, alpha=grid_alpha, zorder=0)
+                ax.set_axisbelow(True)
             else:
                 ax.set_aspect('equal', adjustable='box')
 
-        if tick_param:
-            ax.tick_params(color='red', width=4)
+
+def add_scale(ax, max_radius, offset=0.05):
+    """
+    Add a horizontal scale bar beneath the polar plot to indicate radial distances.
+
+    Parameters:
+    ax (matplotlib.axes._subplots.AxesSubplot): The polar plot axis.
+    max_radius (float): The maximum radius value to be displayed on the scale bar.
+    offset (float): Vertical offset to control the distance from the main polar plot.
+    """
+    # Get the bounding box of the polar axes
+    bbox = ax.get_position()
+
+    # Compute dynamic values based on the polar plot's center and rightmost extent
+    center_x = bbox.x0 + bbox.width / 2     # Center of the polar plot
+    rightmost_x = bbox.x1                   # Rightmost extent
+
+    scale_ax = ax.figure.add_axes([center_x, offset, rightmost_x - center_x, 0])  # Adjusted dynamically
+    scale_ax.set_xlim(0, max_radius)
+    scale_ax.set_xticks(np.linspace(0, max_radius, num=3))
+    scale_ax.set_yticks([])
+    scale_ax.spines[['top', 'right', 'left']].set_visible(False)
 
 
-def da_legend(axes_list, loc='upper right', fontsize=12):
+def decorate_contourf_polar(axes_list, label_padding=10):
     if not isinstance(axes_list, list):
-        axes_list = [axes_list]  # Convert to list if it's not already
-
+        axes_list = [axes_list]
     for ax in axes_list:
-        ax.legend(loc=loc, fontsize=fontsize, framealpha=0.5, edgecolor='k')
+        ax.grid(False); ax.set_rticks([]); ax.set_yticklabels([]); ax.tick_params(pad=label_padding)
 
 
-def decorate_polar(axes_list, axis=False):
+def decorate_polar(axes_list):
     # ax21.set_rlabel_position(45)
     # ax21.set_theta_direction(-1)
     for ax in axes_list:
-        # ax.grid(True, lw=0.4, alpha=0.5)
+        ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
         # ax.spines['polar'].set_visible(False)
-        if not axis:
-            ax.axis('off')
+        ax.axis('off')
         ax.set_aspect('equal')
-
-
-def decorate_polar_line(axes_list):
-    for ax in axes_list:
-        ax.grid(True, alpha=0.2, zorder=0)
-        ax.spines['polar'].set_visible(False)
-
-
-def decorate_3d(fig, ax, plot_type='3d_line'):
-    ax.xaxis.pane.fill = False
-    ax.yaxis.pane.fill = False
-    ax.zaxis.pane.fill = False
-    ax.w_xaxis.line.set_color((0, 0, 0, 0))
-    ax.w_yaxis.line.set_color((0, 0, 0, 0))
-    ax.w_zaxis.line.set_color((0, 0, 0, 0))
-    if plot_type != 'surface':
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_zticks([])
-
-
-def set_3d_axis(ax, x_min, x_max, y_min, y_max, z_min, z_max):
-    ax.set_xlim(x_min, x_max)
-    ax.set_ylim(y_min, y_max)
-    ax.set_zlim(z_min, z_max)
-
-
-def decorate_slider(slider_axes):
-    slider_axes.spines['top'].set_alpha(0.2)
-    slider_axes.spines['right'].set_alpha(0.2)
-    slider_axes.spines['left'].set_alpha(0.2)
-    slider_axes.spines['bottom'].set_alpha(0.2)

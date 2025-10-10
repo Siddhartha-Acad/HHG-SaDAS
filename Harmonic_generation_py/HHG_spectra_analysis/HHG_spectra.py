@@ -32,7 +32,7 @@ import pandas as pd
 import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
-from Assistant.Decorate_axes import decorate_axes_L_thesis as da
+from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters_and_functions import dt, tf, w0, T
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
@@ -84,7 +84,7 @@ harmonic_energy = np.trapezoid(dip_mom_power_spectra, freq_pos)
 laser_energy = np.trapezoid(E_t**2, t)
 
 eta = harmonic_energy / laser_energy
-print(f"Conversion efficiency: {eta:.10f}")
+print(f"Conversion efficiency (eta): {eta:.10f}")
 
 
 

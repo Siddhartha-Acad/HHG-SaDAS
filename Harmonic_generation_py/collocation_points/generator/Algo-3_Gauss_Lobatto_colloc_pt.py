@@ -35,7 +35,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
-from Assistant.Decorate_axes import decorate_axes_L_thesis as da
+from Assistant.Decorate_axes import decorate_axes_L as da
 
 this_dir = Path(__file__).resolve().parent                       # Relative file path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
