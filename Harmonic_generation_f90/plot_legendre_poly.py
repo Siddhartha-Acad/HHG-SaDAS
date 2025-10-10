@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.special import legendre
 from Assistant.Decorate_axes import decorate_axes_D as da
 
-data = np.loadtxt('legendre_fwd.dat')
+data = np.loadtxt('legendre_poly.dat')
 
 n_array = data[:, 0]
 Pn_f90 = data[:, 1]
