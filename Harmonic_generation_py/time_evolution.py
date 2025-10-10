@@ -176,13 +176,13 @@ Evolution_data = {'t (a.u)' : t[0:time_step],                            # The f
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.process_time()     # Start measuring execution time (serial time evolution)
-last_percent = -1                    # keeps track of the last printed percent
+start_time = time.process_time()            # Start measuring execution time (serial time evolution)
+last_percent = -1                           # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
-    psi_1 = 0 * zero_psi             # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
-    psi_2 = 0 * zero_psi             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
+    psi_1 = 0 * zero_psi                    # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
+    psi_2 = 0 * zero_psi                    # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
 
     for j in range(L+1):                    # angular grid index j
         for l_index in range(l_max):        # summation index on 'l' of Eq.~2.85.
@@ -192,16 +192,17 @@ for ti in range(time_step):
     glm_tilde = g_lm(psi_2, glm_empty)                                                   # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
     for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
         init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
-    # main time evolution algorithm ends here...
+    # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
+
 
     if print_serial_prog:
         percent = int(((ti + 1) / time_step) * 100)
         if percent > last_percent:                                      # update progress only after one percent.
-            print(f"Evolution step {ti:<6}: {percent}%")                # It will show how much the process is completed.
+            print(f"Evolution step {ti:<6}: {percent:.2f}%")            # It will show how much the process is completed.
             last_percent = percent
 
-    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                         # calculating and storing the dipole moment of this instant.
-    population_den_array = np.append(population_den_array, Ps(init_glm))                 # calculating and storing the population density
+    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                    # calculating and storing the dipole moment of this instant.
+    population_den_array = np.append(population_den_array, Ps(init_glm))            # calculating and storing the population density
 
 end_time = time.process_time()             # ending time measurement.
 CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
@@ -221,9 +222,20 @@ Evolution_data['Ps(t)'] = population_den_array
 df_Evolution_data = pd.DataFrame(Evolution_data)
 
 output_dir = this_dir / 'Time_evolution_data'
-output_dir.mkdir(parents=True, exist_ok=True)               # Create if it doesn't exist
+output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
 d_file_path = output_dir / f'{Evo_data_file}'
 df_Evolution_data.to_excel(d_file_path, index=False)
+
+print('\n')
+print(f"evo_data_file_name = '{Evo_data_file}'")
+print('\n')
+
+if CPU_time > 300.0:
+    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+else:
+    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
+    print(f'Total CPU time for all steps      : {CPU_time:.3f} seconds')
 
 
 
@@ -256,16 +268,5 @@ fig2.subplots_adjust(
     hspace=0.16,
     wspace=0.125
 )
-
-print('\n')
-print(f"evo_data_file_name = '{Evo_data_file}'")
-print('\n')
-
-if CPU_time > 300.0:
-    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
-else:
-    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps      : {CPU_time:.3f} seconds')
 
 plt.show()
