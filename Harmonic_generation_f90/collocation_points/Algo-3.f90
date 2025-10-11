@@ -52,6 +52,21 @@ real (kind=8) function Lambda(n, x)
 end function Lambda
 
 
+real (kind=8) function Lambda_p(n, x)
+    implicit none
+    integer, intent(in) :: n
+    real (kind=8), intent(in) :: x
+    real (kind=8), external :: Lambda
+    real (kind=8) :: coff_1, coff_2
+
+    coff_1 = dble(n*(n-1)) / dble(2*n-1)
+    coff_2 = dble((n+1)*(n+2)) / dble(2*n+3)
+
+    Lambda_p = (coff_1*Lambda(n-1, x) - &
+                coff_2*Lambda(n+1, x)) / (1.0d0 - x**2)
+end function Lambda_p
+
+
 real (kind=8) function f(x)
     implicit none
     real (kind=8), intent(in) :: x
@@ -106,5 +121,4 @@ subroutine newton_raphson(x_i, root, debug)
     ! Reaching here is signature that convergence failed.
     root = 1.0d2
 end subroutine newton_raphson
-
 
