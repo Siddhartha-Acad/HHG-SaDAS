@@ -34,7 +34,7 @@ pure real (kind=8) function legendre(n, x)
     end if
 
     do k = 2, n
-        Pk = ((2*k-1)*x*P1 - (k-1)*P0) / k
+        Pk = ((2*k-1.0d0)*x*P1 - (k-1.0d0)*P0) / k
         P0 = P1
         P1 = Pk
     end do
