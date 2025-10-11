@@ -3,11 +3,12 @@
 program main
     implicit none
     real (kind=8) :: x_i, root
-
-    x_i = 2.5d0
+    real (kind=8), external :: Lambda
+    x_i = 0.1
 
     call newton_raphson(x_i, root, .false.)
     print *, 'root = ', root
+    print *, 'Lambda(n, root) = ', Lambda(200, root)
 end program main
 
 
@@ -67,22 +68,6 @@ real (kind=8) function Lambda_p(n, x)
 end function Lambda_p
 
 
-real (kind=8) function f(x)
-    implicit none
-    real (kind=8), intent(in) :: x
-
-    f = sin(x)
-end function f
-
-
-real (kind=8) function f_p(x)
-    implicit none
-    real (kind=8), intent(in) :: x
-
-    f_p = cos(x)
-end function f_p
-
-
 subroutine newton_raphson(x_i, root, debug)
     implicit none
     integer :: iter
@@ -91,22 +76,24 @@ subroutine newton_raphson(x_i, root, debug)
     logical, intent(in) :: debug
     real (kind=8) :: x_old, x_new
     real (kind=8) :: tol, rtol
-    real (kind=8), external :: f, f_p
+    real (kind=8), external :: Lambda, Lambda_p
 
-    tol = 1.0d-14       ! absolute error tolerance
+    integer :: N = 200
+
+    tol = 1.0d-16       ! absolute error tolerance
     rtol = 0.0d0        ! relative tolerance
     x_old = x_i
 
     if (debug) then
-        print '(A3, 2A20, A25)', &
+        print '(A3, 2A22, A25)', &
             'n', 'x_n', 'x_{n+1}', 'err = |x_{n+1} - x_n|'
     end if
 
     do iter = 1, 100
-        x_new = x_old - f(x_old) / f_p(x_old)
+        x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
 
         if (debug) then
-            print '(I3, 2F20.16, E25.16)', &
+            print '(I3, 2F22.16, E25.16)', &
                 iter, x_old, x_new, abs(x_new - x_old)
         end if
 
