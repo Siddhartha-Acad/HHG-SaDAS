@@ -141,7 +141,9 @@ def V_SSW(r):
     # Smooth square-well potential
     S1 = sigmoid(r - (rc_au - delta_au / 2), k_smooth)
     S2 = sigmoid(r - (rc_au + delta_au / 2), k_smooth)
-    return -w0_au * (S1 - S2)
+
+    SSW_info_string = f'SSW_w0={w0_au:.3f}_delta={delta_au}_k={k_smooth}_rc={rc_au:.3f}'
+    return -w0_au * (S1 - S2), SSW_info_string
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

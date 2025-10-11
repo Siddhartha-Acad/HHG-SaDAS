@@ -28,9 +28,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
-from Harmonic_generation.parameters_and_functions import *
+from Harmonic_generation_py.parameters_and_functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
-start_time = time.time()
+start_time = time.process_time()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -280,7 +280,6 @@ fig4.subplots_adjust(
     wspace=0.28
 )
 
-end_time = time.time()
-print(f'Execution Time      : {end_time - start_time:.2f} seconds')
-
+end_time = time.process_time()
+print(f'\nCPU Time : {end_time - start_time:.2f} seconds')
 plt.show()

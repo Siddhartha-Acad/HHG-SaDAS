@@ -58,12 +58,13 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 import time
 import pandas as pd
 from scipy.linalg import eigh
-from Harmonic_generation.parameters_and_functions import *
-start_time = time.time()
+from Assistant.Time_conversion import secs_to_hr_min_sec
+from Harmonic_generation_py.parameters_and_functions import *
+start_time = time.process_time()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-conf_info_string = conf_pot_selector(confinement_model, 0)[1]
+conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
@@ -98,7 +99,7 @@ for l in range(m, l_max+m+1):
     A = A.T
 
     energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
-    print(f'S-matrix for l={l:<2}:  DONE')
+    print(f'S-matrix for l={l:<3}:  DONE')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
     # print(f'negative energy states (E<0) : {negative_energy_states}')
@@ -123,7 +124,7 @@ for l in range(m, l_max+m+1):
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
 df_S_matrix = pd.DataFrame(data_S_matrix)
 df_S_matrix.to_excel(file_path, index=False)
-print(f"\nS_matrix_file = '{file_name}'\n")
+print(f"\nS_matrix_file = '{file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -151,7 +152,12 @@ if save_Egvals_with_Smatrix:
                         if row < len(energy_eigenvalues[f'l={l}']) else ""
                     )
                 f.write(" ".join(row_data) + "\n")
-        print(f"EgVals saved: '{output_name}'")
+        print(f"EgVals_file = '{output_name}'")
 
-end_time = time.time()
-print(f'Execution Time : {end_time - start_time:.2f} seconds')
+end_time = time.process_time()
+CPU_time = end_time - start_time
+
+if CPU_time > 300.0:
+    print(f'\nCPU Time (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+else:
+    print(f'\nCPU Time : {CPU_time:.3f} seconds')

@@ -50,7 +50,7 @@ from pathlib import Path
 from scipy.special import legendre
 from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, T0
-from Harmonic_generation.conf_model_bank import *
+from Harmonic_generation_py.conf_model_bank import *
 
 this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -71,7 +71,8 @@ confined = False                    # whether the atom is confined or not?
 confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
                                     # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
-                                    # in: HHG-SaDAS/Harmonic_generation/GPSM_states_S-matrix/Energy_level_diagram.py
+                                    # in: HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/Energy_level_diagram.py
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,8 +117,9 @@ t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = 100             # Total number of time steps desired for program execution. Maximum possible steps = len(t)-1
+time_step = len(t) - 1      # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
 show_E_field = True         # Whether to display the laser electric field before the evolution starts. (window will remain open for 10 sec).
+print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
 
 
 
@@ -257,7 +259,7 @@ def H(l_val, i, j, model=SAE_model):
     if i != j:
         return term1
 
-    conf_term = conf_pot_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
+    conf_term = conf_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
 
     if model == 'SAE-M1':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
@@ -665,7 +667,7 @@ def potential_V_SAE_M2(r, atom='Ne'):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #              Confinement potential selector              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def conf_pot_selector(input_model, r):
+def conf_selector(input_model, r):
     """
     :param input_model: String specifying the confinement model.
                         Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'

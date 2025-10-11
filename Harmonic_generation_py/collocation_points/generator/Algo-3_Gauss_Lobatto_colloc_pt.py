@@ -27,6 +27,7 @@ Notes:
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
+import time
 import warnings
 import numpy as np
 from pathlib import Path
@@ -34,7 +35,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
-from Assistant.Decorate_axes import decorate_axes_L_thesis as da
+from Assistant.Decorate_axes import decorate_axes_L as da
 
 this_dir = Path(__file__).resolve().parent                       # Relative file path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -100,7 +101,9 @@ Write_PN = False            # setting True : creates data file (.txt) with P_N(x
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          MAIN computation                          |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-xi = np.linspace(-1, 1, 200000); x_mapped = f_rev(xi)
+start_time = time.process_time()
+
+xi = np.linspace(-1, 1, 100000); x_mapped = f_rev(xi)
 PN_deriv_array = Lambda_N(x_mapped, N)
 pks_at = find_peaks(-PN_deriv_array ** 2)[0]            # The initial guesses
 colloc_pt = np.array([                                  # calculating using Newton-Raphson method.
@@ -113,6 +116,8 @@ if N % 2 == 0:    # using parity to mirror and make complete set of collocation 
 else:
     colloc_pt = np.concatenate((-colloc_pt[::-1], colloc_pt))
 
+end_time = time.process_time()
+CPU_time = end_time - start_time
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,7 +138,7 @@ scaled_std_dev = std_dev_error / 10 ** power
 print(f'\n~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-
+print(f'CPU time : {CPU_time:.4f} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
