@@ -8,7 +8,7 @@ data = np.loadtxt('legendre_poly.dat')
 n_array = data[:, 0]
 Pn_f90 = data[:, 1]
 
-x = 0.5
+x = 1.0
 Pn_scipy = np.array([legendre(n_val)(x) for n_val in n_array])
 
 rel_err = abs(Pn_scipy - Pn_f90) / Pn_scipy
