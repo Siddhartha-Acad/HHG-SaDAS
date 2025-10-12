@@ -145,9 +145,7 @@ if show_E_field:
     ax1.set_ylim(2 * min(E_array), 2 * max(E_array))
     ax1.fill_between(t, E_array, alpha=0.2)
     ax1.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
-    plt.show(block=False)       # Show plot without blocking code execution
-    plt.pause(5)                # Pause for 5 seconds
-    plt.close()                 # Close the plot
+    plt.show(block=True)    # To show plot blocking code execution, until you manually close the plot.
 
 
 
