@@ -22,7 +22,6 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x(i)]
-            print *, x(i) / pi
         end if
     end do
 
