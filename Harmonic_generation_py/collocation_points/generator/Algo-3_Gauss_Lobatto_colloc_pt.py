@@ -54,26 +54,26 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          Useful Functions                          |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def f_rev(x_array):             # f(x) reversed to have dense grid towards far.
+def f_rev(xi):             # f(x) reversed to have dense grid towards far.
     """
     Reversed nonlinear mapping function.
 
-    Creates a grid denser toward x -> +1 using:
-        f(x) = L_map * (1 + x) / (1 - x + α)
-    with α = 2 * L_map / r_max.
+    Creates a grid denser toward x -> +1
+        f(xi) = 1 - L_map * (1 - xi) / (1 + xi + α)
+    with α = 2 * L_map.
 
     Reference
     ----------
     Section A.2.3 — Nonlinear grid discretization and the root-finding algorithm
     (See Equation A.11 and Figure A.3)
     """
-    r_max = 1; L_map = 0.5
-    alpha = 2 * L_map / r_max
-    map_func = L_map*(1 + x_array) / (1 - x_array + alpha)
-    return -map_func[::-1] + r_max
+    L_map = 0.5
+    alpha = 2 * L_map
+    return 1.0 - L_map * (1 - xi) / (1 + xi + alpha)
 
 
-def Lambda_N(x: float, N: int) -> float:
+
+def Lambda(x: float, N: int) -> float:
     """
     The capital Lambda function Λ_N(x)
 
@@ -103,11 +103,11 @@ Write_PN = False            # setting True : creates data file (.txt) with P_N(x
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 start_time = time.process_time()
 
-xi = np.linspace(-1, 1, 100000); x_mapped = f_rev(xi)
-PN_deriv_array = Lambda_N(x_mapped, N)
+xi = np.linspace(-1, 1, 100000); xi_mapped = f_rev(xi)
+PN_deriv_array = Lambda(xi_mapped, N)
 pks_at = find_peaks(-PN_deriv_array ** 2)[0]            # The initial guesses
 colloc_pt = np.array([                                  # calculating using Newton-Raphson method.
-    fsolve(Lambda_N, x_mapped[p], args=(N,))[0]
+    fsolve(Lambda, xi_mapped[p], args=(N,))[0]
     for p in pks_at
 ])
 
@@ -123,7 +123,7 @@ CPU_time = end_time - start_time
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                           Error Analysis                           |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-errors = Lambda_N(colloc_pt, N)
+errors = Lambda(colloc_pt, N)
 mean_error = np.mean(errors)
 std_dev_error = np.std(errors, ddof=1)  # Using ddof=1 for sample standard deviation
 
@@ -148,13 +148,21 @@ fig = plt.figure(figsize=fig_size)
 ax1 = fig.add_subplot(111)
 da.decorate_2d(ax1)
 
-ax1.plot(x_mapped, PN_deriv_array, 'o-', markersize=2, color=da.mc.sweet_green, label=r"P'$_N$(x)", zorder=1)
-ax1.scatter(x_mapped[pks_at], np.zeros_like(pks_at), color='darkviolet', label=r"P'$_N$(x$_j$)", zorder=2)
+ax1.plot(xi_mapped, PN_deriv_array, lw=2.0, color=da.mc.sweet_green, label=r"P'$_N$(x)", zorder=1)
+ax1.scatter(xi_mapped[pks_at], np.zeros_like(pks_at), color='darkviolet', label=r"P'$_N$(x$_j$)", zorder=2)
 
-ax1.set_xlabel('x', fontsize=15)
+ax1.set_xlabel(r'$x = f_{rev}(\xi); \xi \in (-1, 1)$', fontsize=15)
 ax1.set_ylabel(r"P'$_N$(x)", fontsize=15)
-ax1.set_title(f'Algorithm 3: Gauss–Lobatto Collocation (N = {N})', fontsize=14, pad=15)
+ax1.set_title(f"Algorithm 3: Gauss–Lobatto collocation points ($x_j$ : $P'_N(x_j) = 0$) ; N={N}", fontsize=14, pad=15)
 ax1.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
+fig.subplots_adjust(
+    top=0.905,
+    bottom=0.12,
+    left=0.125,
+    right=0.95,
+    hspace=0.2,
+    wspace=0.2
+)
 plt.show()
 
 
