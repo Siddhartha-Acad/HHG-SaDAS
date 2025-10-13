@@ -29,24 +29,48 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x_map(i)]
-            print *, x_map(i)         ! Initial guess values.
+            print '(A, I0, A, F18.16)', ' guess(', root_count, '): ', x_map(i)
         end if
     end do
 
-    print '(A, I0, A)', '~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~'
+    print '(A, I0, A)', '~~~~~: Algo-3 :: N = ', N, ' :~~~~~'
     if (mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) then
-        print '(A, I2)', 'no. of initial guess values :', root_count
+        print '(A, I2)', 'no. of initial guess values:', root_count
     else if (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2) then
-        print '(A, I2)', 'no. of initial guess values :', root_count
+        print '(A, I2)', 'no. of initial guess values:', root_count
     else
         stop 'ERROR: Incorrect number of initial guess values'
     end if
 
     do i = 1, root_count
         call newton_raphson(N, roots(i), roots(i), .false.)
-        print *, roots(i)         ! half-set of collocation points.
+        print '(A, I0, A, F18.16)', ' x(', i, '): ', roots(i)
     end do
 
+    if (mod(N, 2) .eq. 0) then
+        ! First half: reversed negative roots
+        do i = 1, root_count
+            colloc_pt(i) = -roots(root_count - i + 1)
+        end do
+
+        ! Middle element
+        colloc_pt(root_count + 1) = 0.0d0
+
+        ! Second half: positive roots
+        do i = root_count + 2, N - 1
+            colloc_pt(i) = roots(i - root_count - 1)
+        end do
+    else
+        ! First half: reversed negative roots
+        do i = 1, root_count
+            colloc_pt(i) = -roots(root_count - i + 1)
+        end do
+
+        ! Second half: positive roots
+        do i = root_count + 1, N - 1
+            colloc_pt(i) = roots(i - root_count)
+        end do
+    end if
 
     if (allocated(roots)) then
         deallocate(roots)
