@@ -29,23 +29,24 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x_map(i)]
-            print *, x_map(i)
+            print *, x_map(i)         ! Initial guess values.
         end if
     end do
 
     print '(A, I0, A)', '~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~'
-    if (mod(N, 2) .eq. 0 .and. size(roots) .eq. (N/2 - 1)) then
-        print '(A, I2)', 'no. of initial guess values :', size(roots)
-    else if (mod(N, 2) .ne. 0 .and. size(roots) .eq. (N-1)/2) then
-        print '(A, I2)', 'no. of initial guess values :', size(roots)
+    if (mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) then
+        print '(A, I2)', 'no. of initial guess values :', root_count
+    else if (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2) then
+        print '(A, I2)', 'no. of initial guess values :', root_count
     else
         stop 'ERROR: Incorrect number of initial guess values'
     end if
 
-    do i = 1, size(roots)
+    do i = 1, root_count
         call newton_raphson(N, roots(i), roots(i), .false.)
-        print *, roots(i)
+        print *, roots(i)         ! half-set of collocation points.
     end do
+
 
     if (allocated(roots)) then
         deallocate(roots)
