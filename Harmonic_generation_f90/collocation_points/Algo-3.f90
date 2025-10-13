@@ -38,7 +38,7 @@ program main
     else if (mod(N, 2) .ne. 0 .and. size(roots) .eq. (N-1)/2) then
         print '(A, I2)', 'no. of initial guess values :', size(roots)
     else
-        print *, 'no. of initial guess values : wrong'
+        stop 'ERROR: Incorrect number of initial guess values'
     end if
 
     if (allocated(roots)) then
