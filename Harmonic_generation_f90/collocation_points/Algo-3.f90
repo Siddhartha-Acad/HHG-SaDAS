@@ -9,13 +9,18 @@ program main
     integer, parameter :: nop = 1000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi = 0.0d0, xf = 1.0d0
+    real (kind=8), dimension(nop) :: x_mapped, x, y
     real (kind=8), allocatable :: roots(:)
-    real (kind=8), dimension(nop) :: x, y
+    real (kind=8), external :: f_rev
 
     dx = (xf - xi) / dble(nop - 1)
 
     do i = 1, nop
         x(i) = xi + (i - 1) * dx
+    end do
+
+    do i = 1, nop
+        print *,  x(i), f_rev(x(i))
     end do
 
     do i = 1, nop
@@ -29,6 +34,7 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x(i)]
+            print *, x(i)
         end if
     end do
 
@@ -46,6 +52,18 @@ program main
     end if
 
 end program main
+
+
+pure real (kind=8) function f_rev(xi)
+    implicit none
+    real (kind=8), intent(in) :: xi
+    real (kind=8) :: L_map, alpha
+
+    L_map = 0.5d0
+    alpha = 2.0d0 * L_map
+
+    f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
+end function f_rev
 
 
 subroutine newton_raphson(N, x_i, root, debug)
