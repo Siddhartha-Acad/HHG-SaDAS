@@ -9,7 +9,11 @@
 !     | - It calculates only half of the roots (those in the positive interval), while the other half
 !     |   (in the negative interval) are obtained using the parity relation in Eq.A.10.
 !     | - This algorithm is graphically presented in the flowchart of Fig.A.4.
-! 
+!
+! >>> cd .\Harmonic_generation_f90\collocation_points\
+! >>> gfortran -J.. -c ..\functions.f90
+! >>> gfortran -I.. .\Algo-3.f90 .\functions.o -o Algo-3.exe
+!
 ! Author: Siddhartha Mithiya
 ! Affiliation: Indian Institute of Technology (IIT) Mandi
 ! License: MIT License
@@ -17,7 +21,7 @@
 ! 
 ! --------------------------------------------------------------------------------
 ! Notes:
-! - Generates high-precision collocation points (accuracy ~ O(10^-15))
+! - Generates high-precision collocation points (accuracy <= O(10^-15))
 ! - This fortran code is written from scratch, no external dependencies.
 ! - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
 !   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
@@ -31,12 +35,12 @@ program main
     integer, parameter :: nop = 100
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
-    real (kind=8), dimension(nop) :: x_map, y
     real (kind=8), dimension(N-1) :: colloc_pt
+    real (kind=8), dimension(nop) :: x_map, y
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
     real (kind=8) :: xi, dx, guess
-    character(len=100) :: file_name
+    character(len=60) :: file_name
 
     dx = (xi_f - xi_i) / dble(nop - 1)
 
@@ -74,7 +78,7 @@ program main
     end do
 
     print '(A)', ' '
-    print '(A, I0)', '  no. of collocation point : ', N - 1
+    print '(A, I0)', '  No. of collocation point: ', N - 1
 
     if (mod(N, 2) .eq. 0) then
         ! First half: reversed negative roots
@@ -113,6 +117,7 @@ program main
     end do
 
     close(10)
+    print '(2A)', '  File created: ', file_name; print '(A)', ' '
 end program main
 
 
@@ -168,4 +173,3 @@ subroutine newton_raphson(N, x_i, root, debug)
     ! Reaching here is signature that convergence failed.
     root = 1.0d2
 end subroutine newton_raphson
-
