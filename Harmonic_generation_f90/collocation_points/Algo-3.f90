@@ -3,16 +3,16 @@
 program main
     use legendre_stuff
     implicit none
-    real (kind=8) :: xi, dx
     integer :: i, root_count
     integer, parameter :: N = 10
-    integer, parameter :: nop = 1000
+    integer, parameter :: nop = 100
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(nop) :: x_map, y
     real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
+    real (kind=8) :: xi, dx, guess
 
     dx = (xi_f - xi_i) / dble(nop - 1)
 
@@ -29,23 +29,28 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x_map(i)]
-            print '(A, I0, A, F18.16)', ' guess(', root_count, '): ', x_map(i)
         end if
     end do
 
-    print '(A, I0, A)', '~~~~~: Algo-3 :: N = ', N, ' :~~~~~'
-    if (mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) then
-        print '(A, I2)', 'no. of initial guess values:', root_count
-    else if (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2) then
-        print '(A, I2)', 'no. of initial guess values:', root_count
-    else
+    print '(A)', ' '
+    print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
+    print '(A)', ' '
+    print '(A)', '   #        Initial Guess      Collocation point x(j)'
+    print '(A)', '  ---  ---------------------  -----------------------'
+
+    if (.not. ((mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) .or. &
+               (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2))) then
         stop 'ERROR: Incorrect number of initial guess values'
     end if
 
     do i = 1, root_count
+        guess = roots(i)
         call newton_raphson(N, roots(i), roots(i), .false.)
-        print '(A, I0, A, F18.16)', ' x(', i, '): ', roots(i)
+        print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
     end do
+
+    print '(A)', ' '
+    print '(A, I0)', '  no. of collocation point : ', N - 1
 
     if (mod(N, 2) .eq. 0) then
         ! First half: reversed negative roots
