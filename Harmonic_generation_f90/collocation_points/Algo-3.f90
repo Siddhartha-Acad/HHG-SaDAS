@@ -10,6 +10,7 @@ program main
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(nop) :: x_map, y
+    real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
 
@@ -41,11 +42,16 @@ program main
         stop 'ERROR: Incorrect number of initial guess values'
     end if
 
+    do i = 1, size(roots)
+        call newton_raphson(N, roots(i), roots(i), .false.)
+        print *, roots(i)
+    end do
+
     if (allocated(roots)) then
         deallocate(roots)
     end if
-
 end program main
+
 
 
 pure real (kind=8) function f_rev(xi)
