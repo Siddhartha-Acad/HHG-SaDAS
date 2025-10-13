@@ -3,27 +3,21 @@
 program main
     use legendre_stuff
     implicit none
-    real (kind=8) :: dx
+    real (kind=8) :: xi, dx
     integer :: i, root_count
     integer, parameter :: N = 10
     integer, parameter :: nop = 1000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
-    real (kind=8), dimension(nop) :: x_map, xi, y
+    real (kind=8), dimension(nop) :: x_map, y
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
 
     dx = (xi_f - xi_i) / dble(nop - 1)
 
     do i = 1, nop
-        xi(i) = xi_i + (i - 1) * dx
-    end do
-
-    do i = 1, nop
-        x_map(i) = f_rev(xi(i))
-    end do
-
-    do i = 1, nop
+        xi = xi_i + (i - 1) * dx
+        x_map(i) = f_rev(xi)
         y(i) = -Lambda(N, x_map(i))**2
     end do
 
