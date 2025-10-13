@@ -10,7 +10,6 @@ pure real (kind=8) function legendre(n, x)
     ! FORWARD RECURSION ALGORITHM
     ! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
 
-    implicit none
     integer, intent(in) :: n
     real (kind=8), intent(in) :: x
     real (kind=8) :: P0, P1, Pk
@@ -38,7 +37,6 @@ end function legendre
 
 
 pure real (kind=8) function Lambda(n, x)
-    implicit none
     integer, intent(in) :: n
     real (kind=8), intent(in) :: x
 
@@ -47,7 +45,6 @@ end function Lambda
 
 
 pure real (kind=8) function Lambda_p(n, x)
-    implicit none
     integer, intent(in) :: n
     real (kind=8), intent(in) :: x
     real (kind=8) :: coff_1, coff_2
