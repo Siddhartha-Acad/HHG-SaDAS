@@ -6,7 +6,7 @@ program main
     real (kind=8) :: dx
     integer :: i, root_count
     integer, parameter :: N = 10
-    integer, parameter :: nop = 10000
+    integer, parameter :: nop = 1000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi = 0.0d0, xf = 1.0d0
     real (kind=8), allocatable :: roots(:)
@@ -29,12 +29,17 @@ program main
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
             roots = [roots, x(i)]
-            print *, x(i)
         end if
     end do
 
-    print '(a18, i1)', 'required roots = ', (N-1) / 2   ! if N is even
-    print '(a18, i1)', 'roots found = ', size(roots)
+    print '(A, I0, A)', '~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~'
+    if (mod(N, 2) .eq. 0 .and. size(roots) .eq. (N/2 - 1)) then
+        print '(A, I2)', 'no. of initial guess values :', size(roots)
+    else if (mod(N, 2) .ne. 0 .and. size(roots) .eq. (N-1)/2) then
+        print '(A, I2)', 'no. of initial guess values :', size(roots)
+    else
+        print *, 'no. of initial guess values : wrong'
+    end if
 
     if (allocated(roots)) then
         deallocate(roots)
