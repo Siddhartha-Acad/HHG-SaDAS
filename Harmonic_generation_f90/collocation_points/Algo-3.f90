@@ -8,23 +8,23 @@ program main
     integer, parameter :: N = 10
     integer, parameter :: nop = 1000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
-    real (kind=8), parameter :: xi = 0.0d0, xf = 1.0d0
-    real (kind=8), dimension(nop) :: x_mapped, x, y
+    real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
+    real (kind=8), dimension(nop) :: x_map, xi, y
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
 
-    dx = (xf - xi) / dble(nop - 1)
+    dx = (xi_f - xi_i) / dble(nop - 1)
 
     do i = 1, nop
-        x(i) = xi + (i - 1) * dx
+        xi(i) = xi_i + (i - 1) * dx
     end do
 
     do i = 1, nop
-        print *,  x(i), f_rev(x(i))
+        x_map(i) = f_rev(xi(i))
     end do
 
     do i = 1, nop
-        y(i) = -Lambda(N, x(i))**2
+        y(i) = -Lambda(N, x_map(i))**2
     end do
 
     root_count = 0
@@ -33,8 +33,8 @@ program main
     do i = 2, nop-1
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
-            roots = [roots, x(i)]
-            print *, x(i)
+            roots = [roots, x_map(i)]
+            print *, x_map(i)
         end if
     end do
 
