@@ -50,7 +50,6 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          Useful Functions                          |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -72,8 +71,7 @@ def f_rev(xi):             # f(x) reversed to have dense grid towards far.
     return 1.0 - L_map * (1 - xi) / (1 + xi + alpha)
 
 
-
-def Lambda(x: float, N: int) -> float:
+def Lambda(x, N):
     """
     The capital Lambda function Λ_N(x)
 
@@ -89,13 +87,11 @@ def Lambda(x: float, N: int) -> float:
     return legendre(N-1)(x) - legendre(N+1)(x)
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Main control                            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 N = 200                     # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
 Write_PN = False            # setting True : creates data file (.txt) with P_N(xj) to the second column.
-
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,15 +162,14 @@ fig.subplots_adjust(
 plt.show()
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                     Writing data to .txt file                      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Text file introduced on 2/12/2024: listening Pandit Ravi Shankar ESCONDITO 2011 full concert
 if len(colloc_pt) == N - 1:
     if not Write_PN:
-        txt_file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
-        file_path = this_dir / txt_file_name
+        file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
+        file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
             raise FileExistsError(f"File already exists: {file_path.name}")
 
@@ -182,8 +177,8 @@ if len(colloc_pt) == N - 1:
         np.savetxt(file_path, colloc_pt, fmt='%20.15f', header=header, comments='')
 
     else:
-        txt_file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
-        file_path = this_dir / txt_file_name
+        file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
+        file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
             raise FileExistsError(f"File already exists: {file_path.name}")
 
@@ -191,4 +186,4 @@ if len(colloc_pt) == N - 1:
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created: {txt_file_name}')
+    print(f'file created: {file_name}')
