@@ -1,4 +1,27 @@
-! Newton-Raphson method of root finding.
+! File: Algo-3.f90
+! Project: HHG-SaDAS
+! Code Description:
+!     | *** [Main Gauss-Lobatto collocation point generating code] ***
+!     |
+!     | Following Appendix-A of my thesis:
+!     | - Algo-3 uses the non-equispaced grid x⁺(ξ) ∈ (0, 1), as in Eq.A.11,
+!     |   to determine the roots of Λ_N(x) from the local maxima of -Λ_N(x)² (serving as the initial guesses).
+!     | - It calculates only half of the roots (those in the positive interval), while the other half
+!     |   (in the negative interval) are obtained using the parity relation in Eq.A.10.
+!     | - This algorithm is graphically presented in the flowchart of Fig.A.4.
+! 
+! Author: Siddhartha Mithiya
+! Affiliation: Indian Institute of Technology (IIT) Mandi
+! License: MIT License
+! Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+! 
+! --------------------------------------------------------------------------------
+! Notes:
+! - Generates high-precision collocation points (accuracy ~ O(10^-15))
+! - This fortran code is written from scratch, no external dependencies.
+! - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+!   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+! --------------------------------------------------------------------------------
 
 program main
     use legendre_stuff
@@ -13,6 +36,7 @@ program main
     real (kind=8), allocatable :: roots(:)
     real (kind=8), external :: f_rev
     real (kind=8) :: xi, dx, guess
+    character(len=100) :: file_name
 
     dx = (xi_f - xi_i) / dble(nop - 1)
 
@@ -80,6 +104,15 @@ program main
     if (allocated(roots)) then
         deallocate(roots)
     end if
+
+    write(file_name, '(A, I0, A)') 'Algo-3_N=', N, '_Gauss_Lobatto_collocation_points.dat'
+    open(unit=10, file=file_name, status='replace', action='write')
+
+    do i = 1, N-1
+        write(10, *) colloc_pt(i)
+    end do
+
+    close(10)
 end program main
 
 
