@@ -6,17 +6,18 @@ program main
     implicit none
     real (kind=8) :: dx
     integer :: i, root_count
+    integer, parameter :: N = 5
     integer, parameter :: nop = 10000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi = 0.0d0, xf = 1.0d0
     real (kind=8), allocatable :: roots(:)
     real (kind=8), dimension(nop) :: x, y
 
-    integer, parameter :: N = 5
-    ! real (kind=8), external :: Lambda
-
     dx = (xf - xi) / dble(nop - 1)
-    x = [(xi + (i-1)*dx, i=1,nop)]
+
+    do i = 1, nop
+        x(i) = xi + (i - 1) * dx
+    end do
 
     do i = 1, nop
         y(i) = -Lambda(N, x(i))**2

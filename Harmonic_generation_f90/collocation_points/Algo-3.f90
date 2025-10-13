@@ -4,25 +4,26 @@ program main
     use legendre_stuff
     implicit none
     real (kind=8) :: x_i, root
+    integer, parameter :: N = 20
+
     x_i = 0.1
 
-    call newton_raphson(x_i, root, .false.)
+    call newton_raphson(N, x_i, root, .false.)
     print *, 'root = ', root
-    print *, 'Lambda(n, root) = ', Lambda(200, root)
+    print *, 'Lambda(N, root) = ', Lambda(N, root)
 end program main
 
 
-subroutine newton_raphson(x_i, root, debug)
+subroutine newton_raphson(N, x_i, root, debug)
     use legendre_stuff
     implicit none
     integer :: iter
+    integer, intent(in) :: N
     logical, intent(in) :: debug
-    real (kind=8), intent(in) :: x_i        ! initial guess value
+    real (kind=8), intent(in)  :: x_i        ! initial guess value
     real (kind=8), intent(out) :: root
     real (kind=8) :: x_old, x_new
     real (kind=8) :: tol, rtol
-
-    integer :: N = 200
 
     tol = 1.0d-16       ! absolute error tolerance
     rtol = 0.0d0        ! relative tolerance
