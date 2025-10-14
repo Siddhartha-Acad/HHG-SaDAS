@@ -31,8 +31,8 @@ program main
     use legendre_stuff
     implicit none
     integer :: i, root_count
-    integer, parameter :: N = 1000
-    integer, parameter :: nop = 100000
+    integer, parameter :: N = 10
+    integer, parameter :: nop = 200
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(N-1) :: colloc_pt
@@ -51,14 +51,17 @@ program main
     end do
 
     root_count = 0
-    allocate(roots(0))
+    allocate(roots(N/2))    ! optimum length to hold roots.
+                            ! N/2 > (N-1)/2 > N/2-1
 
     do i = 2, nop-1
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
-            roots = [roots, x_map(i)]
+            roots(root_count) = x_map(i)
         end if
     end do
+
+    roots = roots(:root_count)
 
     ! print '(A)', ' '
     ! print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
