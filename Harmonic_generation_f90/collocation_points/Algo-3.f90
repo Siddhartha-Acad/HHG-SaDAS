@@ -32,8 +32,10 @@ program main
     implicit none
     integer :: i, root_count
     integer, parameter :: N = 10
-    integer, parameter :: nop = 200
-    real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
+    integer, parameter :: nop = 80
+
+    logical :: debug_newton = .false.
+    logical :: print_colloc_pt = .true.
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), dimension(nop) :: x_map, y
@@ -63,11 +65,15 @@ program main
 
     roots = roots(:root_count)
 
-    ! print '(A)', ' '
-    ! print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
-    ! print '(A)', ' '
-    ! print '(A)', '   #        Initial Guess      Collocation point x(j)'
-    ! print '(A)', '  ---  ---------------------  -----------------------'
+    if (debug_newton .eqv. print_colloc_pt) then
+        print_colloc_pt = .false.
+    end if
+
+    if (print_colloc_pt) then
+        print '(A)', ' '
+        print '(A)', '   #        Initial Guess      Collocation point x(j)'
+        print '(A)', '  ---  ---------------------  -----------------------'
+    end if
 
     if (.not. ((mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) .or. &
                (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2))) then
@@ -75,9 +81,13 @@ program main
     end if
 
     do i = 1, root_count
-        ! guess = roots(i)
-        call newton_raphson(N, roots(i), roots(i), .false.)
-        ! print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
+        if (print_colloc_pt) then
+            guess = roots(i)
+        end if
+        call newton_raphson(N, roots(i), roots(i), debug_newton)
+        if (print_colloc_pt) then
+            print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
+        end if
     end do
 
     print '(A)', ' '
@@ -150,18 +160,20 @@ subroutine newton_raphson(N, x_i, root, debug)
     ! rtol = relative tolerance
 
     if (debug) then
-        print '(A3, 2A22, A25)', &
-            'n', 'x_n', 'x_{n+1}', 'err = |x_{n+1} - x_n|'
+        print '(A)'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
+        print '(A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|   |'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
     end if
 
     x_old = x_i
 
-    do iter = 1, 100
+    do iter = 1, 50
         x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
 
         if (debug) then
-            print '(I3, 2F22.16, E25.16)', &
-                iter, x_old, x_new, abs(x_new - x_old)
+            print '(A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
+                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), '  |'
         end if
 
         if (abs(x_new - x_old) .lt. (tol + rtol*abs(x_new))) then
