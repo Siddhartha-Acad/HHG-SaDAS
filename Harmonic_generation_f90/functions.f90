@@ -15,9 +15,6 @@ pure real (kind=8) function legendre(n, x)
     real (kind=8) :: P0, P1, Pk
     integer :: k
 
-    P0 = 1.0d0
-    P1 = x
-
     if (n==0) then
         legendre = 1.0d0
         return
@@ -26,8 +23,11 @@ pure real (kind=8) function legendre(n, x)
         return
     end if
 
+    P0 = 1.0d0
+    P1 = x
+
     do k = 2, n
-        Pk = ((2*k-1.0d0)*x*P1 - (k-1.0d0)*P0) / k
+        Pk = ((2*k-1)*x*P1 - (k-1)*P0) / dble(k)
         P0 = P1
         P1 = Pk
     end do
