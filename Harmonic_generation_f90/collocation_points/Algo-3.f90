@@ -31,8 +31,8 @@ program main
     use legendre_stuff
     implicit none
     integer :: i, root_count
-    integer, parameter :: N = 10
-    integer, parameter :: nop = 100
+    integer, parameter :: N = 200
+    integer, parameter :: nop = 5000
     real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(N-1) :: colloc_pt
@@ -60,11 +60,11 @@ program main
         end if
     end do
 
-    print '(A)', ' '
-    print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
-    print '(A)', ' '
-    print '(A)', '   #        Initial Guess      Collocation point x(j)'
-    print '(A)', '  ---  ---------------------  -----------------------'
+    ! print '(A)', ' '
+    ! print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
+    ! print '(A)', ' '
+    ! print '(A)', '   #        Initial Guess      Collocation point x(j)'
+    ! print '(A)', '  ---  ---------------------  -----------------------'
 
     if (.not. ((mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) .or. &
                (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2))) then
@@ -72,9 +72,9 @@ program main
     end if
 
     do i = 1, root_count
-        guess = roots(i)
+        ! guess = roots(i)
         call newton_raphson(N, roots(i), roots(i), .false.)
-        print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
+        ! print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
     end do
 
     print '(A)', ' '
