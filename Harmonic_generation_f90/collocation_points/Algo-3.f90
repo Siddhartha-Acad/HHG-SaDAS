@@ -1,14 +1,14 @@
 ! File: Algo-3.f90
 ! Project: HHG-SaDAS
 ! Code Description:
-!     | *** [Main Gauss-Lobatto collocation point generating code] ***
-!     |
-!     | Following Appendix-A of my thesis:
-!     | - Algo-3 uses the non-equispaced grid x⁺(ξ) ∈ (0, 1), as in Eq.A.11,
-!     |   to determine the roots of Λ_N(x) from the local maxima of -Λ_N(x)² (serving as the initial guesses).
-!     | - It calculates only half of the roots (those in the positive interval), while the other half
-!     |   (in the negative interval) are obtained using the parity relation in Eq.A.10.
-!     | - This algorithm is graphically presented in the flowchart of Fig.A.4.
+!     ! *** [Main Gauss-Lobatto collocation point generating code] ***
+!     !
+!     ! Following Appendix-A of my thesis:
+!     ! - Algo-3 uses the non-equispaced grid x⁺(ξ) ∈ (0, 1), as in Eq.A.11,
+!     !   to determine the roots of Λ_N(x) from the local maxima of -Λ_N(x)² (serving as the initial guesses).
+!     ! - It calculates only half of the roots (those in the positive interval), while the other half
+!     !   (in the negative interval) are obtained using the parity relation in Eq.A.10.
+!     ! - This algorithm is graphically presented in the flowchart of Fig.A.4.
 !
 ! >>> cd .\Harmonic_generation_f90\collocation_points\
 ! >>> gfortran -J.. -c ..\functions.f90
@@ -31,9 +31,11 @@ program main
     use legendre_stuff
     implicit none
     integer :: i, root_count
-    integer, parameter :: N = 200
-    integer, parameter :: nop = 5000
-    real (kind=8), parameter :: pi = 4.0d0 * atan(1.0d0)
+    integer, parameter :: N = 10
+    integer, parameter :: nop = 80
+
+    logical :: debug_newton = .false.
+    logical :: print_colloc_pt = .true.
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), dimension(nop) :: x_map, y
@@ -51,20 +53,27 @@ program main
     end do
 
     root_count = 0
-    allocate(roots(0))
+    allocate(roots(N/2))    ! optimum length to hold roots.
+                            ! N/2 > (N-1)/2 > N/2-1
 
     do i = 2, nop-1
         if (y(i-1) .lt. y(i) .and. y(i) .gt. y(i+1)) then
             root_count = root_count + 1
-            roots = [roots, x_map(i)]
+            roots(root_count) = x_map(i)
         end if
     end do
 
-    ! print '(A)', ' '
-    ! print '(A, I0, A)', '  ~~~~~~~~~~~~~~~: Algo-3 :: N = ', N, ' :~~~~~~~~~~~~~~~'
-    ! print '(A)', ' '
-    ! print '(A)', '   #        Initial Guess      Collocation point x(j)'
-    ! print '(A)', '  ---  ---------------------  -----------------------'
+    roots = roots(:root_count)
+
+    if (debug_newton .eqv. print_colloc_pt) then
+        print_colloc_pt = .false.
+    end if
+
+    if (print_colloc_pt) then
+        print '(A)', ' '
+        print '(A)', '   #        Initial Guess      Collocation point x(j)'
+        print '(A)', '  ---  ---------------------  -----------------------'
+    end if
 
     if (.not. ((mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) .or. &
                (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2))) then
@@ -72,9 +81,13 @@ program main
     end if
 
     do i = 1, root_count
-        ! guess = roots(i)
-        call newton_raphson(N, roots(i), roots(i), .false.)
-        ! print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
+        if (print_colloc_pt) then
+            guess = roots(i)
+        end if
+        call newton_raphson(N, roots(i), roots(i), debug_newton)
+        if (print_colloc_pt) then
+            print '(I4, 2X, F21.16, 2X, F23.16)', i, guess, roots(i)
+        end if
     end do
 
     print '(A)', ' '
@@ -86,7 +99,6 @@ program main
             colloc_pt(i) = -roots(root_count - i + 1)
         end do
 
-        ! Middle element
         colloc_pt(root_count + 1) = 0.0d0
 
         ! Second half: positive roots
@@ -125,10 +137,8 @@ end program main
 pure real (kind=8) function f_rev(xi)
     implicit none
     real (kind=8), intent(in) :: xi
-    real (kind=8) :: L_map, alpha
-
-    L_map = 0.5d0
-    alpha = 2.0d0 * L_map
+    real (kind=8), parameter :: L_map = 0.5d0, alpha = 1.0d0
+    ! alpha = 2.0d0 * L_map
 
     f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
 end function f_rev
@@ -137,29 +147,33 @@ end function f_rev
 subroutine newton_raphson(N, x_i, root, debug)
     use legendre_stuff
     implicit none
-    integer :: iter
     integer, intent(in) :: N
     logical, intent(in) :: debug
     real (kind=8), intent(in)  :: x_i        ! initial guess value
     real (kind=8), intent(out) :: root
-    real (kind=8) :: x_old, x_new
-    real (kind=8) :: tol, rtol
 
-    tol = 1.0d-16       ! absolute error tolerance
-    rtol = 0.0d0        ! relative tolerance
-    x_old = x_i
+    integer :: iter
+    real (kind=8) :: x_old, x_new
+    real (kind=8), parameter :: tol = 1.0d-16, rtol = 0.0d0
+
+    ! tol = absolute error tolerance
+    ! rtol = relative tolerance
 
     if (debug) then
-        print '(A3, 2A22, A25)', &
-            'n', 'x_n', 'x_{n+1}', 'err = |x_{n+1} - x_n|'
+        print '(A)'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
+        print '(A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|   |'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
     end if
 
-    do iter = 1, 100
+    x_old = x_i
+
+    do iter = 1, 50
         x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
 
         if (debug) then
-            print '(I3, 2F22.16, E25.16)', &
-                iter, x_old, x_new, abs(x_new - x_old)
+            print '(A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
+                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), '  |'
         end if
 
         if (abs(x_new - x_old) .lt. (tol + rtol*abs(x_new))) then
