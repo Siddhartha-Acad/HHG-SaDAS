@@ -127,10 +127,8 @@ end program main
 pure real (kind=8) function f_rev(xi)
     implicit none
     real (kind=8), intent(in) :: xi
-    real (kind=8) :: L_map, alpha
-
-    L_map = 0.5d0
-    alpha = 2.0d0 * L_map
+    real (kind=8), parameter :: L_map = 0.5d0, alpha = 1.0d0
+    ! alpha = 2.0d0 * L_map
 
     f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
 end function f_rev
