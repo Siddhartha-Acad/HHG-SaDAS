@@ -35,7 +35,7 @@ program main
     integer, parameter :: nop = 80
 
     logical :: debug_newton = .false.
-    logical :: print_colloc_pt = .true.
+    logical :: print_colloc_pt = .false.
     real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
     real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), dimension(nop) :: x_map, y
@@ -154,7 +154,7 @@ subroutine newton_raphson(N, x_i, root, debug)
 
     integer :: iter
     real (kind=8) :: x_old, x_new
-    real (kind=8), parameter :: tol = 1.0d-16, rtol = 0.0d0
+    real (kind=8), parameter :: tol = 1.0d-15, rtol = 0.0d0
 
     ! tol = absolute error tolerance
     ! rtol = relative tolerance
