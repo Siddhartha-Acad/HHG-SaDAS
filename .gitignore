@@ -16,6 +16,11 @@ Harmonic_generation_py/**/*.txt
 
 code_message.txt
 
+*.o
+*.mod
+*.exe
+*.out
+*.dat
 
 trial_1.py
 trial_2.py
