@@ -30,10 +30,9 @@ import time
 from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
-from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -178,9 +177,8 @@ ax20 = fig8.add_subplot(121)      # potential_anim maximum deformation
 
 ax21 = fig9.add_subplot(111)      # Electric Field
 
-da.decorate_2d([ax2, ax3, ax5, ax6, ax4, ax8, ax9, ax10, ax11, ax12, ax13, ax14, ax19, ax20, ax21])
-da.decorate_2d(ax1, tick_param=False)
-da.decorate_2d(ax1_twin, grid=False, tick_param=False)
+da.decorate_2d([ax1, ax2, ax3, ax5, ax6, ax4, ax8, ax9, ax10, ax11, ax12, ax13, ax14, ax19, ax20, ax21])
+da.decorate_2d(ax1_twin, grid=False)
 da.decorate_2d([ax7, ax15, ax17, ax18, ax16], axis_ticks=False, grid=False, visible_spine='none')
 ax1.tick_params(color='red', width=5, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
 ax1_twin.tick_params(color='red', width=5, labelbottom=True, labeltop=False, labelleft=False, labelright=True)
@@ -318,7 +316,7 @@ fig8.subplots_adjust(top=0.924, bottom=0.078, left=0.069, right=0.975, wspace=0.
 fig6.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 print(f'CPU Time : {end_time - start_time:.2f} seconds')
 
 plt.show()

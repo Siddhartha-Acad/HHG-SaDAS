@@ -97,7 +97,7 @@ Write_PN = False            # setting True : creates data file (.txt) with P_N(x
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          MAIN computation                          |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 xi = np.linspace(-1, 1, 100000); xi_mapped = f_rev(xi)
 PN_deriv_array = Lambda(xi_mapped, N)
@@ -112,7 +112,7 @@ if N % 2 == 0:    # using parity to mirror and make complete set of collocation 
 else:
     colloc_pt = np.concatenate((-colloc_pt[::-1], colloc_pt))
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 CPU_time = end_time - start_time
 
 

@@ -174,7 +174,7 @@ Evolution_data = {'t (a.u)' : t[0:time_step],                            # The f
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.process_time()            # Start measuring execution time (serial time evolution)
+start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 last_percent = -1                           # keeps track of the last printed percent
 
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
@@ -202,8 +202,8 @@ for ti in range(time_step):
     d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                    # calculating and storing the dipole moment of this instant.
     population_den_array = np.append(population_den_array, Ps(init_glm))            # calculating and storing the population density
 
-end_time = time.process_time()             # ending time measurement.
-CPU_time = end_time - start_time           # Total CPU time for computing the total time evolution.
+end_time = time.perf_counter()             # ending time measurement.
+wall_time = end_time - start_time          # Wall time for computing the total time evolution.
 
 
 
@@ -228,12 +228,12 @@ print('\n')
 print(f"evo_data_file_name = '{Evo_data_file}'")
 print('\n')
 
-if CPU_time > 300.0:
-    print(f"Average CPU time per step (eta_t)      : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+if wall_time > 300.0:
+    print(f"Average wall-time per step (eta_t)      : {wall_time / time_step:.3f} seconds")
+    print(f'Total wall-time for all steps (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
 else:
-    print(f"Average CPU time per step (eta_t) : {CPU_time / time_step:.3f} seconds")
-    print(f'Total CPU time for all steps      : {CPU_time:.3f} seconds')
+    print(f"Average wall-time per step (eta_t) : {wall_time / time_step:.3f} seconds")
+    print(f'Total wall-time for all steps      : {wall_time:.3f} seconds')
 
 
 
