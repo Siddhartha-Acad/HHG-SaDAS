@@ -10,9 +10,9 @@
 !     !   (in the negative interval) are obtained using the parity relation in Eq.A.10.
 !     ! - This algorithm is graphically presented in the flowchart of Fig.A.4.
 !
-! >>> cd .\Harmonic_generation_f90\collocation_points\
-! >>> gfortran -J.. -c ..\functions.f90
-! >>> gfortran -I.. .\Algo-3.f90 .\functions.o -o Algo-3.exe
+! >>> cd ./Harmonic_generation_f90/collocation_points/
+! >>> gfortran -J.. -c ../functions.f90
+! >>> gfortran -I.. ./Algo-3.f90 ./functions.o -o Algo-3.out
 !
 ! Author: Siddhartha Mithiya
 ! Affiliation: Indian Institute of Technology (IIT) Mandi
@@ -31,8 +31,8 @@ program main
     use legendre_stuff
     implicit none
     integer :: i, root_count
-    integer, parameter :: N = 10
-    integer, parameter :: nop = 80
+    integer, parameter :: N = 200
+    integer, parameter :: nop = 3000
 
     logical :: debug_newton = .false.
     logical :: print_colloc_pt = .false.
