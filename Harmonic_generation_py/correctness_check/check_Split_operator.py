@@ -179,7 +179,7 @@ ax7 = fig4.add_subplot(121)             # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt
 ax8 = fig4.add_subplot(122)             # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
 ax9 = fig6.add_subplot(111)             # g_lm(r, t=0) vs g_lm(r, dt/2)
 
-da.decorate_polar([ax1, ax5, ax6, ax7, ax8], axis=True)
+da.decorate_polar([ax1, ax5, ax6, ax7, ax8], axis=True, grid=False)
 da.decorate_2d([ax2, ax3, ax4, ax9])
 
 for l_index in range(l_max):

@@ -30,7 +30,6 @@ import time
 from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
-from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters_and_functions import *
 start_time = time.process_time()
@@ -178,9 +177,8 @@ ax20 = fig8.add_subplot(121)      # potential_anim maximum deformation
 
 ax21 = fig9.add_subplot(111)      # Electric Field
 
-da.decorate_2d([ax2, ax3, ax5, ax6, ax4, ax8, ax9, ax10, ax11, ax12, ax13, ax14, ax19, ax20, ax21])
-da.decorate_2d(ax1, tick_param=False)
-da.decorate_2d(ax1_twin, grid=False, tick_param=False)
+da.decorate_2d([ax1, ax2, ax3, ax5, ax6, ax4, ax8, ax9, ax10, ax11, ax12, ax13, ax14, ax19, ax20, ax21])
+da.decorate_2d(ax1_twin, grid=False)
 da.decorate_2d([ax7, ax15, ax17, ax18, ax16], axis_ticks=False, grid=False, visible_spine='none')
 ax1.tick_params(color='red', width=5, labelbottom=True, labeltop=False, labelleft=True, labelright=False)
 ax1_twin.tick_params(color='red', width=5, labelbottom=True, labeltop=False, labelleft=False, labelright=True)

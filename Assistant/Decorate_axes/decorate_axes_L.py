@@ -32,11 +32,13 @@ Notes:
 import numpy as np
 from cycler import cycler
 from Assistant.Color_schemes import manim_colors as mc
+import matplotlib.pyplot as plt
 
+# dec_color = np.concatenate((mc.C_L, mc.des_col_1))
+dec_color = np.concatenate((mc.C_L, mc.named_color_1, mc.des_col_2))
 
-# although tex fontsize is set to 12pt, using 14pt fontsize in figure looks better.
-# plt.rc('font', **{'family': 'serif', 'size': tickslabel_size})
-# mpl.rcParams['axes.prop_cycle'] = mpl.cycler(color=dec_color)
+plt.rc('font', **{'family': 'serif', 'size': 14})           # normal: 14 ; inset_beamer: 25; lw=3
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=dec_color)
 
 # legend(fontsize=label_fontsize, framealpha=0.7, edgecolor='w')
 # ax1.set_xlabel(r'x_label :$\longrightarrow$', fontsize=label_fontsize)
@@ -45,8 +47,6 @@ from Assistant.Color_schemes import manim_colors as mc
 
 def decorate_2d(axes_list, plot_type='line', grid=True,
                 visible_spine='left, bottom', axis_ticks=True, grid_alpha=0.6):
-
-    # Spine configuration lookup table
     spine_configs = {
         'right, bottom': {'top': False, 'left': False},
         'left, bottom': {'top': False, 'right': False},
@@ -69,7 +69,6 @@ def decorate_2d(axes_list, plot_type='line', grid=True,
             ax.set_xticks([])
             ax.set_yticks([])
 
-        # Apply spine configuration
         for spine, visible in config.items():
             ax.spines[spine].set_visible(visible)
 
@@ -111,11 +110,13 @@ def decorate_contourf_polar(axes_list, label_padding=10):
         ax.grid(False); ax.set_rticks([]); ax.set_yticklabels([]); ax.tick_params(pad=label_padding)
 
 
-def decorate_polar(axes_list):
+def decorate_polar(axes_list, axis=False, grid=False):
     # ax21.set_rlabel_position(45)
     # ax21.set_theta_direction(-1)
     for ax in axes_list:
-        ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
+        if grid:
+            ax.grid(True, lw=0.4, alpha=0.5, zorder=0)
         # ax.spines['polar'].set_visible(False)
-        ax.axis('off')
+        if not axis:
+            ax.axis('off')
         ax.set_aspect('equal')
