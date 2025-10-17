@@ -6,6 +6,10 @@ tag_HHG-SaDAS.txt
 __pycache__/
 
 # Avoid data files too.
+*.o
+*.exe
+*.mod
+*.dat
 *.xlsx
 *.npy
 Harmonic_generation_py/**/*.txt
