@@ -156,7 +156,7 @@ subroutine newton_raphson(N, x_i, root, debug)
     real (kind=8) :: x_old, x_new
     real (kind=8), parameter :: tol = 1.0d-15, rtol = 0.0d0
 
-    ! tol = absolute error tolerance
+    ! tol = absolute tolerance
     ! rtol = relative tolerance
 
     if (debug) then
