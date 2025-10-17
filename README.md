@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 ## A brief description of the workflow diagram:
 
-### **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
+**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
 > Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`  
 >  
 > `Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
@@ -90,7 +90,7 @@ pip install -r requirements.txt
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
 
 
-### **Step 2: `parameters_and_functions.py`**  
+**Step 2: `parameters_and_functions.py`**  
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
 > As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.  
 >  
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 > As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.  
 
 
-### **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
+**Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 
 > Inside the directory `/HHG-SaDAS/Harmonic_generation_py
 /GPSM_states_S-matrix/`
@@ -169,7 +169,7 @@ pip install -r requirements.txt
 >```
 
 
-### **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
+**Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 
 > Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/Correctness_check/`  
 > 
@@ -236,7 +236,7 @@ pip install -r requirements.txt
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
 
-### **Step 5: `time_evolution.py`**
+**Step 5: `time_evolution.py`**
 > This module imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
 > 
 > With these compatible input parameters and data, it evolves the initial wavefunction iteratively using the **Split-Operator method**:
@@ -280,7 +280,7 @@ pip install -r requirements.txt
 >```
 
 
-### **Step 6: `HHG_spectra.py`**
+**Step 6: `HHG_spectra.py`**
 > Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_spectra_analysis/`,
 >
 > the script `HHG_spectra.py` first imports the required parameters from `parameters_and_functions.py`.
@@ -321,7 +321,7 @@ pip install -r requirements.txt
 
 ## Run commands
 
-### **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
+**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
@@ -331,11 +331,11 @@ pip install -r requirements.txt
 >python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
 >```
 
-### **Step 2: `parameters_and_functions.py`**  
+**Step 2: `parameters_and_functions.py`**  
 > Do not need to run this script. Instead, set required system parameters and save changes.
 > Other scripts will fetch parameters and functions from this script.
 
-### **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
+**Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/GPSM_states_S-matrix/GPSM_states_generator.py
@@ -351,7 +351,7 @@ pip install -r requirements.txt
 >python .\Harmonic_generation_py\GPSM_states_S-matrix\S_matrix_generator.py
 >```
 
-### **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
+**Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/correctness_check/check_GPSM.py
@@ -367,7 +367,7 @@ pip install -r requirements.txt
 >python .\Harmonic_generation_py\correctness_check\check_Split_operator.py
 >```
 
-### **Step 5: `time_evolution.py`**
+**Step 5: `time_evolution.py`**
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/time_evolution.py
@@ -377,7 +377,7 @@ pip install -r requirements.txt
 >python .\Harmonic_generation_py\time_evolution.py
 >```
 
-### **Step 6: `HHG_spectra.py`**
+**Step 6: `HHG_spectra.py`**
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
