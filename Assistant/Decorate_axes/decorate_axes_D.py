@@ -90,7 +90,7 @@ def decorate_2d(axes_list, plot_type='line', tick_param=True, grid=True, grid_mi
                 ax.set_aspect('equal', adjustable='box')
 
         if tick_param:
-            ax.tick_params(color='red', width=4)
+            ax.tick_params(color='grey', width=4)
 
 
 def da_legend(axes_list, loc='upper right', fontsize=12):
