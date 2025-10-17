@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -316,7 +316,7 @@ fig8.subplots_adjust(top=0.924, bottom=0.078, left=0.069, right=0.975, wspace=0.
 fig6.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 print(f'CPU Time : {end_time - start_time:.2f} seconds')
 
 plt.show()

@@ -30,7 +30,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from Harmonic_generation_py.parameters_and_functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -280,6 +280,6 @@ fig4.subplots_adjust(
     wspace=0.28
 )
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 print(f'\nCPU Time : {end_time - start_time:.2f} seconds')
 plt.show()

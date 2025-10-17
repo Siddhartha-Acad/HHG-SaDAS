@@ -60,7 +60,7 @@ import pandas as pd
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +154,7 @@ if save_Egvals_with_Smatrix:
                 f.write(" ".join(row_data) + "\n")
         print(f"EgVals_file = '{output_name}'")
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 CPU_time = end_time - start_time
 
 if CPU_time > 300.0:

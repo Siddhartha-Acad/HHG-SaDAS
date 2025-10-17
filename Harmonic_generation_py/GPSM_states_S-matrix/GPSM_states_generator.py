@@ -42,7 +42,7 @@ import time
 import pandas as pd
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.process_time()
+start_time = time.perf_counter()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
@@ -88,5 +88,5 @@ print(f'Total number of states  :', total_states)
 
 print(f"\nstate_file = '{file_name}'\n")
 
-end_time = time.process_time()
+end_time = time.perf_counter()
 print(f'CPU Time : {end_time - start_time:.3f} seconds')
