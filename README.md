@@ -46,29 +46,29 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 
 ### 1. Clone the repository
-```bash
-git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
-cd HHG-SaDAS
-```
+>```bash
+>git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
+>cd HHG-SaDAS
+>```
 
 ### 2. Create and activate a virtual environment
 
-**For Linux/macOS:**
-```bash
-python3 -m venv venv_HHG
-source venv_HHG/bin/activate
-```
-
-**For Windows (PowerShell):**
-```powershell
-python -m venv venv_HHG
-.\venv_HHG\Scripts\Activate.ps1
-```
+>- Linux/macOS (terminal):
+>```bash
+>python3 -m venv venv_HHG
+>source venv_HHG/bin/activate
+>```
+>
+>- For Windows (PowerShell):
+>```powershell
+>python -m venv venv_HHG
+>.\venv_HHG\Scripts\Activate.ps1
+>```
 
 ### 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+>```bash
+>pip install -r requirements.txt
+>```
 
 ---
 
