@@ -1,29 +1,25 @@
 ! File: Algo-3.f90
 ! Project: HHG-SaDAS
-! Code Description:
-!     ! *** [Main Gauss-Lobatto collocation point generating code] ***
-!     !
-!     ! Following Appendix-A of my thesis:
-!     ! - Algo-3 uses the non-equispaced grid x⁺(ξ) ∈ (0, 1), as in Eq.A.11,
-!     !   to determine the roots of Λ_N(x) from the local maxima of -Λ_N(x)² (serving as the initial guesses).
-!     ! - It calculates only half of the roots (those in the positive interval), while the other half
-!     !   (in the negative interval) are obtained using the parity relation in Eq.A.10.
-!     ! - This algorithm is graphically presented in the flowchart of Fig.A.4.
 !
-! >>> cd ./Harmonic_generation_f90/collocation_points/
-! >>> gfortran -J.. -c ../functions.f90
-! >>> gfortran -I.. ./Algo-3.f90 ./functions.o -o Algo-3.out
+! $ cd ./Harmonic_generation_f90/collocation_points/
+! $ gfortran -J.. -c ../functions.f90
+! $ gfortran -I.. -c ./newton_raphson.f90
+! $ gfortran -I.. ./Algo-3.f90 ./newton_raphson.o ./functions.o -o Algo-3.exe
 !
 ! Author: Siddhartha Mithiya
 ! Affiliation: Indian Institute of Technology (IIT) Mandi
 ! License: MIT License
 ! Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 ! 
-! --------------------------------------------------------------------------------
-! Notes:
+! Reference
+! ------------
+! Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."
+!
+! Notes
+! ------------
 ! - Generates high-precision collocation points (accuracy <= O(10^-15))
 ! - This fortran code is written from scratch, no external dependencies.
-! - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+! - This script is part of the HHG-SaDAS package: built for my Master of Science (Research) thesis:
 !   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 ! --------------------------------------------------------------------------------
 
