@@ -1,29 +1,25 @@
 ! File: Algo-3.f90
 ! Project: HHG-SaDAS
-! Code Description:
-!     ! *** [Main Gauss-Lobatto collocation point generating code] ***
-!     !
-!     ! Following Appendix-A of my thesis:
-!     ! - Algo-3 uses the non-equispaced grid x⁺(ξ) ∈ (0, 1), as in Eq.A.11,
-!     !   to determine the roots of Λ_N(x) from the local maxima of -Λ_N(x)² (serving as the initial guesses).
-!     ! - It calculates only half of the roots (those in the positive interval), while the other half
-!     !   (in the negative interval) are obtained using the parity relation in Eq.A.10.
-!     ! - This algorithm is graphically presented in the flowchart of Fig.A.4.
 !
-! >>> cd ./Harmonic_generation_f90/collocation_points/
-! >>> gfortran -J.. -c ../functions.f90
-! >>> gfortran -I.. ./Algo-3.f90 ./functions.o -o Algo-3.out
+! $ cd ./Harmonic_generation_f90/collocation_points/
+! $ gfortran -J.. -c ../functions.f90
+! $ gfortran -I.. -c ./newton_raphson.f90
+! $ gfortran -I.. ./Algo-3.f90 ./newton_raphson.o ./functions.o -o Algo-3.exe
 !
 ! Author: Siddhartha Mithiya
 ! Affiliation: Indian Institute of Technology (IIT) Mandi
 ! License: MIT License
 ! Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 ! 
-! --------------------------------------------------------------------------------
-! Notes:
+! Reference
+! ------------
+! Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."
+!
+! Notes
+! ------------
 ! - Generates high-precision collocation points (accuracy <= O(10^-15))
 ! - This fortran code is written from scratch, no external dependencies.
-! - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
+! - This script is part of the HHG-SaDAS package: built for my Master of Science (Research) thesis:
 !   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 ! --------------------------------------------------------------------------------
 
@@ -142,48 +138,3 @@ pure real (kind=8) function f_rev(xi)
 
     f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
 end function f_rev
-
-
-subroutine newton_raphson(N, x_i, root, debug)
-    use legendre_stuff
-    implicit none
-    integer, intent(in) :: N
-    logical, intent(in) :: debug
-    real (kind=8), intent(in)  :: x_i        ! initial guess value
-    real (kind=8), intent(out) :: root
-
-    integer :: iter
-    real (kind=8) :: x_old, x_new
-    real (kind=8), parameter :: tol = 1.0d-15, rtol = 0.0d0
-
-    ! tol = absolute tolerance
-    ! rtol = relative tolerance
-
-    if (debug) then
-        print '(A)'
-        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
-        print '(A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|   |'
-        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
-    end if
-
-    x_old = x_i
-
-    do iter = 1, 50
-        x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
-
-        if (debug) then
-            print '(A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
-                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), '  |'
-        end if
-
-        if (abs(x_new - x_old) .lt. (tol + rtol*abs(x_new))) then
-            root = x_new
-            return
-        end if
-
-        x_old = x_new
-    end do
-
-    ! Reaching here is signature that convergence failed.
-    root = 1.0d2
-end subroutine newton_raphson

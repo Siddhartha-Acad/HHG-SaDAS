@@ -155,9 +155,9 @@ if save_Egvals_with_Smatrix:
         print(f"EgVals_file = '{output_name}'")
 
 end_time = time.perf_counter()
-CPU_time = end_time - start_time
+wall_time = end_time - start_time
 
-if CPU_time > 300.0:
-    print(f'\nCPU Time (h, m, s) : {secs_to_hr_min_sec(CPU_time)}')
+if wall_time > 300.0:
+    print(f'\nWall Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
 else:
-    print(f'\nCPU Time : {CPU_time:.3f} seconds')
+    print(f'\nWall Time : {wall_time:.3f} seconds')
