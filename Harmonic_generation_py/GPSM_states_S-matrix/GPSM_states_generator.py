@@ -89,4 +89,4 @@ print(f'Total number of states  :', total_states)
 print(f"\nstate_file = '{file_name}'\n")
 
 end_time = time.perf_counter()
-print(f'CPU Time : {end_time - start_time:.3f} seconds')
+print(f'Wall Time : {end_time - start_time:.3f} seconds')

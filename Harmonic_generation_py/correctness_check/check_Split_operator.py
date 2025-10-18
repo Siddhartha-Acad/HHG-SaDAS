@@ -281,5 +281,5 @@ fig4.subplots_adjust(
 )
 
 end_time = time.perf_counter()
-print(f'\nCPU Time : {end_time - start_time:.2f} seconds')
+print(f'\nWall Time : {end_time - start_time:.2f} seconds')
 plt.show()
