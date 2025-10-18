@@ -17,5 +17,5 @@ main.exe : $(OBJECTS)
 	$(FC) -c $<
 
 # FC  : Fortran Compiler
-# %   : for any .o file it requires a .f90 file.
-# $<  : whatever appear in dependency side.
+# %   : To create any .o file, first look for a .f90 file with the same base name.
+# $<  : if target is main.o, $< = main.f90
