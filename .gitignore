@@ -13,6 +13,7 @@ __pycache__/
 *.xlsx
 *.npy
 Harmonic_generation_py/**/*.txt
+Harmonic_generation_f90/**/*.txt
 
 code_message.txt
 
