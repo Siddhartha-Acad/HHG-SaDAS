@@ -8,6 +8,7 @@ else
     EXE = ./Algo-3.exe
 endif
 
+
 .PHONY : colloc_pt clear
 
 
@@ -24,6 +25,12 @@ newton_raphson.o : newton_raphson.f90 functions.o
 	gfortran -I.. -c newton_raphson.f90
 
 clear :
-	$(RM) ..\legendre_stuff.mod
-	$(RM) .\generator\*.dat
-	$(RM) *.o
+ifeq ($(OS), Windows_NT)
+	del ..\legendre_stuff.mod
+	del .\generator\*.dat
+	del *.o
+else
+	rm ../legendre_stuff.mod
+	rm ./generator/*.dat
+	rm *.o
+endif
