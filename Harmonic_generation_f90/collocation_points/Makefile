@@ -1,6 +1,6 @@
 # Algo-3.f90: to generate GL collocation points.
 
-.PHONY : colloc_pt clear
+.PHONY : colloc_pt clear clear_all
 
 
 colloc_pt : Algo-3.exe
@@ -17,3 +17,9 @@ newton_raphson.o : newton_raphson.f90
 
 clear :
 	rm ./generator/Algo-3.exe
+
+clear_all :
+	rm ../legendre_stuff.mod
+	rm ./generator/Algo-3.exe
+	rm *.dat
+	rm *.o
