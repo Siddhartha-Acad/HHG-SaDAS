@@ -1,6 +1,6 @@
 # Algo-3.f90: to generate GL collocation points.
 
-.PHONY : colloc_pt
+.PHONY : colloc_pt clear
 
 
 colloc_pt : Algo-3.exe
@@ -14,3 +14,6 @@ functions.o : ../functions.f90
 
 newton_raphson.o : newton_raphson.f90
 	gfortran -I.. -c newton_raphson.f90
+
+clear :
+	rm Algo-3.exe
