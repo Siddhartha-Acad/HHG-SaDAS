@@ -11,4 +11,3 @@ functions.o : ../functions.f90
 
 newton_raphson.o : newton_raphson.f90 functions.o
 	gfortran -I.. -c newton_raphson.f90
-
