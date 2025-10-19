@@ -6,7 +6,7 @@ RM = del
 
 
 colloc_pt : Algo-3.exe
-	cd .\generator && .\Algo-3.exe && cd ..
+	cd .\generator && .\Algo-3.exe && $(RM) Algo-3.exe
 
 Algo-3.exe : ./generator/Algo-3.f90 newton_raphson.o functions.o
 	gfortran -I.. ./generator/Algo-3.f90 ./newton_raphson.o ./functions.o -o ./generator/Algo-3.exe
@@ -19,6 +19,5 @@ newton_raphson.o : newton_raphson.f90 functions.o
 
 clear :
 	$(RM) ..\legendre_stuff.mod
-	$(RM) .\generator\Algo-3.exe
 	$(RM) .\generator\*.dat
 	$(RM) *.o
