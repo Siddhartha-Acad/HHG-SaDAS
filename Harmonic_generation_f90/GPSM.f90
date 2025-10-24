@@ -6,24 +6,24 @@ program GPSM
     integer :: i
     integer, parameter :: N = 200
     real(kind=8), dimension(N-1) :: x   ! collocation points
-    real(kind=8), external :: f_p
-
+	real(kind=8) :: r_max, Lmap, alpha_map
+	
+	r_max = 200; Lmap = 80
+	alpha_map = 2 * Lmap / r_max
+	
     !~~~~~~~~~: reading collocation points :~~~~~~~~~
     open(unit=10, file='./collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
-    
-    do i=1, N-1
-        read(10, *) x(i)
-    end do
+        do i=1, N-1
+            read(10, *) x(i)
+        end do
     close(10)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    print *, d2(1, N-1)
+    print *, H(0, 1, 1)
     
     
 contains
     pure real(kind=8) function d2(i, j)
-        implicit none
         integer, intent(in) :: i, j
         
         if (i .ne. j) then
@@ -33,17 +33,30 @@ contains
         end if
     end function d2
     
-
+    pure real(kind=8) function f(x_val)
+	    real(kind=8), intent(in) :: x_val
+        
+        f = Lmap * (1 + x_val) / (1 - x_val + alpha_map)
+    end function f
+    
+    pure real(kind=8) function f_p(x_val)
+	    real(kind=8), intent(in) :: x_val
+        
+        f_p = Lmap * (alpha_map + 2) / (1 - x_val + alpha_map)**2
+    end function f_p
+    
+    pure real(kind=8) function H(l_val, i, j)
+        integer, intent(in) :: l_val, i, j
+        real(kind=8) :: term1, term2
+        
+        term1 = -0.5 * (1 / f_p(x(i))) * d2(i, j) * (1 / f_p(x(j)))
+        if (i .ne. j) then
+            H = term1
+        else
+            term2 = l_val * (l_val + 1) / (2 * f(x(i)) ** 2) - 1 / f(x(i))
+            H = term1 + term2
+        end if
+    end function H
+    
 end program GPSM
-
-
-pure real(kind=8) function f_p(x)
-	implicit none
-	real(kind=8), intent(in) :: x
-	real(kind=8) :: r_max, Lmap, alpha_map
-	
-	r_max = 200; Lmap = 80
-	alpha_map = 2 * Lmap / r_max
-    f_p = Lmap * (alpha_map + 2) / (1 - x + alpha_map)**2
-end function f_p
 
