@@ -3,9 +3,10 @@
 
 program GPSM
     implicit none
-    integer :: i
+    integer :: i, j
     integer, parameter :: N = 200
     real(kind=8), dimension(N-1) :: x   ! collocation points
+    real(kind=8), dimension(N-1, N-1) :: H_matrix
 	real(kind=8) :: r_max, Lmap, alpha_map
 	
 	r_max = 200.0d0; Lmap = 80.0d0
@@ -19,7 +20,14 @@ program GPSM
         end do
     close(10)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    print *, H(0, 1, 1)
+    
+    do i = 1, N-1
+        do j = i, N-1
+            H_matrix(i, j) = H(0, i, j)
+            H_matrix(j, i) = H_matrix(i, j)
+        end do
+    end do
+    
     
     
 contains
