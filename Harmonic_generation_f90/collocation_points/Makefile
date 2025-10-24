@@ -1,9 +1,6 @@
-# Algo-3.f90: to generate GL collocation points.
+# Algo-3.f90: to generate Gauss-Lobatto collocation points.
 
 .PHONY : colloc_pt clear clear_dat
-
-colloc_pt : ./generator/Algo-3.exe
-	cd ./generator && ./Algo-3.exe
 
 ./generator/Algo-3.exe : ./generator/Algo-3.f90 newton_raphson.o functions.o
 	gfortran -I.. ./generator/Algo-3.f90 ./newton_raphson.o ./functions.o -o ./generator/Algo-3.exe
@@ -14,10 +11,13 @@ functions.o ../legendre_stuff.mod: ../functions.f90
 newton_raphson.o : newton_raphson.f90 ../legendre_stuff.mod
 	gfortran -I.. -c newton_raphson.f90
 
+colloc_pt : ./generator/Algo-3.exe
+	cd ./generator && ./Algo-3.exe
+
 clear :
-	rm *.o
-	rm ./generator/Algo-3.exe
-	rm ../legendre_stuff.mod
+	rm -f *.o
+	rm -f ./generator/Algo-3.exe
+	rm -f ../legendre_stuff.mod
 
 clear_dat :
-	rm ./generator/*.dat
+	rm -f ./generator/*.dat
