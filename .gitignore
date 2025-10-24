@@ -1,8 +1,6 @@
-desktop.ini
 commit_HHG-SaDAS.txt
 tag_HHG-SaDAS.txt
 
-.idea/
 __pycache__/
 
 # Avoid data files too.
@@ -23,7 +21,5 @@ code_message.txt
 *.out
 *.dat
 
-trial_1.py
-trial_2.py
 
 venv_HHG
