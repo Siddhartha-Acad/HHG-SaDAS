@@ -1,8 +1,6 @@
-desktop.ini
 commit_HHG-SaDAS.txt
 tag_HHG-SaDAS.txt
 
-.idea/
 __pycache__/
 
 # Avoid data files too.
@@ -13,6 +11,7 @@ __pycache__/
 *.xlsx
 *.npy
 Harmonic_generation_py/**/*.txt
+Harmonic_generation_f90/**/*.txt
 
 code_message.txt
 
@@ -22,7 +21,5 @@ code_message.txt
 *.out
 *.dat
 
-trial_1.py
-trial_2.py
 
 venv_HHG
