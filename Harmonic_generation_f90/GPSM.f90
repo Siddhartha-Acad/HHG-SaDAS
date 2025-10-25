@@ -5,13 +5,13 @@ program GPSM
     implicit none
     integer :: i, j
     integer, parameter :: N = 200
-    real(kind=8), dimension(N-1) :: x   ! collocation points
+    real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
-	real(kind=8) :: r_max, Lmap, alpha_map
-	
-	r_max = 200.0d0; Lmap = 80.0d0
-	alpha_map = 2.0d0 * Lmap / r_max
-	
+    real(kind=8) :: r_max, Lmap, alpha_map
+    
+    r_max = 200.0d0; Lmap = 80.0d0
+    alpha_map = 2.0d0 * Lmap / r_max
+    
     !~~~~~~~~~: reading collocation points :~~~~~~~~~
     open(unit=10, file='./collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
@@ -21,13 +21,19 @@ program GPSM
     close(10)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    do i = 1, N-1
-        do j = i, N-1
+    ! Fill upper triangle (good cache access)
+    do j = 1, N-1
+        do i = 1, j
             H_matrix(i, j) = H(0, i, j)
-            H_matrix(j, i) = H_matrix(i, j)
         end do
     end do
-    
+
+    ! Fill lower triangle (row-wise, unavoidable)
+    do j = 1, N-1
+        do i = j+1, N-1
+            H_matrix(i, j) = H_matrix(j, i)
+        end do
+    end do
     
     
 contains
@@ -42,13 +48,13 @@ contains
     end function d2
     
     pure real(kind=8) function f(x_val)
-	    real(kind=8), intent(in) :: x_val
+        real(kind=8), intent(in) :: x_val
         
         f = Lmap * (1.0d0 + x_val) / (1.0d0 - x_val + alpha_map)
     end function f
     
     pure real(kind=8) function f_p(x_val)
-	    real(kind=8), intent(in) :: x_val
+        real(kind=8), intent(in) :: x_val
         
         f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x_val + alpha_map)**2
     end function f_p
