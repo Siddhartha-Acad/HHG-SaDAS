@@ -9,7 +9,7 @@ program GPSM
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     real(kind=8) :: r_max, Lmap, alpha_map
     
-    integer :: lda, lwork, info
+    integer :: lwork, info
     real(kind=8), allocatable :: work_array(:)
     real(kind=8), dimension(N-1) :: E_egval
     
@@ -25,30 +25,24 @@ program GPSM
     close(10)
     !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
+    H_matrix = 0.0d0
+    
     ! Fill upper triangle (good cache access)
     do j = 1, N-1
         do i = 1, j
             H_matrix(i, j) = H(0, i, j)
         end do
     end do
-
-    ! Fill lower triangle (row-wise, unavoidable)
-    do j = 1, N-1
-        do i = j+1, N-1
-            H_matrix(i, j) = H_matrix(j, i)
-        end do
-    end do
     
     
-    lda = N-1
     lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     allocate(work_array(1))
-    call DSYEV('V', 'U', N-1, H_matrix, lda, E_egval, work_array, lwork, info)
+    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
     lwork = int(work_array(1))
     deallocate(work_array)
     
     allocate(work_array(lwork))
-    call DSYEV('V', 'U', N-1, H_matrix, lda, E_egval, work_array, lwork, info)
+    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
     deallocate(work_array)
     
     if (info .eq. 0) then
