@@ -6,55 +6,100 @@ module legendre_stuff
 
 contains
 
-pure real (kind=8) function legendre(n, x)
-    ! FORWARD RECURSION ALGORITHM
-    ! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
-
-    integer :: k
-    integer, intent(in) :: n
-    real (kind=8), intent(in) :: x
-    real (kind=8) :: P0, P1, Pk
-
-    if (n==0) then
-        legendre = 1.0d0
-        return
-    else if (n==1) then
-        legendre = x
-        return
-    end if
-
-    P0 = 1.0d0
-    P1 = x
-
-    do k = 2, n
-        Pk = ((2*k-1)*x*P1 - (k-1)*P0) / dble(k)
-        P0 = P1
-        P1 = Pk
-    end do
-
-    legendre = Pk
-end function legendre
-
-
-pure real (kind=8) function Lambda(n, x)
-    integer, intent(in) :: n
-    real (kind=8), intent(in) :: x
-
-    Lambda = legendre(n-1, x) - legendre(n+1, x)
-end function Lambda
+    pure real (kind=8) function legendre(n, x)
+        ! FORWARD RECURSION ALGORITHM
+        ! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
+        
+        integer :: k
+        integer, intent(in) :: n
+        real (kind=8), intent(in) :: x
+        real (kind=8) :: P0, P1, Pk
+        
+        if (n==0) then
+            legendre = 1.0d0
+            return
+        else if (n==1) then
+            legendre = x
+            return
+        end if
+        
+        P0 = 1.0d0
+        P1 = x
+        
+        do k = 2, n
+            Pk = ((2*k-1)*x*P1 - (k-1)*P0) / dble(k)
+            P0 = P1
+            P1 = Pk
+        end do
+        
+        legendre = Pk
+    end function legendre
 
 
-pure real (kind=8) function Lambda_p(n, x)
-    integer, intent(in) :: n
-    real (kind=8), intent(in) :: x
-    real (kind=8) :: coff_1, coff_2
+    pure real (kind=8) function Lambda(n, x)
+        integer, intent(in) :: n
+        real (kind=8), intent(in) :: x
+        
+        Lambda = legendre(n-1, x) - legendre(n+1, x)
+    end function Lambda
 
-    coff_1 = dble(n*(n-1)) / dble(2*n-1)
-    coff_2 = dble((n+1)*(n+2)) / dble(2*n+3)
 
-    Lambda_p = (coff_1*Lambda(n-1, x) - &
-                coff_2*Lambda(n+1, x)) / (1.0d0 - x**2)
-end function Lambda_p
-
+    pure real (kind=8) function Lambda_p(n, x)
+        integer, intent(in) :: n
+        real (kind=8), intent(in) :: x
+        real (kind=8) :: coff_1, coff_2
+        
+        coff_1 = dble(n*(n-1)) / dble(2*n-1)
+        coff_2 = dble((n+1)*(n+2)) / dble(2*n+3)
+        
+        Lambda_p = (coff_1*Lambda(n-1, x) - &
+                    coff_2*Lambda(n+1, x)) / (1.0d0 - x**2)
+    end function Lambda_p
 
 end module legendre_stuff
+
+
+
+subroutine newton_raphson(N, x_i, root, debug)
+    use legendre_stuff
+    implicit none
+    integer, intent(in) :: N
+    logical, intent(in) :: debug
+    real (kind=8), intent(in)  :: x_i        ! initial guess value
+    real (kind=8), intent(out) :: root
+    
+    integer :: iter
+    real (kind=8) :: x_old, x_new
+    real (kind=8), parameter :: tol = 1.0d-15, rtol = 0.0d0
+    
+    ! tol = absolute tolerance
+    ! rtol = relative tolerance
+    
+    if (debug) then
+        print '(A)'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
+        print '(A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|   |'
+        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
+    end if
+    
+    x_old = x_i
+    do iter = 1, 50
+        x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
+        
+        if (debug) then
+            print '(A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
+                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), '  |'
+        end if
+        
+        if (abs(x_new - x_old) .lt. (tol + rtol*abs(x_new))) then
+            root = x_new
+            return
+        end if
+        
+        x_old = x_new
+    end do
+    
+    ! Reaching here is signature that convergence failed.
+    root = 1.0d2
+end subroutine newton_raphson
+

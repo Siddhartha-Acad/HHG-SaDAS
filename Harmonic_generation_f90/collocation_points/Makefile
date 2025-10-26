@@ -2,17 +2,15 @@
 
 .PHONY : colloc_pt clear clear_dat
 
-./generator/Algo-3.exe : ./generator/Algo-3.f90 newton_raphson.o functions.o parameters.o
-	gfortran -I.. ./generator/Algo-3.f90 newton_raphson.o functions.o parameters.o -o ./generator/Algo-3.exe
+./generator/Algo-3.exe : ./generator/Algo-3.f90 functions.o parameters.o
+	gfortran -I.. ./generator/Algo-3.f90 functions.o parameters.o -o ./generator/Algo-3.exe
 
-parameters.o ../parameters.mod : ../parameters.f90
+parameters.o : ../parameters.f90
 	gfortran -J.. -c ../parameters.f90
 
-functions.o ../legendre_stuff.mod : ../functions.f90
+functions.o : ../functions.f90
 	gfortran -J.. -c ../functions.f90
 
-newton_raphson.o : newton_raphson.f90 ../legendre_stuff.mod
-	gfortran -I.. -c newton_raphson.f90
 
 colloc_pt : ./generator/Algo-3.exe
 	cd ./generator && ./Algo-3.exe
