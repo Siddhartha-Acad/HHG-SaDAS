@@ -24,10 +24,10 @@
 ! --------------------------------------------------------------------------------
 
 program main
+    use parameters
     use legendre_stuff
     implicit none
     integer :: i, root_count
-    integer, parameter :: N = 200
     integer, parameter :: nop = 3000
 
     logical :: debug_newton = .false.
