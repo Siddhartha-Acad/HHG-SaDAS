@@ -4,20 +4,21 @@
 program GPSM
     implicit none
     integer :: i, j
-    integer, parameter :: N = 200, kmax = 5
+    integer, parameter :: N = 200, kmax = 10
+    real(kind=8) :: r_max, Lmap, alpha_map
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
-    real(kind=8) :: r_max, Lmap, alpha_map
     
-    integer :: il, iu, lda, ldz, info, lwork, liwork, m
+    character :: jobz, range, uplo
     real(kind=8) :: vl, vu, abstol
     real(kind=8), allocatable :: work_arr(:)
-    integer, allocatable :: iwork_arr(:), isuppz(:)
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), dimension(N-1, kmax) :: E_vect
-    character :: jobz, range, uplo
+    integer, dimension(2*kmax) :: isuppz
+    integer, allocatable :: iwork_arr(:)
+    integer :: il, iu, lda, ldz, info, lwork, liwork, m
     
-    r_max = 200.0d0; Lmap = 80.0d0
+    r_max = 200.0d0; Lmap = 20.0d0
     alpha_map = 2.0d0 * Lmap / r_max
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -60,7 +61,6 @@ program GPSM
     ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     lwork = -1
     liwork = -1
-    allocate(isuppz(2*kmax))
     allocate(work_arr(1), iwork_arr(1))
     call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
                 m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
@@ -71,14 +71,14 @@ program GPSM
     allocate(work_arr(lwork), iwork_arr(liwork))
     call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
                 m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
-    deallocate(isuppz, work_arr, iwork_arr)
+    deallocate(work_arr, iwork_arr)
     
     if (info .eq. 0) then
         do i = 1, m
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
     else
-        print *, 'DSYEV failed. info', info
+        print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
     
     
