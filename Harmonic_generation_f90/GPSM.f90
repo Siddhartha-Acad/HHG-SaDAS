@@ -27,15 +27,20 @@ program GPSM
         end do
     close(10)
     
-    H_matrix = 0.0d0
-    ! Fill upper triangle (good cache access)
-    do j = 1, N-1
+    
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !                     real symmetric [H] matrix                      |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    do j = 1, N-1       ! Fill upper triangle (good cache access)
         do i = 1, j
             H_matrix(i, j) = H(0, i, j)
         end do
     end do
     
     
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !          energy eigenvalues and eigenvectors : [H] matrix          |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     allocate(work_array(1))
     call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
