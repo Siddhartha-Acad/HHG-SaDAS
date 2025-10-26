@@ -4,18 +4,21 @@
 program GPSM
     implicit none
     integer :: i, j
-    integer, parameter :: N = 200
+    integer, parameter :: N = 200, kmax = 5
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     real(kind=8) :: r_max, Lmap, alpha_map
     
-    integer :: lwork, info
-    real(kind=8), allocatable :: work_array(:)
+    integer :: il, iu, lda, ldz, info, lwork, liwork, m
+    real(kind=8) :: vl, vu, abstol
+    real(kind=8), allocatable :: work_arr(:)
+    integer, allocatable :: iwork_arr(:), isuppz(:)
     real(kind=8), dimension(N-1) :: E_egval
+    real(kind=8), dimension(N-1, kmax) :: E_vect
+    character :: jobz, range, uplo
     
     r_max = 200.0d0; Lmap = 80.0d0
     alpha_map = 2.0d0 * Lmap / r_max
-    
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
@@ -27,7 +30,6 @@ program GPSM
         end do
     close(10)
     
-    
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     real symmetric [H] matrix                      |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -37,22 +39,42 @@ program GPSM
         end do
     end do
     
-    
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !          energy eigenvalues and eigenvectors : [H] matrix          |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
-    allocate(work_array(1))
-    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
-    lwork = int(work_array(1))
-    deallocate(work_array)
+    ! CALL DSYEVR(JOBZ, RANGE, UPLO, N, A, LDA, VL, VU, IL, IU, ABSTOL, M, W, Z, LDZ, ISUPPZ, 
+    !             WORK, LWORK, IWORK, LIWORK, INFO)
+
+    lda = N-1
+    ldz = N-1
+    jobz = 'V'
+    range = 'I'
+    uplo = 'U'
+    vl = 0.0d0
+    vu = 0.0d0
+    il = 1
+    iu = kmax
+    abstol = 0.0d0
     
-    allocate(work_array(lwork))
-    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
-    deallocate(work_array)
+    
+    ! Setting LWORK = -1 activates workspace query mode in LAPACK.
+    lwork = -1
+    liwork = -1
+    allocate(isuppz(2*kmax))
+    allocate(work_arr(1), iwork_arr(1))
+    call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
+                m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
+    lwork = int(work_arr(1))
+    liwork = iwork_arr(1)
+    deallocate(work_arr, iwork_arr)
+    
+    allocate(work_arr(lwork), iwork_arr(liwork))
+    call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
+                m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
+    deallocate(isuppz, work_arr, iwork_arr)
     
     if (info .eq. 0) then
-        do i = 1, 5
+        do i = 1, m
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
     else
