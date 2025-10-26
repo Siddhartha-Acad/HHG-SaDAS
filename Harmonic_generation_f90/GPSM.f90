@@ -16,17 +16,18 @@ program GPSM
     r_max = 200.0d0; Lmap = 80.0d0
     alpha_map = 2.0d0 * Lmap / r_max
     
-    !~~~~~~~~~: reading collocation points :~~~~~~~~~
+    
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !                     reading collocation points                     |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     open(unit=10, file='./collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
         do i=1, N-1
             read(10, *) x(i)
         end do
     close(10)
-    !~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     H_matrix = 0.0d0
-    
     ! Fill upper triangle (good cache access)
     do j = 1, N-1
         do i = 1, j
