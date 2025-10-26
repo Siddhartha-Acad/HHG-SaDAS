@@ -18,7 +18,7 @@ program GPSM
     integer, allocatable :: iwork_arr(:)
     integer :: il, iu, lda, ldz, info, lwork, liwork, m
     
-    r_max = 200.0d0; Lmap = 20.0d0
+    r_max = 200.0d0; Lmap = 80.0d0
     alpha_map = 2.0d0 * Lmap / r_max
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,20 +43,19 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !          energy eigenvalues and eigenvectors : [H] matrix          |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    ! CALL DSYEVR(JOBZ, RANGE, UPLO, N, A, LDA, VL, VU, IL, IU, ABSTOL, M, W, Z, LDZ, ISUPPZ, 
-    !             WORK, LWORK, IWORK, LIWORK, INFO)
-
-    lda = N-1
-    ldz = N-1
-    jobz = 'V'
-    range = 'I'
-    uplo = 'U'
-    vl = 0.0d0
-    vu = 0.0d0
-    il = 1
-    iu = kmax
-    abstol = 0.0d0
+    ! CALL DSYEVR(JOBZ, RANGE, UPLO, N, A, LDA, VL, VU, IL, IU, ABSTOL, M, W, Z,
+    !             LDZ, ISUPPZ, WORK, LWORK, IWORK, LIWORK, INFO)
     
+    lda = N-1        ! Leading dimension of H_matrix (number of rows in memory)
+    ldz = N-1        ! Leading dimension of E_vect (number of rows in memory)
+    jobz = 'V'       ! 'V' = compute eigenvectors; 'N' = eigenvalues only
+    range = 'I'      ! 'I' = select eigenvalues by index (IL..IU)
+    uplo = 'U'       ! 'U' = upper triangle of H_matrix is stored/used
+    vl = 0.0d0       ! Lower bound of eigenvalues (used if RANGE='V', ignored here)
+    vu = 0.0d0       ! Upper bound of eigenvalues (used if RANGE='V', ignored here)
+    il = 1           ! Index of the smallest eigenvalue to compute (1 = first)
+    iu = kmax        ! Index of the largest eigenvalue to compute (kmax = last wanted)
+    abstol = 0.0d0   ! Absolute tolerance for convergence; 0 -> use machine precision
     
     ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     lwork = -1
