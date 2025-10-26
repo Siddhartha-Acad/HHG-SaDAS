@@ -2,10 +2,9 @@
 ! time independent Schrodinger equation using GPSM
 
 program GPSM
+    use parameters
     implicit none
     integer :: i, j
-    integer, parameter :: N = 200, kmax = 10
-    real(kind=8) :: r_max, Lmap, alpha_map
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     
@@ -17,9 +16,6 @@ program GPSM
     integer, dimension(2*kmax) :: isuppz
     integer, allocatable :: iwork_arr(:)
     integer :: il, iu, lda, ldz, info, lwork, liwork, m
-    
-    r_max = 200.0d0; Lmap = 80.0d0
-    alpha_map = 2.0d0 * Lmap / r_max
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
