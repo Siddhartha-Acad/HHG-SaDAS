@@ -44,6 +44,8 @@ Notes:
 - This file is part of the HHG-SaDAS package, developed during the MS(R) thesis:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 """
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import warnings
 from pathlib import Path
@@ -738,7 +740,7 @@ def generate_states(l_val):
     """
     Generate a list of electronic states for a given orbital angular momentum quantum number.
 
-    The states are labeled by the principal quantum number (starting from :math:`n = \ell + 1`)
+    The states are labeled by the principal quantum number (starting from :math:`n = l + 1`)
     followed by the spectroscopic orbital letter (s, p, d, f, g, ...).
 
     Example:
@@ -746,8 +748,8 @@ def generate_states(l_val):
     >> generate_states(1)
     ['2p', '3p', '4p', ..., '199p']
 
-    :param l_val: Orbital angular momentum quantum number :math:`\ell` (int).
-              Supported up to :math:`\ell = 10` (m orbital).
+    :param l_val: Orbital angular momentum quantum number :math:`l` (int).
+              Supported up to :math:`l = 10` (m orbital).
     :return: List of state labels as strings (list of str).
     """
     orbital_types = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h',

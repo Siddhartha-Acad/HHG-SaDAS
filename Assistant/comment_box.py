@@ -19,17 +19,18 @@ Notes:
 # for function_bank.py : comment box size = 60
 # for normal codes     : comment box size = 50
 
+comment_symbol = '!'
 def center_comment(text: str, width: int = 70, border: str = "~") -> str:
-    line = f"# {border * (width - 2)}"
-    middle = f"# {text.center(width - 4)} |"
+    line = f"{comment_symbol} {border * (width - 2)}"
+    middle = f"{comment_symbol} {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
 def pretty_title(text: str, width: int = 80, fill: str = "~") -> str:
     line = f": {text} :"
-    return "# " + line.center(width - 1, fill)
+    return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "CPU time"
+comment_head_string = "reading collocation points"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Main time evolution algorithm ends here"
