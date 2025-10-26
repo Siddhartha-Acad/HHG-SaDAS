@@ -9,6 +9,10 @@ program GPSM
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     real(kind=8) :: r_max, Lmap, alpha_map
     
+    integer :: lda, lwork, info
+    real(kind=8), allocatable :: work_array(:)
+    real(kind=8), dimension(N-1) :: E_egval
+    
     r_max = 200.0d0; Lmap = 80.0d0
     alpha_map = 2.0d0 * Lmap / r_max
     
@@ -34,6 +38,26 @@ program GPSM
             H_matrix(i, j) = H_matrix(j, i)
         end do
     end do
+    
+    
+    lda = N-1
+    lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
+    allocate(work_array(1))
+    call DSYEV('V', 'U', N-1, H_matrix, lda, E_egval, work_array, lwork, info)
+    lwork = int(work_array(1))
+    deallocate(work_array)
+    
+    allocate(work_array(lwork))
+    call DSYEV('V', 'U', N-1, H_matrix, lda, E_egval, work_array, lwork, info)
+    deallocate(work_array)
+    
+    if (info .eq. 0) then
+        do i = 1, 5
+            print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
+        end do
+    else
+        print *, 'DSYEV failed. info', info
+    end if
     
     
 contains
