@@ -44,22 +44,31 @@ program GPSM
     lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     allocate(work_array(1))
     call DSYEV(jobz, uplo, N-1, H_matrix, lda, E_egval, work_array, lwork, info)
-    lwork = int(work_array(1))
+    lwork = int(work_array(1)) 
     deallocate(work_array)
     
     allocate(work_array(lwork))
     call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
     deallocate(work_array)
     
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !               Writing eigenvectors to an output file               |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (info .eq. 0) then
         do i = 1, kmax
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
+        
+        open(unit=11, file='GPSM_DSYEV_states.bin', form='unformatted', access='stream', status='replace')
+        do i = 1, N-1
+            write(11) f(x(i)), H_matrix(i, 1:kmax)
+        end do
+        close(11)
+        print '(A)', 'GPSM Eigenvctors saved in GPSM_DSYEV_states.bin'
     else
         print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
     
-    print *, sum(H_matrix(:, 1)**2)
     
 contains
     pure real(kind=8) function d2(i, j)

@@ -20,6 +20,6 @@ code_message.txt
 *.exe
 *.out
 *.dat
-
+*.bin
 
 venv_HHG
