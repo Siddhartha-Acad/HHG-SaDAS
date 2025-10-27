@@ -59,6 +59,7 @@ program GPSM
         print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
     
+    print *, sum(H_matrix(:, 1)**2)
     
 contains
     pure real(kind=8) function d2(i, j)
