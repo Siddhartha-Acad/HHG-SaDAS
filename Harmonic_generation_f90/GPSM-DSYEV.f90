@@ -59,12 +59,12 @@ program GPSM
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
         
-        open(unit=11, file='GPSM_DSYEV_states.bin', form='unformatted', access='stream', status='replace')
+        open(unit=11, file='GPSM-DSYEV_states.bin', form='unformatted', access='stream', status='replace')
         do i = 1, N-1
             write(11) f(x(i)), H_matrix(i, 1:kmax)
         end do
         close(11)
-        print '(A)', 'GPSM Eigenvctors saved in GPSM_DSYEV_states.bin'
+        print '(A)', 'GPSM Eigenvctors saved in GPSM-DSYEV_states.bin'
     else
         print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
