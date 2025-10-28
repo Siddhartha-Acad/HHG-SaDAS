@@ -45,7 +45,7 @@ start_time = time.perf_counter()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 10           # how many states you want to keep in the GPSM_state file (.xlsx)
+total_states = 10           # how many states you want to keep in the GPSM_state file (.dat)
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
@@ -65,14 +65,18 @@ if file_path.exists():
 
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
+
 for i in range(N - 1):
-    for j in range(i, N - 1):                          # Only computing the upper triangle
-        H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
+    for j in range(i, N - 1):                   # Only computing the upper triangle
+        H_matrix[i, j] = H(l, i, j, model=SAE_model)
+
+H_matrix += np.triu(H_matrix, 1).T              # Mirror to lower triangle (excluding diagonal)
+
 E, A = eigh(H_matrix, subset_by_index=[0, total_states-1])
 A = A.T
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .dat file :~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                       # radial coordinate in atomic unit. (Nonlinearly discretised)
 
 header = "r(a.u.) " + " ".join([f"A({state_name(Eth + l + 1, l)})" for Eth in range(total_states)])

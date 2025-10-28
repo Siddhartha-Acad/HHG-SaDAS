@@ -72,8 +72,8 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-    S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+    state_file = 'He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat'
+    S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
 
@@ -170,7 +170,7 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(1, 101)}
+checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101)}
 
 start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
@@ -189,7 +189,7 @@ for ti in range(time_step):
     # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
 
     if print_serial_prog and ti in checkpoints:
-        print(f"Evolution step {ti:<6}: {checkpoints[ti]:7.2f}%")                # It will show how much the process is completed.
+        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.2f}%")                # It will show how much the process is completed.
 
     d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
     population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
@@ -217,7 +217,7 @@ np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
 print('\n')
-print(f"evo_data_file_name = '{Evo_data_file}'")
+print(f"evo_data_file = '{Evo_data_file}'")
 print('\n')
 
 if wall_time > 300.0:

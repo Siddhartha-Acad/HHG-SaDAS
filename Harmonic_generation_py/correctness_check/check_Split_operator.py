@@ -67,8 +67,8 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-    S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+    state_file = 'He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat'
+    S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
 
@@ -285,4 +285,5 @@ fig4.subplots_adjust(
 
 end_time = time.perf_counter()
 print(f'\nExecution Wall-Time : {end_time - start_time:.2f} seconds')
+
 plt.show()

@@ -82,9 +82,13 @@ v = V_eff(l, r)                     # Effective potential: including centrifugal
 
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
+
 for i in range(N - 1):
-    for j in range(i, N - 1):                           # Only computing the upper triangle
-        H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
+    for j in range(i, N - 1):                   # Only computing the upper triangle
+        H_matrix[i, j] = H(l, i, j, model=SAE_model)
+
+H_matrix += np.triu(H_matrix, 1).T              # Mirror to lower triangle (excluding diagonal)
+
 E, A = eigh(H_matrix, subset_by_index=[0, 5]); A = A.T
 
 
