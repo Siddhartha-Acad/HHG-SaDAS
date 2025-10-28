@@ -36,7 +36,6 @@ program main
     real (kind=8), dimension(N-1) :: colloc_pt
     real (kind=8), dimension(nop) :: x_map, y
     real (kind=8), allocatable :: roots(:)
-    real (kind=8), external :: f_rev
     real (kind=8) :: xi, dx, guess
     character(len=60) :: file_name
 
@@ -126,15 +125,17 @@ program main
 
     close(10)
     print '(2A)', '  File created: ', file_name; print '(A)', ' '
+
+
+contains
+    pure real (kind=8) function f_rev(xi)
+        implicit none
+        real (kind=8), intent(in) :: xi
+        real (kind=8), parameter :: L_map = 0.5d0, alpha = 1.0d0
+        ! alpha = 2.0d0 * L_map
+
+        f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
+    end function f_rev
+
 end program main
 
-
-
-pure real (kind=8) function f_rev(xi)
-    implicit none
-    real (kind=8), intent(in) :: xi
-    real (kind=8), parameter :: L_map = 0.5d0, alpha = 1.0d0
-    ! alpha = 2.0d0 * L_map
-
-    f_rev = 1.0d0 - L_map * ((1-xi) / (1+xi+alpha))
-end function f_rev

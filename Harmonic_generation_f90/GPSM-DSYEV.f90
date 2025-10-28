@@ -2,24 +2,16 @@
 ! time independent Schrodinger equation using GPSM
 
 program GPSM
+    use parameters
     implicit none
     integer :: i, j
-    integer, parameter :: N = 200, kmax = 10
-    real(kind=8) :: r_max, Lmap, alpha_map
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     
-    character :: jobz, range, uplo
-    real(kind=8) :: vl, vu, abstol
-    real(kind=8), allocatable :: work_arr(:)
+    character :: jobz, uplo
+    integer :: lda, lwork, info
     real(kind=8), dimension(N-1) :: E_egval
-    real(kind=8), dimension(N-1, kmax) :: E_vect
-    integer, dimension(2*kmax) :: isuppz
-    integer, allocatable :: iwork_arr(:)
-    integer :: il, iu, lda, ldz, info, lwork, liwork, m
-    
-    r_max = 200.0d0; Lmap = 80.0d0
-    alpha_map = 2.0d0 * Lmap / r_max
+    real(kind=8), allocatable :: work_array(:)
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
@@ -36,48 +28,45 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     do j = 1, N-1       ! Fill upper triangle (good cache access)
         do i = 1, j
-            H_matrix(i, j) = H(0, i, j)
+            H_matrix(i, j) = H(l_qn, i, j)
         end do
     end do
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !          energy eigenvalues and eigenvectors : [H] matrix          |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    ! CALL DSYEVR(JOBZ, RANGE, UPLO, N, A, LDA, VL, VU, IL, IU, ABSTOL, M, W, Z,
-    !             LDZ, ISUPPZ, WORK, LWORK, IWORK, LIWORK, INFO)
+    ! DSYEV(JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO)
     
     lda = N-1        ! Leading dimension of H_matrix (number of rows in memory)
-    ldz = N-1        ! Leading dimension of E_vect (number of rows in memory)
     jobz = 'V'       ! 'V' = compute eigenvectors; 'N' = eigenvalues only
-    range = 'I'      ! 'I' = select eigenvalues by index (IL..IU)
     uplo = 'U'       ! 'U' = upper triangle of H_matrix is stored/used
-    vl = 0.0d0       ! Lower bound of eigenvalues (used if RANGE='V', ignored here)
-    vu = 0.0d0       ! Upper bound of eigenvalues (used if RANGE='V', ignored here)
-    il = 1           ! Index of the smallest eigenvalue to compute (1 = first)
-    iu = kmax        ! Index of the largest eigenvalue to compute (kmax = last wanted)
-    abstol = 0.0d0   ! Absolute tolerance for convergence; 0 -> use machine precision
     
-    ! Setting LWORK = -1 activates workspace query mode in LAPACK.
-    lwork = -1
-    liwork = -1
-    allocate(work_arr(1), iwork_arr(1))
-    call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
-                m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
-    lwork = int(work_arr(1))
-    liwork = iwork_arr(1)
-    deallocate(work_arr, iwork_arr)
+    lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
+    allocate(work_array(1))
+    call DSYEV(jobz, uplo, N-1, H_matrix, lda, E_egval, work_array, lwork, info)
+    lwork = int(work_array(1)) 
+    deallocate(work_array)
     
-    allocate(work_arr(lwork), iwork_arr(liwork))
-    call DSYEVR(jobz, range, uplo, N-1, H_matrix, lda, vl, vu, il, iu, abstol, &
-                m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
-    deallocate(work_arr, iwork_arr)
+    allocate(work_array(lwork))
+    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
+    deallocate(work_array)
     
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !               Writing eigenvectors to an output file               |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (info .eq. 0) then
-        do i = 1, m
+        do i = 1, kmax
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
+        
+        open(unit=11, file='GPSM-DSYEV_states.bin', form='unformatted', access='stream', status='replace')
+        do i = 1, N-1
+            write(11) f(x(i)), H_matrix(i, 1:kmax)
+        end do
+        close(11)
+        print '(A)', 'GPSM Eigenvctors saved in GPSM-DSYEV_states.bin'
     else
-        print '(A, I2)', 'DSYEVR failed. info = ', info
+        print '(A, I2)', 'DSYEV failed. info = ', info
     end if
     
     
@@ -92,17 +81,20 @@ contains
         end if
     end function d2
     
+    
     pure real(kind=8) function f(x_val)
         real(kind=8), intent(in) :: x_val
         
         f = Lmap * (1.0d0 + x_val) / (1.0d0 - x_val + alpha_map)
     end function f
     
+    
     pure real(kind=8) function f_p(x_val)
         real(kind=8), intent(in) :: x_val
         
         f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x_val + alpha_map)**2
     end function f_p
+    
     
     pure real(kind=8) function H(l_val, i, j)
         integer, intent(in) :: l_val, i, j
