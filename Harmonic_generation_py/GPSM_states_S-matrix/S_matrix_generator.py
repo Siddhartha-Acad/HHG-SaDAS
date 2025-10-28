@@ -60,7 +60,6 @@ import pandas as pd
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters_and_functions import *
-start_time = time.perf_counter()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,9 +84,11 @@ print('Azimuthal quantum num. (m)  :', m)
 print(f'S matrix range              : S({m}) to S({m+l_max})')
 print('total S matrix (l_max+1)    :', l_max+1, '\n')
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = {}
 energy_eigenvalues = {}
+start_time = time.perf_counter()
+
 for l in range(m, l_max+m+1):
     # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
     H_matrix = np.zeros((N - 1, N - 1))
@@ -106,20 +107,16 @@ for l in range(m, l_max+m+1):
     # print(f'positive energy states (E>0) : {positive_energy_states}\n')
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    S_matrix_real = np.zeros((N-1, N-1))
-    S_matrix_imag = np.zeros((N-1, N-1))
-    for i in range(N - 1):
-        for j in range(i, N - 1):                               # Only compute the upper triangle
-            matrix_ele = S(E, A, i, j)
-            S_matrix_real[i][j] = np.real(matrix_ele)
-            S_matrix_imag[i][j] = np.imag(matrix_ele)
-            if i != j:                                          # Mirror the values to the lower triangle
-                S_matrix_real[j][i] = np.real(matrix_ele)
-                S_matrix_imag[j][i] = np.imag(matrix_ele)
+    S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A                     # A: (k_max, n); A.T*(phase): (n, k_max)
+    
+    S_matrix_real = np.real(S_matrix)
+    S_matrix_imag = np.imag(S_matrix)
     flat_S_matrix_real = S_matrix_real.flatten()
     flat_S_matrix_imag = S_matrix_imag.flatten()
     data_S_matrix[f'S(l={l})'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
 
+end_time = time.perf_counter()
+wall_time = end_time - start_time
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
 df_S_matrix = pd.DataFrame(data_S_matrix)
@@ -128,15 +125,13 @@ print(f"\nS_matrix_file = '{file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-from pathlib import Path
-
 if save_Egvals_with_Smatrix:
     if not confined:
         output_name = f'{evolving_atom}_EgVals__lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
     else:
         output_name = f'{evolving_atom}@C60_EgVals__{conf_info_string}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
 
-    output_path = Path(output_dir) / output_name
+    output_path = output_dir / output_name
 
     if output_path.exists():
         print(f"File already exists: '{output_name}' — skipping.")
@@ -154,8 +149,6 @@ if save_Egvals_with_Smatrix:
                 f.write(" ".join(row_data) + "\n")
         print(f"EgVals_file = '{output_name}'")
 
-end_time = time.perf_counter()
-wall_time = end_time - start_time
 
 if wall_time > 300.0:
     print(f'\nWall Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
