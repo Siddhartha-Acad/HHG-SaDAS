@@ -25,7 +25,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 import time
 import numpy as np
-import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
@@ -95,13 +94,13 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
-state_data = pd.read_excel(state_file_path, header=None, skiprows=1).to_numpy().T
+state_file = 'H_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=80.dat'
+state_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+state_data = np.loadtxt(state_path, skiprows=1).T
 
-S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
-S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
-S_matrix = np.load(S_matrix_full_path, allow_pickle=True)          # shape: (l_max+1, N-1, N-1), dtype=complex128
+S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
 
@@ -137,7 +136,7 @@ if show_E_field:
     ax1 = fig1.add_subplot(111)
     da.decorate_2d(ax1)
 
-    E_array = [E_field(ti) for ti in t]
+    E_array = E_field(t)
     ax1.plot(t, E_array)
     ax1.set_title(f'E(t) (a.u.) : max step = {time_step}', fontsize=15)
     ax1.axvline(t[time_step], linestyle='--', color='royalblue', label=f't[{time_step}]')
@@ -165,8 +164,6 @@ glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to b
 d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
 zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wavefunction A(ri, θj) before each loop.
-Evolution_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
-                  'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
 
 
 
@@ -206,18 +203,18 @@ wall_time = end_time - start_time          # Wall time for computing the total t
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
-
-Evolution_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
-Evolution_data['Ps(t)'] = population_den_array
-df_Evolution_data = pd.DataFrame(Evolution_data)
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 
 output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
 d_file_path = output_dir / f'{Evo_data_file}'
-df_Evolution_data.to_excel(d_file_path, index=False)
+
+header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)"
+data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array])
+np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
+
 
 print('\n')
 print(f"evo_data_file_name = '{Evo_data_file}'")

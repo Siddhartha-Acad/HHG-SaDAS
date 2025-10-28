@@ -51,14 +51,14 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-evo_data_file_name = 'Evo_steps=88036_H(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
-evo_data_file_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file_name}'
-evo_data = pd.read_excel(evo_data_file_path, header=None, skiprows=1).to_numpy().T
+evo_data_file = 'Evo_steps=500_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+evo_data_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file}'
+evo_data = np.loadtxt(evo_data_path, skiprows=1)
 
-t = evo_data[0]                         # time                       : (a.u.)
-E_t = evo_data[1]                       # Electric field             : (a.u.)
-dipole_moment = evo_data[2]             # dipole moment d(t)         : (a.u.)
-survival_probability = evo_data[3]      # survival probability ps(t) : (a.u.)
+t = evo_data[:, 0]                         # time                       : (a.u.)
+E_t = evo_data[:, 1]                       # Electric field             : (a.u.)
+dipole_moment = evo_data[:, 2]             # dipole moment d(t)         : (a.u.)
+survival_probability = evo_data[:, 3]      # survival probability ps(t) : (a.u.)
 
 
 
@@ -142,8 +142,8 @@ ax6.legend(loc='lower right', fontsize=14, framealpha=0.5, edgecolor='w')
 ax6.yaxis.set_label_position('right')
 ax6.yaxis.tick_right()
 
-fig1.suptitle(evo_data_file_name, fontsize=12)
-fig2.suptitle(evo_data_file_name, fontsize=12)
+fig1.suptitle(evo_data_file, fontsize=12)
+fig2.suptitle(evo_data_file, fontsize=12)
 fig1.subplots_adjust(top=0.94, bottom=0.069, right=0.98, left=0.079, hspace=0.195)
 fig2.subplots_adjust(top=0.94, bottom=0.069, right=0.92, left=0.08, hspace=0.195, wspace=0.074)
 
