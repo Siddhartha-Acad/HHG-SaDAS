@@ -44,8 +44,6 @@ Notes:
 - This file is part of the HHG-SaDAS package, developed during the MS(R) thesis:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 """
-import os, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import warnings
 from pathlib import Path
