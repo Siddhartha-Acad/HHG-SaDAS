@@ -56,7 +56,6 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
-import pandas as pd
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters_and_functions import *
@@ -66,8 +65,8 @@ from Harmonic_generation_py.parameters_and_functions import *
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
-    file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.xlsx'
-else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.npy'
+else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
 
 if confined:
     output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'
@@ -85,7 +84,7 @@ print(f'S matrix range              : S({m}) to S({m+l_max})')
 print('total S matrix (l_max+1)    :', l_max+1, '\n')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-data_S_matrix = {}
+data_S_matrix = []
 energy_eigenvalues = {}
 start_time = time.perf_counter()
 
@@ -109,18 +108,12 @@ for l in range(m, l_max+m+1):
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A                     # A: (k_max, n); A.T*(phase): (n, k_max)
     
-    S_matrix_real = np.real(S_matrix)
-    S_matrix_imag = np.imag(S_matrix)
-    flat_S_matrix_real = S_matrix_real.flatten()
-    flat_S_matrix_imag = S_matrix_imag.flatten()
-    data_S_matrix[f'S(l={l})'] = [f'{flat_S_matrix_real[i]}, {flat_S_matrix_imag[i]}' for i in range((N - 1) * (N - 1))]
+    data_S_matrix.append(S_matrix)
 
-end_time = time.perf_counter()
-wall_time = end_time - start_time
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~~
-df_S_matrix = pd.DataFrame(data_S_matrix)
-df_S_matrix.to_excel(file_path, index=False)
+# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .npz file :~~~~~~~~~~~~~~~~~~~~~~~~
+data_S_matrix = np.array(data_S_matrix, dtype=np.complex128)            # shape: (l_max+1, N-1, N-1)
+np.save(file_path, data_S_matrix)
 print(f"\nS_matrix_file = '{file_name}'")
 
 
@@ -149,6 +142,9 @@ if save_Egvals_with_Smatrix:
                 f.write(" ".join(row_data) + "\n")
         print(f"EgVals_file = '{output_name}'")
 
+
+end_time = time.perf_counter()
+wall_time = end_time - start_time
 
 if wall_time > 300.0:
     print(f'\nWall Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')

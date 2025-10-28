@@ -22,6 +22,7 @@ code_message.txt
 *.exe
 *.out
 *.dat
+*.bin
 
 trial_1.py
 trial_2.py
