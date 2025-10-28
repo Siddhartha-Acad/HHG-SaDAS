@@ -28,7 +28,7 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     do j = 1, N-1       ! Fill upper triangle (good cache access)
         do i = 1, j
-            H_matrix(i, j) = H(0, i, j)
+            H_matrix(i, j) = H(l_qn, i, j)
         end do
     end do
     

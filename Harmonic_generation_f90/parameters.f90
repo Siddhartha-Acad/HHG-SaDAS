@@ -4,6 +4,11 @@ module parameters
     implicit none
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !                      Atom                      |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    integer, parameter :: n_qn = 1, l_qn = 0, m_qn = 0        ! defines initial state. (qn = quantum number)
+
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                GPSM Parameters                 |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     integer, parameter :: N = 200        ! P'_N(xj) = 0 ; radial grid size: len(colloc_pt) = N-1
