@@ -162,9 +162,9 @@ init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as th
 #                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
 glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to be passed in gl() function.
 
-d_t_array = np.array([])                                      # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
-population_den_array = np.array([])                           # Array to store Population density
-zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)    # To initiate the wavefunction A(ri, θj) before each loop.
+d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
+population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
+zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wavefunction A(ri, θj) before each loop.
 Evolution_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
                   'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
 
@@ -173,9 +173,9 @@ Evolution_data = {'t (a.u)' : t[0:time_step],                            # The f
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
-last_percent = -1                           # keeps track of the last printed percent
+checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(1, 101)}
 
+start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
     psi_1 = 0 * zero_psi                    # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
@@ -191,15 +191,11 @@ for ti in range(time_step):
         init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
     # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
 
+    if print_serial_prog and ti in checkpoints:
+        print(f"Evolution step {ti:<6}: {checkpoints[ti]:7.2f}%")                # It will show how much the process is completed.
 
-    if print_serial_prog:
-        percent = int(((ti + 1) / time_step) * 100)
-        if percent > last_percent:                                      # update progress only after one percent.
-            print(f"Evolution step {ti:<6}: {percent:.2f}%")            # It will show how much the process is completed.
-            last_percent = percent
-
-    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                    # calculating and storing the dipole moment of this instant.
-    population_den_array = np.append(population_den_array, Ps(init_glm))            # calculating and storing the population density
+    d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
+    population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
 
 end_time = time.perf_counter()             # ending time measurement.
 wall_time = end_time - start_time          # Wall time for computing the total time evolution.

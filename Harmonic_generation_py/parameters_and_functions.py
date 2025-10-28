@@ -117,10 +117,12 @@ t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = len(t) -1       # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
+time_step = 1000             # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
 show_E_field = True         # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
 print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
 
+if time_step <= 100:
+    print_serial_prog = False
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
