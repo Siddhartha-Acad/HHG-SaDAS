@@ -32,7 +32,7 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     do j = 1, N-1       ! Fill upper triangle (good cache access)
         do i = 1, j
-            H_matrix(i, j) = H(0, i, j)
+            H_matrix(i, j) = H(l_qn, i, j)
         end do
     end do
     
@@ -68,10 +68,20 @@ program GPSM
                 m, E_egval, E_vect, ldz, isuppz, work_arr, lwork, iwork_arr, liwork, info)
     deallocate(work_arr, iwork_arr)
     
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !               Writing eigenvectors to an output file               |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (info .eq. 0) then
-        do i = 1, m
+        do i = 1, kmax
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
+        
+        open(unit=11, file='GPSM-DSYEVR_states.bin', form='unformatted', access='stream', status='replace')
+        do i = 1, N-1
+            write(11) f(x(i)), E_vect(i, :)
+        end do
+        close(11)
+        print '(A)', 'GPSM Eigenvctors saved in GPSM-DSYEVR_states.bin'
     else
         print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
@@ -88,17 +98,20 @@ contains
         end if
     end function d2
     
+    
     pure real(kind=8) function f(x_val)
         real(kind=8), intent(in) :: x_val
         
         f = Lmap * (1.0d0 + x_val) / (1.0d0 - x_val + alpha_map)
     end function f
     
+    
     pure real(kind=8) function f_p(x_val)
         real(kind=8), intent(in) :: x_val
         
         f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x_val + alpha_map)**2
     end function f_p
+    
     
     pure real(kind=8) function H(l_val, i, j)
         integer, intent(in) :: l_val, i, j

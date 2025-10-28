@@ -66,7 +66,7 @@ program GPSM
         close(11)
         print '(A)', 'GPSM Eigenvctors saved in GPSM-DSYEV_states.bin'
     else
-        print '(A, I2)', 'DSYEVR failed. info = ', info
+        print '(A, I2)', 'DSYEV failed. info = ', info
     end if
     
     
@@ -81,17 +81,20 @@ contains
         end if
     end function d2
     
+    
     pure real(kind=8) function f(x_val)
         real(kind=8), intent(in) :: x_val
         
         f = Lmap * (1.0d0 + x_val) / (1.0d0 - x_val + alpha_map)
     end function f
     
+    
     pure real(kind=8) function f_p(x_val)
         real(kind=8), intent(in) :: x_val
         
         f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x_val + alpha_map)**2
     end function f_p
+    
     
     pure real(kind=8) function H(l_val, i, j)
         integer, intent(in) :: l_val, i, j
