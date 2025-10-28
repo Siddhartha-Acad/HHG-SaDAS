@@ -8,7 +8,7 @@ Code Description:
     - it runs and computes only if the calculation is unique.
     - The format of a generated file is shown below.
 
-state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
+state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.dat'
 
 +-----+-------------+----------+----------+----------+-----+----------+
 | Row | r(x) (a.u.) |   A(1s)  |   A(2s)  |   A(3s)  | ... |  A(10s)  |
@@ -39,25 +39,24 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
-import pandas as pd
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters_and_functions import *
 start_time = time.perf_counter()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 10           # how many states you want to keep in the GPSM_state file (.xlsx)
+total_states = 10           # how many states you want to keep in the GPSM_state file (.dat)
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
-    file_name = f'{evolving_atom}_States_{SAE_model}__l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
-else: file_name = f'{evolving_atom}@C60_States_{SAE_model}__l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.xlsx'
+    file_name = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
 
 if confined:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Confined_atom'
+    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Confined_atom'
 else:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom'
-output_dir.mkdir(parents=True, exist_ok=True)          # Create if it doesn't exist
+    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Free_atom'
+output_dir.mkdir(parents=True, exist_ok=True)       # Create if it doesn't exist
 
 file_path = output_dir / file_name
 if file_path.exists():
@@ -66,20 +65,23 @@ if file_path.exists():
 
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
+
 for i in range(N - 1):
-    for j in range(i, N - 1):                          # Only computing the upper triangle
-        H_matrix[i, j] = H_matrix[j, i] = H(l, i, j, model=SAE_model)
+    for j in range(i, N - 1):                   # Only computing the upper triangle
+        H_matrix[i, j] = H(l, i, j, model=SAE_model)
+
+H_matrix += np.triu(H_matrix, 1).T              # Mirror to lower triangle (excluding diagonal)
+
 E, A = eigh(H_matrix, subset_by_index=[0, total_states-1])
 A = A.T
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .xlsx file :~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .dat file :~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                       # radial coordinate in atomic unit. (Nonlinearly discretised)
-data_wavefunction = {'r(x) (a.u.)': r}                 # First column of the data file is the radial grid.
-for Eth in range(total_states):
-    data_wavefunction[f'A({state_name(Eth + l + 1, l)})'] = A[Eth]
-df_A_r = pd.DataFrame(data_wavefunction)
-df_A_r.to_excel(file_path, index=False)
+
+header = "r(a.u.) " + " ".join([f"A({state_name(Eth + l + 1, l)})" for Eth in range(total_states)])
+data = np.column_stack([r] + [A[Eth] for Eth in range(total_states)])
+np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Printing eigenvalues :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

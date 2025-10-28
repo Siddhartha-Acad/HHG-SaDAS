@@ -25,7 +25,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))
 
 import time
 import numpy as np
-import pandas as pd
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
@@ -73,8 +72,8 @@ Example:
 If parameters_and_functions.py defines:
     L_map = 80
 but the chosen files are :
-    state_file = 'He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx'
-    S_matrix_file = 'He_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.xlsx'
+    state_file = 'He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat'
+    S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
 
@@ -95,14 +94,13 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
-state_data = pd.read_excel(state_file_path, header=None, skiprows=1).to_numpy().T
+state_file = 'H_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=80.dat'
+state_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+state_data = np.loadtxt(state_path, skiprows=1).T
 
-S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
-S_matrix_data = pd.read_excel(S_matrix_file_path, header=None, skiprows=1).to_numpy().T
-S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
+S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
 
@@ -138,7 +136,7 @@ if show_E_field:
     ax1 = fig1.add_subplot(111)
     da.decorate_2d(ax1)
 
-    E_array = [E_field(ti) for ti in t]
+    E_array = E_field(t)
     ax1.plot(t, E_array)
     ax1.set_title(f'E(t) (a.u.) : max step = {time_step}', fontsize=15)
     ax1.axvline(t[time_step], linestyle='--', color='royalblue', label=f't[{time_step}]')
@@ -163,20 +161,18 @@ init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as th
 #                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
 glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)  # Empty gl_array to be passed in gl() function.
 
-d_t_array = np.array([])                                      # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
-population_den_array = np.array([])                           # Array to store Population density
-zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)    # To initiate the wavefunction A(ri, θj) before each loop.
-Evolution_data = {'t (a.u)' : t[0:time_step],                            # The first column of the dipole moment file is reserved for time.
-                  'E(t)'    : [E_field(ti) for ti in t[0:time_step]]}    # And the second column is reserved for electric field.
+d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
+population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
+zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wavefunction A(ri, θj) before each loop.
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
-last_percent = -1                           # keeps track of the last printed percent
+checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101)}
 
+start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
 for ti in range(time_step):
     psi_1 = 0 * zero_psi                    # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
@@ -192,15 +188,11 @@ for ti in range(time_step):
         init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
     # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
 
+    if print_serial_prog and ti in checkpoints:
+        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.2f}%")                # It will show how much the process is completed.
 
-    if print_serial_prog:
-        percent = int(((ti + 1) / time_step) * 100)
-        if percent > last_percent:                                      # update progress only after one percent.
-            print(f"Evolution step {ti:<6}: {percent:.2f}%")            # It will show how much the process is completed.
-            last_percent = percent
-
-    d_t_array = np.append(d_t_array, dipole_moment(r, init_glm))                    # calculating and storing the dipole moment of this instant.
-    population_den_array = np.append(population_den_array, Ps(init_glm))            # calculating and storing the population density
+    d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
+    population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
 
 end_time = time.perf_counter()             # ending time measurement.
 wall_time = end_time - start_time          # Wall time for computing the total time evolution.
@@ -211,21 +203,21 @@ wall_time = end_time - start_time          # Wall time for computing the total t
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}__L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.xlsx'
-
-Evolution_data['d(t)'] = d_t_array                      # In the dipole moment files where cpp is not mentioned, assumed to be cpp=60
-Evolution_data['Ps(t)'] = population_den_array
-df_Evolution_data = pd.DataFrame(Evolution_data)
+    Evo_data_file = f'Evo_steps={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 
 output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
 d_file_path = output_dir / f'{Evo_data_file}'
-df_Evolution_data.to_excel(d_file_path, index=False)
+
+header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)"
+data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array])
+np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
+
 
 print('\n')
-print(f"evo_data_file_name = '{Evo_data_file}'")
+print(f"evo_data_file = '{Evo_data_file}'")
 print('\n')
 
 if wall_time > 300.0:

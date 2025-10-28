@@ -116,8 +116,8 @@ t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-eta_t = 0.03                # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = len(t) -1       # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
+eta_t = 0.027               # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
+time_step = len(t) - 1      # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
 show_E_field = True         # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
 print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
 
@@ -269,29 +269,6 @@ def H(l_val, i, j, model=SAE_model):
                  potential_V_SAE_M2(f(colloc_pt[i]), atom=evolving_atom) +
                  conf_term)
         return term1 + term2
-
-
-def S(E_l, A_l, i, j):
-    r"""
-    The S-matrix elements.
-
-    .. math::
-        S_{\alpha\beta}(\ell) =
-        \langle x_\alpha \,|\, \exp\!\left(-i \hat{h}^{(0)}_\ell(x) \, \delta t / 2\right) \,|\, x_\beta \rangle
-
-    :param E_l: Eigenenergies (array-like, length k_max).
-                 Here k_max = len(E_l).
-    :param A_l: Eigenvectors (2D array-like).
-    :param i: Basis index (int).
-    :param j: Basis index (int).
-    :return: S-matrix element S[i, j] (complex).
-
-    References
-    ----------
-    - Appendix C — *Derivation and Consistency of S-matrix formalism*
-    - Section 2.3.5 — *Matrix time evolution operator: The S-matrix*
-    """
-    return sum(A_l[k][i] * A_l[k][j] * np.exp(-1j * E_l[k] * dt / 2) for k in range(len(E_l)))
 
 
 
