@@ -52,6 +52,11 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
+if confined:
+    data_dir = 'Confined_atom'
+else:
+    data_dir = 'Free_atom'
+
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
 
@@ -86,13 +91,12 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
-state_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / state_file
+state_file = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
 state_data = pd.read_excel(state_file, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.npz'
-S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / 'Free_atom' / S_matrix_file
-S_matrix_data = np.load(S_matrix_full_path, allow_pickle=True)
-S_matrix = S_matrix_data['S_matrix']                                # shape: (l_max+1, N-1, N-1), dtype=complex128
+S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+S_matrix_full_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
+S_matrix = np.load(S_matrix_full_path, allow_pickle=True)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
 n = 3
@@ -281,5 +285,5 @@ fig4.subplots_adjust(
 )
 
 end_time = time.perf_counter()
-print(f'\nWall Time : {end_time - start_time:.2f} seconds')
+print(f'\nExecution Wall-Time : {end_time - start_time:.2f} seconds')
 plt.show()

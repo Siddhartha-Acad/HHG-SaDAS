@@ -99,10 +99,9 @@ state_file = 'H_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=80.xlsx'
 state_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / state_file
 state_data = pd.read_excel(state_file_path, header=None, skiprows=1).to_numpy().T
 
-S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
-S_matrix_file_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
-S_matrix_data = pd.read_excel(S_matrix_file_path, header=None, skiprows=1).to_numpy().T
-S_matrix = np.array([[complex(*map(float, elem.split(','))) for elem in column] for column in S_matrix_data]).reshape(l_max+1, N-1, N-1)
+S_matrix_file = 'H_Smatrix_SAE-M1__m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+S_matrix_full_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_and_Smatrix_data' / data_dir / S_matrix_file
+S_matrix = np.load(S_matrix_full_path, allow_pickle=True)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
 

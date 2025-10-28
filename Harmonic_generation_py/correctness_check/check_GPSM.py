@@ -106,17 +106,10 @@ for Eth in range(E_n):
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-S_matrix_real = np.zeros((N-1, N-1))
-S_matrix_imag = np.zeros((N-1, N-1))
-for i in range(N - 1):
-    for j in range(i, N - 1):                                 # Only compute the upper triangle
-        matrix_ele = S(E, A, i, j)
-        S_matrix_real[i][j] = np.real(matrix_ele)
-        S_matrix_imag[i][j] = np.imag(matrix_ele)
-        if i != j:                                            # Mirror the values to the lower triangle
-            S_matrix_real[j][i] = np.real(matrix_ele)
-            S_matrix_imag[j][i] = np.imag(matrix_ele)
+S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A         # Vector computation of the S-matrix
+
 along_S_diag = sum(phi[k]**2 for k in range(E_n))
+
 
 print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
 print(f'Ip (a.u)              : {Ip:.3f}')
@@ -137,7 +130,7 @@ print(f'norm φ[{n-1}] = int(|φ|^2)   :', Gauss_Lobatto_quadrature(phi[n - 1] *
 [print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) + f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
 print('u(r) dataset shape       :', np.shape(u_r))
-print(f'S(l={l})-matrix shape      :', np.shape(S_matrix_real), '\n')
+print(f'S(l={l})-matrix shape      :', np.shape(S_matrix), '\n')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -236,10 +229,10 @@ for L_map_val in L_map_array:
 ax12.plot(np.diff(colloc_pt), 'o-', color='#83C167', label='dx')
 ax13.plot(weights, 'o-', color='m', label=f'LG Quadrature weights (n={L + 1})')
 
-ax15.imshow(S_matrix_real, interpolation=interpolation, cmap='jet')
-ax16.imshow(S_matrix_imag, interpolation=interpolation, cmap='jet')
-ax17.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag), interpolation=interpolation, cmap='nipy_spectral_r')
-ax18.imshow(np.abs(S_matrix_real + 1j * S_matrix_imag) ** 2, interpolation=interpolation, cmap='nipy_spectral_r')
+ax15.imshow(np.real(S_matrix), interpolation=interpolation, cmap='jet')
+ax16.imshow(np.imag(S_matrix), interpolation=interpolation, cmap='jet')
+ax17.imshow(np.abs(S_matrix), interpolation=interpolation, cmap='nipy_spectral_r')
+ax18.imshow(np.abs(S_matrix)**2, interpolation=interpolation, cmap='nipy_spectral_r')
 
 ax19.plot(r_nm, along_S_diag, 'o-', label=rf'$\sum_k$  ψ$_k$(r) $\cdot$ ψ$_k$(r) ~ l={l}')
 ax19.fill_between(r_nm, along_S_diag, alpha=0.2)
@@ -317,6 +310,6 @@ fig6.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 
 end_time = time.perf_counter()
-print(f'Wall-Time : {end_time - start_time:.2f} seconds')
+print(f'Execution Wall-Time : {end_time - start_time:.2f} seconds')
 
 plt.show()

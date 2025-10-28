@@ -65,7 +65,7 @@ from Harmonic_generation_py.parameters_and_functions import *
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
-    file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_r_max={r_max}_L_map={L_map}_dt={dt}.npy'
+    file_name = f'{evolving_atom}_Smatrix_{SAE_model}__m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
 else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}__m={m}_{conf_info_string}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
 
 if confined:
@@ -111,7 +111,7 @@ for l in range(m, l_max+m+1):
     data_S_matrix.append(S_matrix)
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .npz file :~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .npy file :~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = np.array(data_S_matrix, dtype=np.complex128)            # shape: (l_max+1, N-1, N-1)
 np.save(file_path, data_S_matrix)
 print(f"\nS_matrix_file = '{file_name}'")
@@ -147,6 +147,6 @@ end_time = time.perf_counter()
 wall_time = end_time - start_time
 
 if wall_time > 300.0:
-    print(f'\nWall Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
+    print(f'\nExecution Wall-Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
 else:
-    print(f'\nWall Time : {wall_time:.3f} seconds')
+    print(f'\nExecution Wall-Time : {wall_time:.3f} seconds')
