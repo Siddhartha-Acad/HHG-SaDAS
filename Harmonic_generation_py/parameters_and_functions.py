@@ -79,7 +79,7 @@ save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be
 #                GPSM Parameters                 |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 N = 200                     # P'_N(xj) = 0 ; radial grid size: len(colloc_pt) = N-1
-L = 20                      # must be >= l ; number of S matrix gl(r) in partial wave expansion.
+L = 20                      # must be >= l ; angular grid size: len(theta_k) = L+1
 l_max = 20                  # Number of partial waves = number of S-matrices = l_max+1
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
 L_map = 80; r_max = 200     # radial mapping parameters
@@ -152,8 +152,6 @@ atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and
     # "Ar4+": {"C0": 5, "Zc": 13, "c": 0.8529,  "a1": -17.4441, "a2": -26.0893, "a3": 2.1135, "b1": 1.4141,  "b2": 4.4613,  "b3": 101.5018},
     # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
 }
-
-
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Function Bank :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
