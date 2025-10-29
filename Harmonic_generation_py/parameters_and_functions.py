@@ -380,11 +380,62 @@ def g_lm(Psi_t, glm_arr):
     return glm_arr
 
 a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])  # shape = (l_max+1, L+1)
-
-weighted_legendre_vals = weights[None, :] * a_legendre_vals                                                     # shape (l_max+1, L+1)
-vect_norm_fact = np.array([1.0 / (N_fact(l_index+m, m) * C_fact(l_index+m, m)) for l_index in range(l_max+1)])  # shape (l_max+1, )
+vect_norm_fact = np.array([1.0 / (N_fact(l_index+m, m) * C_fact(l_index+m, m)) for l_index in range(l_max+1)])  # shape = (l_max+1, )
+weighted_legendre_vals = weights[None, :] * a_legendre_vals                                                     # shape = (l_max+1, L+1)
 
 def g_lm_vect(Psi_t, glm_arr):
+    r"""
+    Compute the radial partial-wave projections :math:`g_{\ell m}(r)` in a fully
+    vectorized manner using precomputed Legendre polynomials and normalization
+    constants.
+
+    This function is mathematically equivalent to ``g_lm()``, but it eliminates
+    all Python-level loops and redundant intermediate allocations for maximum
+    performance. It performs the projection over all angular momentum quantum
+    numbers :math:`\ell` in a single matrix multiplication using BLAS-optimized
+    NumPy routines.
+
+    The underlying formula is identical to the standard partial-wave expansion:
+
+    .. math::
+        g_{\ell m}(r) =
+            \frac{1}{N_{\ell m} C_{\ell m}}
+            \sum_k w_k P_\ell^{(m)}(\cos \theta_k) \, \psi(\theta_k, r)
+
+    where:
+        - :math:`w_k` are Gauss–Legendre quadrature weights,
+        - :math:`P_\ell^{(m)}(\cos \theta_k)` are precomputed associated Legendre polynomials,
+        - :math:`N_{\ell m}` and :math:`C_{\ell m}` are normalization factors.
+
+    Parameters
+    ----------
+    Psi_t : ndarray, shape (n_theta, N-1)
+        Angular–radial wavefunction ψ(θ, r) at a fixed time step,
+        evaluated at Gauss–Legendre quadrature points.
+
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Preallocated output array for in-place storage of
+        partial-wave projections g_{ℓm}(r). This avoids repeated
+        memory allocations in time propagation loops.
+
+    Returns
+    -------
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Radial partial-wave projections for ℓ = 0, …, ℓ_max
+        corresponding to the given magnetic quantum number m.
+
+    Notes
+    -----
+    - This version is **fully vectorized** and performs all ℓ projections
+      simultaneously via a single matrix multiplication.
+    - Functionally identical to :func:`g_lm`, differing only in implementation.
+    - Significantly faster and more memory-efficient for long time evolutions.
+
+    Example
+    -------
+    >>> glm_arr = np.empty((l_max + 1, N - 1), dtype=np.complex128)
+    >>> g_lm_vect(Psi_t, glm_arr)  # In-place computation
+    """
     np.dot(weighted_legendre_vals, Psi_t, out=glm_arr)
     glm_arr *= vect_norm_fact[:, None]
     return glm_arr
@@ -755,7 +806,7 @@ def generate_states(l_val):
 
 
 def state_name(n_val, l_val):
-    """
+    r"""
     Converts quantum numbers n and l to a string representation of the atomic state.
 
     :param n_val: Principal quantum number (n ≥ 1).
