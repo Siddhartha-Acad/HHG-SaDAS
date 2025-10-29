@@ -59,7 +59,6 @@ print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
 print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +73,6 @@ save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be
                                     # in: HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/Energy_level_diagram.py
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                GPSM Parameters                 |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,20 +82,6 @@ l_max = 20                  # Number of partial waves = number of S-matrices = l
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
 L_map = 80; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#      collocation grid (radial & angular)       |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
-colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file               # fetching collocation data from relative path.
-colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
-
-int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
-roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
-theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
-
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,15 +96,25 @@ cpp = 60; tf = cpp*T; dt = 0.1                  # cpp = cycles per pulse.
 t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 
 
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 eta_t = 0.027               # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
 time_step = 1000            # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
-show_E_field = True         # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
+show_E_field = False        # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
 print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#      collocation grid (radial & angular)       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
+colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file               # fetching collocation data from relative path.
+colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
+
+int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
+roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
+theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -303,6 +297,27 @@ def Y_lm(l_val, m_val, x):
     return N_fact(l_val, m_val) * a_legendre(l_val, m_val, x)
 
 
+def Y_lm_array(l_max, m, roots):
+    """
+    Fully vectorized computation of Y_lm(l, m, x) for all l in [0, l_max] and x in roots.
+    """
+    l_vals = np.arange(0, l_max + 1)[:, None]    # shape (l_max+1, 1)
+    x = np.asarray(roots)[None, :]               # shape (1, L+1)
+
+    # Broadcast l_vals and x to same shape
+    # lpmv can handle broadcasting since m is scalar
+    P_lm = lpmv(m, l_vals, x)                    # shape (l_max+1, L+1)
+
+    # Normalization factors
+    N_lm = (-1)**m * np.sqrt(
+        (2 * l_vals + 1) *
+        factorial(l_vals - m, exact=False) /
+        (4 * np.pi * factorial(l_vals + m, exact=False))
+    )
+
+    return N_lm * P_lm
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                  Partial-wave g_lm(r) calculating function                   |
@@ -363,7 +378,67 @@ def g_lm(Psi_t, glm_arr):
     for l_ind in range(l_max+1):
         glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
     return glm_arr
-a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])   # will be used in g_lm(Psi_t, glm_arr)
+
+a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])  # shape = (l_max+1, L+1)
+vect_norm_fact = np.array([1.0 / (N_fact(l_index+m, m) * C_fact(l_index+m, m)) for l_index in range(l_max+1)])  # shape = (l_max+1, )
+weighted_legendre_vals = weights[None, :] * a_legendre_vals                                                     # shape = (l_max+1, L+1)
+
+def g_lm_vect(Psi_t, glm_arr):
+    r"""
+    Compute the radial partial-wave projections :math:`g_{\ell m}(r)` in a fully
+    vectorized manner using precomputed Legendre polynomials and normalization
+    constants.
+
+    This function is mathematically equivalent to ``g_lm()``, but it eliminates
+    all Python-level loops and redundant intermediate allocations for maximum
+    performance. It performs the projection over all angular momentum quantum
+    numbers :math:`\ell` in a single matrix multiplication using BLAS-optimized
+    NumPy routines.
+
+    The underlying formula is identical to the standard partial-wave expansion:
+
+    .. math::
+        g_{\ell m}(r) =
+            \frac{1}{N_{\ell m} C_{\ell m}}
+            \sum_k w_k P_\ell^{(m)}(\cos \theta_k) \, \psi(\theta_k, r)
+
+    where:
+        - :math:`w_k` are Gauss–Legendre quadrature weights,
+        - :math:`P_\ell^{(m)}(\cos \theta_k)` are precomputed associated Legendre polynomials,
+        - :math:`N_{\ell m}` and :math:`C_{\ell m}` are normalization factors.
+
+    Parameters
+    ----------
+    Psi_t : ndarray, shape (n_theta, N-1)
+        Angular–radial wavefunction ψ(θ, r) at a fixed time step,
+        evaluated at Gauss–Legendre quadrature points.
+
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Preallocated output array for in-place storage of
+        partial-wave projections g_{ℓm}(r). This avoids repeated
+        memory allocations in time propagation loops.
+
+    Returns
+    -------
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Radial partial-wave projections for ℓ = 0, …, ℓ_max
+        corresponding to the given magnetic quantum number m.
+
+    Notes
+    -----
+    - This version is **fully vectorized** and performs all ℓ projections
+      simultaneously via a single matrix multiplication.
+    - Functionally identical to :func:`g_lm`, differing only in implementation.
+    - Significantly faster and more memory-efficient for long time evolutions.
+
+    Example
+    -------
+    >>> glm_arr = np.empty((l_max + 1, N - 1), dtype=np.complex128)
+    >>> g_lm_vect(Psi_t, glm_arr)  # In-place computation
+    """
+    np.dot(weighted_legendre_vals, Psi_t, out=glm_arr)
+    glm_arr *= vect_norm_fact[:, None]
+    return glm_arr
 
 
 
@@ -710,7 +785,7 @@ def dydx(integrand, x):
 
 
 def generate_states(l_val):
-    """
+    r"""
     Generate a list of electronic states for a given orbital angular momentum quantum number.
 
     The states are labeled by the principal quantum number (starting from :math:`n = l + 1`)
@@ -731,7 +806,7 @@ def generate_states(l_val):
 
 
 def state_name(n_val, l_val):
-    """
+    r"""
     Converts quantum numbers n and l to a string representation of the atomic state.
 
     :param n_val: Principal quantum number (n ≥ 1).

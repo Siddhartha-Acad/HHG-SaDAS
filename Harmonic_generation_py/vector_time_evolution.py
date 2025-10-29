@@ -1,5 +1,5 @@
 """
-File: time_evolution.py
+File: vector_time_evolution.py
 Project: HHG-SaDAS
 Code Description:
     | *** [Main time evolution code] ***
@@ -7,13 +7,14 @@ Code Description:
     | Computes electric field and dipole moment, saving the data in Excel.
     | Wavefunction evolution is calculated only at radial and angular collocation points (ri, theta_j).
 
-Author: Siddhartha Mithiya
-Affiliation: Indian Institute of Technology (IIT) Mandi
+Author: Siddhartha Mithiya & ChatGPT :)
+Affiliation (1): Indian Institute of Technology (IIT) Mandi
 License: MIT License
 Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 
 --------------------------------------------------------------------------------
 Notes:
+- A VECTOR implementation of time_evolution.py
 - Only partial waves are evolved: glm(t+dt/2) = S(l) * glm(t)
 - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
@@ -33,7 +34,7 @@ from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps,                        # functions
+    f, g_lm_vect, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,             # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
@@ -76,13 +77,7 @@ but the chosen files are :
     S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
-
     def f(x, Lmap=L_map):
-        r"
-        Nonlinear radial mapping function.
-        ...
-        "
-
 produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
@@ -159,7 +154,7 @@ init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as th
 #                                               # Instead of making full 3d initial state and calculating partial waves, I can directly
 #         [Initializing: partial waves]         # use the A_nl(r) as the initial partial wave.
 #                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
-glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)   # Empty gl_array to be passed in gl() function.
+glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)   # Empty gl_array to be passed in g_lm_vect() function.
 
 d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
@@ -168,21 +163,21 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                    STARTING MAIN TIME EVOLUTION                    |
+#                     VECTORIZED time evolution                      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 p_step = 10                 # p_step = progress step. print every p_step(%) completion
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
 # Precompute spherical harmonics matrix
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind + m, m, roots[j]) for j in range(L + 1)] for l_ind in range(l_max + 1)])  # (l_max+1, L+1)
-Y_T = Y_lm_cos_theta_j.T   # shape: (L+1, l_max+1)
+Y_lm_cos_theta_j = Y_lm_array(l_max, m, roots)     # (l_max+1, L+1)
+Y_T = Y_lm_cos_theta_j.T                           # shape: (L+1, l_max+1)
 
 # Make sure arrays friendly for BLAS and contiguous memory
+r = np.ascontiguousarray(r)                        # (N-1,)
+cos_theta = np.ascontiguousarray(roots)            # (L+1,)
 S_matrix = np.ascontiguousarray(S_matrix)          # (l_max+1, N-1, N-1)
 init_glm = np.ascontiguousarray(init_glm)          # (l_max+1, N-1)
 absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
-r = np.ascontiguousarray(r)                        # (N-1,)
-cos_theta = np.ascontiguousarray(roots)            # (L+1,)
 
 # Allocate temporaries once to avoid reallocation in the loop
 A = np.empty_like(init_glm)                        # (l_max+1, N-1)  holds S_matrix @ init_glm for each l
@@ -192,7 +187,7 @@ glm_tilde = glm_empty                              # reuse user's provided empty
 
 start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 
-# Main time-stepping loop (vectorized)
+# Main time-stepping loop (vectorized)  <-- written by ChatGPT :)
 for ti in range(time_step):
     tmid = t[ti] + dt / 2.0
 
@@ -205,17 +200,18 @@ for ti in range(time_step):
     #    Matrix multiply: (L+1, l_max+1) @ (l_max+1, N-1) -> (L+1, N-1)
     psi_1[:] = Y_T.dot(A)
 
-    # 3) Build potential V(theta_j, r, tmid) vectorized:
-    #    V_matrix[j, r] = -E_field(tmid) * r[r] * cos(theta_j)
-    #    E_field(tmid) is scalar; broadcast cos_theta[:,None] * r[None,:] -> (L+1, N-1)
-    E_t = E_field(tmid)
-    V_matrix = -E_t * (cos_theta[:, None] * r[None, :])   # (L+1, N-1)
+    # 3) Build interaction potential V_int(θ_j, r, tmid) in a fully vectorized form:
+    #    Each element: V_int[j, r] = -E_field(tmid) * cos(θ_j) * r[r]
+    #    E_field(tmid) is a scalar; np.multiply.outer automatically forms
+    #    the outer product of cos_theta (shape: L+1) and r (shape: N-1),
+    #    producing a (L+1, N-1) array without explicit broadcasting.
+    V_int_matrix = np.multiply.outer(-E_field(tmid) * cos_theta, r)
 
-    # 4) Apply exp(-i V dt) factor elementwise (vectorized over j and r)
-    psi_2[:] = np.exp(-1j * V_matrix * dt) * psi_1
+    # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
+    psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
 
-    # 5) Project angular -> radial partial waves (your g_lm is already vectorized)
-    glm_tilde = g_lm(psi_2, glm_tilde)   # returns (l_max+1, N-1)
+    # 5) Project angular -> radial partial waves (your g_lm_vect is already vectorized)
+    glm_tilde = g_lm_vect(psi_2, glm_tilde)   # returns (l_max+1, N-1)
 
     # 6) Update init_glm with S_matrix * glm_tilde and apply absorber (batched matmul)
     init_glm[:] = np.squeeze(np.matmul(S_matrix, glm_tilde[..., None]), axis=-1) * absorber
