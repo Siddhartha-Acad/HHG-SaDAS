@@ -33,7 +33,7 @@ from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps,                 # functions
+    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps,                        # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
@@ -168,32 +168,65 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                     VECTORIZED time evolution                      |
+#                    STARTING MAIN TIME EVOLUTION                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 p_step = 10                 # p_step = progress step. print every p_step(%) completion
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
+# Precompute spherical harmonics matrix
+Y_lm_cos_theta_j = np.array([[Y_lm(l_ind + m, m, roots[j]) for j in range(L + 1)] for l_ind in range(l_max + 1)])  # (l_max+1, L+1)
+Y_T = Y_lm_cos_theta_j.T   # shape: (L+1, l_max+1)
+
+# Make sure arrays friendly for BLAS and contiguous memory
+S_matrix = np.ascontiguousarray(S_matrix)          # (l_max+1, N-1, N-1)
+init_glm = np.ascontiguousarray(init_glm)          # (l_max+1, N-1)
+absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
+r = np.ascontiguousarray(r)                        # (N-1,)
+cos_theta = np.ascontiguousarray(roots)            # (L+1,)
+
+# Allocate temporaries once to avoid reallocation in the loop
+A = np.empty_like(init_glm)                        # (l_max+1, N-1)  holds S_matrix @ init_glm for each l
+psi_1 = np.empty((L + 1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
+psi_2 = np.empty_like(psi_1)                       # (L+1, N-1)
+glm_tilde = glm_empty                              # reuse user's provided empty array
+
 start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind+m, m, roots[j]) for j in range(L+1)] for l_ind in range(l_max+1)])    # precomputed Spherical Harmonics
+
+# Main time-stepping loop (vectorized)
 for ti in range(time_step):
-    psi_1 = 0 * zero_psi                    # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)                  # See Eq.~2.84
-    psi_2 = 0 * zero_psi                    # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)     # See Eq.~2.86
+    tmid = t[ti] + dt / 2.0
 
-    for j in range(L+1):                    # angular grid index j
-        for l_index in range(l_max):        # summation index on 'l' of Eq.~2.85.
-            psi_1[j] += np.dot(S_matrix[l_index], init_glm[l_index]) * Y_lm_cos_theta_j[l_index, j]     # calculating ψ1(r, θ)
-        psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[ti]+dt/2) * dt) * psi_1[j]                       # calculating ψ2(r, θ)
+    # 1) Batched matmul: A[l, :] = S_matrix[l] @ init_glm[l, :]
+    #    shapes: S_matrix (l_max+1, N-1, N-1) and init_glm[...,None] (l_max+1, N-1, 1) -> (l_max+1, N-1, 1)
+    A[:] = np.squeeze(np.matmul(S_matrix, init_glm[..., None]), axis=-1)
 
-    glm_tilde = g_lm(psi_2, glm_empty)                                                   # the \tilde{g}_{\ell}(r, t) of Eq.~2.88
-    for l_index in range(l_max):                                                         # Again summation index on 'l' of Eq.~2.85.
-        init_glm[l_index] = np.dot(S_matrix[l_index], glm_tilde[l_index]) * absorber     # Implementing Eq.~2.89 and updating init_glm with absorbing function
-    # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
+    # 2) Construct psi_1 across all angles at once:
+    #    psi_1[j, r] = sum_l Y_lm_cos_theta_j[l, j] * A[l, r]
+    #    Matrix multiply: (L+1, l_max+1) @ (l_max+1, N-1) -> (L+1, N-1)
+    psi_1[:] = Y_T.dot(A)
 
+    # 3) Build potential V(theta_j, r, tmid) vectorized:
+    #    V_matrix[j, r] = -E_field(tmid) * r[r] * cos(theta_j)
+    #    E_field(tmid) is scalar; broadcast cos_theta[:,None] * r[None,:] -> (L+1, N-1)
+    E_t = E_field(tmid)
+    V_matrix = -E_t * (cos_theta[:, None] * r[None, :])   # (L+1, N-1)
+
+    # 4) Apply exp(-i V dt) factor elementwise (vectorized over j and r)
+    psi_2[:] = np.exp(-1j * V_matrix * dt) * psi_1
+
+    # 5) Project angular -> radial partial waves (your g_lm is already vectorized)
+    glm_tilde = g_lm(psi_2, glm_tilde)   # returns (l_max+1, N-1)
+
+    # 6) Update init_glm with S_matrix * glm_tilde and apply absorber (batched matmul)
+    init_glm[:] = np.squeeze(np.matmul(S_matrix, glm_tilde[..., None]), axis=-1) * absorber
+
+    # Progress printing
     if print_serial_prog and ti in checkpoints:
-        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.1f}%")                # It will show how much the process is completed.
+        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.1f}%")
 
-    d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
-    population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
+    # Dipole and survival probability
+    d_t_array[ti] = dipole_moment(r, init_glm)
+    population_den_array[ti] = Ps(init_glm)
 
 end_time = time.perf_counter()             # ending time measurement.
 wall_time = end_time - start_time          # Wall time for computing the total time evolution.
@@ -204,9 +237,9 @@ wall_time = end_time - start_time          # Wall time for computing the total t
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    Evo_data_file = f'Evo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    Evo_data_file = f'Evo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 
 output_dir = this_dir / 'Time_evolution_data'
 output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
@@ -249,7 +282,6 @@ ax4.set_xlabel('time steps', fontsize=15)
 ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
 ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
-fig2.suptitle(Evo_data_file, fontsize=13)
 
 fig2.subplots_adjust(
     top=0.91,
