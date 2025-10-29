@@ -7,8 +7,8 @@ Code Description:
     | Computes electric field and dipole moment, saving the data in Excel.
     | Wavefunction evolution is calculated only at radial and angular collocation points (ri, theta_j).
 
-Author: Siddhartha Mithiya
-Affiliation: Indian Institute of Technology (IIT) Mandi
+Author: Siddhartha Mithiya & ChatGPT :)
+Affiliation (1): Indian Institute of Technology (IIT) Mandi
 License: MIT License
 Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 
@@ -34,7 +34,7 @@ from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,            # functions
+    f, g_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,                  # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
@@ -77,13 +77,7 @@ but the chosen files are :
     S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
-
     def f(x, Lmap=L_map):
-        r"
-        Nonlinear radial mapping function.
-        ...
-        "
-
 produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
@@ -193,7 +187,7 @@ glm_tilde = glm_empty                              # reuse user's provided empty
 
 start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
 
-# Main time-stepping loop (vectorized)
+# Main time-stepping loop (vectorized)  <-- written by ChatGPT :)
 for ti in range(time_step):
     tmid = t[ti] + dt / 2.0
 
@@ -206,14 +200,15 @@ for ti in range(time_step):
     #    Matrix multiply: (L+1, l_max+1) @ (l_max+1, N-1) -> (L+1, N-1)
     psi_1[:] = Y_T.dot(A)
 
-    # 3) Build potential V(theta_j, r, tmid) vectorized:
-    #    V_matrix[j, r] = -E_field(tmid) * r[r] * cos(theta_j)
-    #    E_field(tmid) is scalar; broadcast cos_theta[:,None] * r[None,:] -> (L+1, N-1)
-    E_t = E_field(tmid)
-    V_matrix = -E_t * (cos_theta[:, None] * r[None, :])   # (L+1, N-1)
+    # 3) Build interaction potential V_int(θ_j, r, tmid) in a fully vectorized form:
+    #    Each element: V_int[j, r] = -E_field(tmid) * cos(θ_j) * r[r]
+    #    E_field(tmid) is a scalar; np.multiply.outer automatically forms
+    #    the outer product of cos_theta (shape: L+1) and r (shape: N-1),
+    #    producing a (L+1, N-1) array without explicit broadcasting.
+    V_int_matrix = np.multiply.outer(-E_field(tmid) * cos_theta, r)
 
-    # 4) Apply exp(-i V dt) factor elementwise (vectorized over j and r)
-    psi_2[:] = np.exp(-1j * V_matrix * dt) * psi_1
+    # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
+    psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
 
     # 5) Project angular -> radial partial waves (your g_lm is already vectorized)
     glm_tilde = g_lm(psi_2, glm_tilde)   # returns (l_max+1, N-1)

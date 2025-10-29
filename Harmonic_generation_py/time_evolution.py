@@ -76,13 +76,7 @@ but the chosen files are :
     S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
-
     def f(x, Lmap=L_map):
-        r"
-        Nonlinear radial mapping function.
-        ...
-        "
-
 produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
