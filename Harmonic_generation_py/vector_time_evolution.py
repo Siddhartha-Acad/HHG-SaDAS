@@ -1,5 +1,5 @@
 """
-File: time_evolution.py
+File: vector_time_evolution.py
 Project: HHG-SaDAS
 Code Description:
     | *** [Main time evolution code] ***
@@ -14,6 +14,7 @@ Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
 
 --------------------------------------------------------------------------------
 Notes:
+- A VECTOR implementation of time_evolution.py
 - Only partial waves are evolved: glm(t+dt/2) = S(l) * glm(t)
 - This file is part of the HHG-SaDAS package, developed during my MS(R) thesis:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
