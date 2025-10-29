@@ -34,7 +34,7 @@ from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps,                        # functions
+    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,            # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
@@ -169,21 +169,21 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                    STARTING MAIN TIME EVOLUTION                    |
+#                     VECTORIZED time evolution                      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 p_step = 10                 # p_step = progress step. print every p_step(%) completion
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
 # Precompute spherical harmonics matrix
-Y_lm_cos_theta_j = np.array([[Y_lm(l_ind + m, m, roots[j]) for j in range(L + 1)] for l_ind in range(l_max + 1)])  # (l_max+1, L+1)
-Y_T = Y_lm_cos_theta_j.T   # shape: (L+1, l_max+1)
+Y_lm_cos_theta_j = Y_lm_array(l_max, m, roots)     # (l_max+1, L+1)
+Y_T = Y_lm_cos_theta_j.T                           # shape: (L+1, l_max+1)
 
 # Make sure arrays friendly for BLAS and contiguous memory
+r = np.ascontiguousarray(r)                        # (N-1,)
+cos_theta = np.ascontiguousarray(roots)            # (L+1,)
 S_matrix = np.ascontiguousarray(S_matrix)          # (l_max+1, N-1, N-1)
 init_glm = np.ascontiguousarray(init_glm)          # (l_max+1, N-1)
 absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
-r = np.ascontiguousarray(r)                        # (N-1,)
-cos_theta = np.ascontiguousarray(roots)            # (L+1,)
 
 # Allocate temporaries once to avoid reallocation in the loop
 A = np.empty_like(init_glm)                        # (l_max+1, N-1)  holds S_matrix @ init_glm for each l
