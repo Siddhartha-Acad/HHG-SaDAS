@@ -34,7 +34,7 @@ from parameters_and_functions import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,                  # functions
+    f, g_lm_vect, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,             # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
 
@@ -154,7 +154,7 @@ init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as th
 #                                               # Instead of making full 3d initial state and calculating partial waves, I can directly
 #         [Initializing: partial waves]         # use the A_nl(r) as the initial partial wave.
 #                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
-glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)   # Empty gl_array to be passed in gl() function.
+glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)   # Empty gl_array to be passed in g_lm_vect() function.
 
 d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
@@ -210,8 +210,8 @@ for ti in range(time_step):
     # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
     psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
 
-    # 5) Project angular -> radial partial waves (your g_lm is already vectorized)
-    glm_tilde = g_lm(psi_2, glm_tilde)   # returns (l_max+1, N-1)
+    # 5) Project angular -> radial partial waves (your g_lm_vect is already vectorized)
+    glm_tilde = g_lm_vect(psi_2, glm_tilde)   # returns (l_max+1, N-1)
 
     # 6) Update init_glm with S_matrix * glm_tilde and apply absorber (batched matmul)
     init_glm[:] = np.squeeze(np.matmul(S_matrix, glm_tilde[..., None]), axis=-1) * absorber

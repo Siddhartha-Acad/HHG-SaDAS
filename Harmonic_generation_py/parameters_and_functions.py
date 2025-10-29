@@ -378,7 +378,16 @@ def g_lm(Psi_t, glm_arr):
     for l_ind in range(l_max+1):
         glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
     return glm_arr
-a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])   # will be used in g_lm(Psi_t, glm_arr)
+
+a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])  # shape = (l_max+1, L+1)
+
+weighted_legendre_vals = weights[None, :] * a_legendre_vals                                                     # shape (l_max+1, L+1)
+vect_norm_fact = np.array([1.0 / (N_fact(l_index+m, m) * C_fact(l_index+m, m)) for l_index in range(l_max+1)])  # shape (l_max+1, )
+
+def g_lm_vect(Psi_t, glm_arr):
+    np.dot(weighted_legendre_vals, Psi_t, out=glm_arr)
+    glm_arr *= vect_norm_fact[:, None]
+    return glm_arr
 
 
 
