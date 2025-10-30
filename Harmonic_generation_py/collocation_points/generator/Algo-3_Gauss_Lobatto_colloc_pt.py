@@ -93,7 +93,7 @@ Write_PN = False            # setting True : creates data file (.txt) with P_N(x
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 start_time = time.perf_counter()
 
-xi = np.linspace(-1, 1, 20000); xi_mapped = f_rev(xi)
+xi = np.linspace(-1, 1, 100000); xi_mapped = f_rev(xi)
 PN_deriv_array = Lambda(xi_mapped, N)
 pks_at = find_peaks(-PN_deriv_array ** 2)[0]            # The initial guesses
 colloc_pt = np.array([                                  # calculating using Newton-Raphson method.
@@ -178,7 +178,8 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            raise FileExistsError(f"File already exists: {file_path.name}\n")
+            print(f"File already exists : {file_path.name}\n")
+            sys.exit(0)                         # Exit program gracefully
 
         header = f'{"colloc_pt":>12} (N={N})'
         np.savetxt(file_path, colloc_pt, fmt='%20.15f', header=header, comments='')
@@ -187,7 +188,8 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            raise FileExistsError(f"File already exists: {file_path.name}\n")
+            print(f"File already exists : {file_path.name}\n")
+            sys.exit(0)                         # Exit program gracefully
 
         colloc_pt_and_PN = np.column_stack((colloc_pt, legendre(N)(colloc_pt)))
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
