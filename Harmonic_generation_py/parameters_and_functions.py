@@ -100,7 +100,7 @@ t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 eta_t = 0.027               # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = 1000            # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
+time_step = len(t) - 1      # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
 show_E_field = False        # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
 print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
 
@@ -314,7 +314,6 @@ def Y_lm_array(l_max, m, roots):
         factorial(l_vals - m, exact=False) /
         (4 * np.pi * factorial(l_vals + m, exact=False))
     )
-
     return N_lm * P_lm
 
 
@@ -443,35 +442,6 @@ def g_lm_vect(Psi_t, glm_arr):
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                  Partial-wave evolution                  |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def G(Sl_matrix, gl_arr, l_ind):
-    r"""
-    Compute the third bracket of Eq.(2.86),
-    which is a matrix multiplication of the S-matrix block with the partial-wave projection.
-
-    .. math::
-        G_\ell(r_i, t) = \sum_{j=1}^{N-1} S_{ij}(\ell) \, g_\ell(r_j, t)
-
-    Parameters
-    ----------
-    Sl_matrix : ndarray, shape (l_max+1, N-1, N-1)
-        S-matrix blocks :math:`S_\ell` for each angular momentum :math:`\ell`.
-    gl_arr : ndarray, shape (l_max+1, N-1)
-        Radial partial-wave projections :math:`g_\ell(r, t)`.
-    l_ind : int
-        Angular momentum index :math:`\ell`.
-
-    Returns
-    -------
-    ndarray, shape (N-1,)
-        Transformed radial component :math:`G_\ell(r, t)`.
-    """
-    return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                      dipole moment                       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def alpha_lm(l_val, m_val):
@@ -498,33 +468,47 @@ def alpha_lm(l_val, m_val):
 
 
 def dipole_moment(r, glm_arr):
-    r"""
-    Computes the dipole moment for a given radial grid and a set of partial-waves at an instant of time.
-
-    .. math::
-        d_{i\sigma}(t) = 2 \sum_\ell \alpha_{\ell,m} \int r \, \mathrm{Re}\left[g_\ell^*(r, t) g_{\ell+1}(r, t)\right] \, dr
+    """
+    Computes the dipole moment for a given radial grid and a set of partial-waves
+    at an instant of time (vectorized implementation).
 
     Parameters
     ----------
     r : ndarray, shape (N-1,)
         Nonlinear Radial collocation grid points: r(x)
     glm_arr : ndarray, shape (l_max+1, N-1)
-        Partial-wave amplitudes :math:`g_\ell(r)` of the wavefunction.
-
-        - `l_max+1` : number of angular momentum channels.
-        - `N-1`     : number of radial grid points.
+        Partial-waves g_lm(r) of a wavefunction at some instant.
 
     Returns
     -------
     float
-        Total dipole moment computed from the partial-wave amplitudes.
+        Total dipole moment computed from the partial-waves.
 
     Notes
     -----
     - `l_ind_arr = np.arange(l_max)` is used to iterate over angular momentum indices : precomputed
     - `alpha_factor = alpha(l_ind_arr + m, m)` : precomputed
     """
-    integrals = np.array([np.sum(r * np.real(np.conj(glm_arr[l_ind]) * glm_arr[l_ind + 1])) for l_ind in l_ind_arr])
+
+    # ┌──────────────────────────────────────┬───────────────┬─────────────────────────────┐
+    # │ Expression                           │   Shape       │ Description                 │
+    # ├──────────────────────────────────────┼───────────────┼─────────────────────────────┤
+    # │ glm_arr[:-1]                         │ (l_max, N-1)  │ all g_l(r)                  │
+    # │ glm_arr[1:]                          │ (l_max, N-1)  │ all g_{l+1}(r)              │
+    # │ np.conj(glm_arr[:-1]) * glm_arr[1:]  │ (l_max, N-1)  │ elementwise g*_l * g_{l+1}  │
+    # │ np.real(...)                         │ (l_max, N-1)  │ real part                   │
+    # │ r * np.real(...)                     │ (l_max, N-1)  │ broadcast multiply by r     │
+    # │ integrals = np.sum(..., axis=-1)     │ (l_max,)      │ integrate over r            │
+    # └──────────────────────────────────────┴───────────────┴─────────────────────────────┘
+    integrals = np.sum(r * np.real(np.conj(glm_arr[:-1]) * glm_arr[1:]), axis=1)
+
+    # ┌───────────────────────────┬───────────┬─────────────────────────────┐
+    # │ Expression                │ Shape     │ Description                 │
+    # ├───────────────────────────┼───────────┼─────────────────────────────┤
+    # │ alpha_factor              │ (l_max,)  │ dipole coupling coefficients│
+    # │ alpha_factor * integrals  │ (l_max,)  │ weighted partial integrals  │
+    # │ np.sum(...)               │ scalar    │ total dipole moment         │
+    # └───────────────────────────┴───────────┴─────────────────────────────┘
     return 2 * np.sum(alpha_factor * integrals)
 
 l_ind_arr = np.arange(l_max)            # l_max because in Eq.~E.21, the `l' index goes from (m) to (l_max+m-1). So, in total (l_max-1).
