@@ -39,8 +39,8 @@ from scipy.signal import find_peaks
 this_dir = Path(__file__).resolve().parent                       # Relative file path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-parser = argparse.ArgumentParser(description="Plot collocation points only with --plot flag")
-parser.add_argument("--plot", action="store_true", help="Show a simple plot")
+parser = argparse.ArgumentParser()
+parser.add_argument("--plot", action="store_true")
 args = parser.parse_args()
 
 
