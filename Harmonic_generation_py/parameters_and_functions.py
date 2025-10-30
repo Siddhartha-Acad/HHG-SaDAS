@@ -55,8 +55,6 @@ from Harmonic_generation_py.conf_model_bank import *
 this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
-print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -815,7 +813,10 @@ def state_name(n_val, l_val):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                 Printing info                  |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if __name__ != '__main__':
+def print_info():
+    print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
+    print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
+
     print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
     print('mapping param (L_map)       :', L_map)
     print('mapping param (r_max)       :', r_max)
@@ -854,3 +855,4 @@ if __name__ != '__main__':
     print('l_max         :', l_max)
     print('k_max         :', k_max)
     print('dt            :', dt, '\n')
+    

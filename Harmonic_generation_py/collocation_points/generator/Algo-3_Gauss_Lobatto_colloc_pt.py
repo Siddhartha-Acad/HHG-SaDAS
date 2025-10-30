@@ -99,7 +99,7 @@ Write_PN = False            # setting True : creates data file (.txt) with P_N(x
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 start_time = time.perf_counter()
 
-xi = np.linspace(-1, 1, 100000); xi_mapped = f_rev(xi)
+xi = np.linspace(-1, 1, 20000); xi_mapped = f_rev(xi)
 PN_deriv_array = Lambda(xi_mapped, N)
 pks_at = find_peaks(-PN_deriv_array ** 2)[0]            # The initial guesses
 colloc_pt = np.array([                                  # calculating using Newton-Raphson method.
@@ -134,7 +134,7 @@ scaled_std_dev = std_dev_error / 10 ** power
 print(f'\n~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'wall-time : {wall_time:.4f} seconds')
+print(f'Execution wall-time : {wall_time:.4f} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
