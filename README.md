@@ -88,6 +88,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 >> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
 > 
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
+> With `--plot` flag it will show the computed collocation points.
 
 
 **Step 2: `parameters_and_functions.py`**
@@ -306,13 +307,14 @@ Whereas, this public repository is a streamlined version, providing the main use
 ## Run commands
 
 **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
+> `--plot` flag to display the collocation points.
 >- Linux/macOS (terminal):
 >```console
->python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
 >```
 >- Windows (powershell)
 >```console
->python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py --plot
 >```
 
 **Step 2: `parameters_and_functions.py`**
