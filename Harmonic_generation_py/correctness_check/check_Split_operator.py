@@ -27,7 +27,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 
 import time
 import matplotlib.pyplot as plt
-from Harmonic_generation_py.parameters_and_functions import *
+from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
 start_time = time.perf_counter()
 
@@ -89,7 +90,7 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=80.dat'
+state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
 state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
@@ -149,13 +150,13 @@ gl_0_array = g_lm(U_r, gl_empty)                                                
 for j in range(L+1):                          # looping over all angular colloc grid
     for l_index in range(l_max+1):            # looping over all partial waves
         U_r_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]            # This will confirm whether the partial wave expansion was correctly done or not.
-        psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
+        psi_1[j] += np.dot(S_matrix[l_index], gl_0_array[l_index]) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
 glm_tilde = g_lm(psi_2, gl_empty)                                                     # again calculating partial waves after interaction term being applied.
 for j in range(L+1):                          # looping over all angular colloc grid
     for l_index in range(l_max+1):            # looping over all partial waves
-        psi_evolved[j] += G(S_matrix, glm_tilde, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
+        psi_evolved[j] += np.dot(S_matrix[l_index], glm_tilde[l_index]) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 
 
@@ -221,7 +222,7 @@ ax3.plot(np.diff(r), 'o-', label=r'dr$_i$', color=da.mc.C_L[5])
 ax4.plot(np.diff(roots), 'o-', label=r'dx$_j$', color=da.mc.C_L[2])
 
 ax9.plot(r, np.abs(gl_0_array[l-m])**2, 'o-', markersize=10, label=rf'|g(r, {l=}, {m=}, t=0)|$^2$')
-ax9.plot(r, np.abs(G(S_matrix, gl_0_array, l-m))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
+ax9.plot(r, np.abs(np.dot(S_matrix[l-m], gl_0_array[l-m]))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
 
 state_name = generate_states(l)[n-1]
 ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)

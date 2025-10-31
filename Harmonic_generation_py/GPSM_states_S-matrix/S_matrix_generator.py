@@ -27,7 +27,8 @@ import time
 import argparse
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
-from Harmonic_generation_py.parameters_and_functions import *
+from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.functions import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", action="store_true")
@@ -51,7 +52,8 @@ output_dir.mkdir(parents=True, exist_ok=True)  # Create if it doesn't exist
 
 file_path = output_dir / file_name
 if file_path.exists():
-    raise FileExistsError(f"File already exists in dir: '{output_dir}'\n'{file_name}'")
+    print(f"File already exists : {file_path.name}\n")
+    sys.exit(0)                         # Exit program gracefully
 
 
 print('Azimuthal quantum num. (m)  :', m)

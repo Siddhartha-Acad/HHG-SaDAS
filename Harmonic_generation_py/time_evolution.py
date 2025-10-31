@@ -30,13 +30,15 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
-from parameters_and_functions import (
+from parameters import (
     n, l, m,                                                                                                    # initial state
     t, roots, colloc_pt, theta_k,                                                                               # arrays
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps,                 # functions
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
-)
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model)    # parameters
+
+from functions import (
+    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps)                 # functions
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", action="store_true")
@@ -96,7 +98,7 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=80.dat'
+state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
 state_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 

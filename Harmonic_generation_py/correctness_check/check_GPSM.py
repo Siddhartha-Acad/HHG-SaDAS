@@ -31,7 +31,8 @@ from scipy.linalg import eigh
 import matplotlib.pyplot as plt
 from Atomic_units import Energy_0
 from Assistant.Decorate_axes import decorate_axes_L as da
-from Harmonic_generation_py.parameters_and_functions import *
+from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.functions import *
 start_time = time.perf_counter()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~

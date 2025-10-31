@@ -165,3 +165,24 @@ def V_PowerExpo(r):
     PGau_info_string = f'Pexp_p={p}_w0={w0_au:.3f}_sigma={sigma_au:.3f}_rc={rc_au:.3f}'
     return -w0_au * np.exp(-(r - rc_au)**p / sigma_au**p), PGau_info_string
 
+
+def state_name(n_val, l_val):
+    r"""
+    Converts quantum numbers n and l to a string representation of the atomic state.
+
+    :param n_val: Principal quantum number (n ≥ 1).
+    :param l_val: Orbital angular momentum quantum number (l ≥ 0).
+    :return: Atomic state string (e.g., '1s', '2p', '3d').
+    :raises ValueError: If l is outside the allowed range (0–6).
+
+    Example:
+
+    >>> state_name(1, 0)
+    '1s'
+    """
+    orbital_letters = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}
+    if l_val in orbital_letters:
+        return f"{n_val}{orbital_letters[l_val]}"
+    else:
+        raise ValueError(f"Invalid orbital angular momentum quantum number l={l_val}. Allowed values are 0 to 6.")
+
