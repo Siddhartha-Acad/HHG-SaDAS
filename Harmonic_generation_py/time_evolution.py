@@ -31,14 +31,14 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from parameters import (
-    n, l, m,                                                                                                    # initial state
-    t, roots, colloc_pt, theta_k,                                                                               # arrays
+    t, n, l, m,                                                                                                 # time, initial state 
     show_E_field, print_serial_prog, confined,                                                                  # booleans
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model)    # parameters
-
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
+)
 from functions import (
-    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps)                 # functions
-
+    roots, colloc_pt, theta_k,                                                                                  # collocation arrays
+    f, g_lm, Y_lm, conf_selector, Absorber_func, state_name, E_field, V_int, dipole_moment, Ps                  # functions
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", action="store_true")

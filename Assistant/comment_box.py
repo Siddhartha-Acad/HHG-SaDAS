@@ -19,7 +19,7 @@ Notes:
 # for function_bank.py : comment box size = 60
 # for normal codes     : comment box size = 50
 
-comment_symbol = '!'
+comment_symbol = '#'
 def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     line = f"{comment_symbol} {border * (width - 2)}"
     middle = f"{comment_symbol} {text.center(width - 4)} |"

@@ -1,10 +1,10 @@
 """
-File: parameters_and_functions.py
+File: parameters.py
 Project: HHG-SaDAS
 
 Code Description:
     - Contains all parameters that define the entire system and numerical requirements.
-    - All other simulation codes fetch parameters and functions from this script.
+    - All other simulation codes fetch parameters from this script.
 
 *** [NAMING CONVENTION FOLLOWED IN THE ENTIRE PACKAGE] ***
 
@@ -46,11 +46,11 @@ Notes:
 """
 
 import warnings
+import numpy as np
 from pathlib import Path
 from scipy.special import legendre
 from scipy.special import factorial, lpmv
 from Atomic_units import Int_0, omega_au, T0
-from Harmonic_generation_py.conf_model_bank import *
 
 this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -104,18 +104,6 @@ print_serial_prog = True    # when True, running time_evolution.py will print pr
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#      collocation grid (radial & angular)       |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
-colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file               # fetching collocation data from relative path.
-colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
-
-int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
-roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
-theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                  SAE dataset                   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 atomic_params_SAE_M1 = {        # Ref: X. M. Tong and C. D. Lin, J. Phys. B: At. Mol. Opt. Phys., 38, 2593 (2005).
@@ -145,50 +133,3 @@ atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and
     # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
 }
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                 Printing info                  |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def print_info():
-    print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
-    print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
-
-    print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
-    print('mapping param (L_map)       :', L_map)
-    print('mapping param (r_max)       :', r_max)
-    print('radial colloc points (N-1)  :', N-1)
-    print('angular colloc points (L+1) :', L+1, '\n')
-
-    # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
-    # print(f'Ip (a.u)              : {Ip:.3f}')
-    # print(f'Up (a.u)              : {Up_au:.5f}')
-    # print(f'N_cutoff              : {N_cut:.3f}')
-    # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
-
-    print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
-    if not confined:
-        print(f'atom system   : {evolving_atom}')
-    else:
-        print(f'atom system   : {evolving_atom}@C60')
-        print(f'conf. model   : {confinement_model}')
-
-    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
-    print(f'I0 (W/cm2)    : {I0:.2e}')
-    print('I0 (a.u)      :', I0 / Int_0)
-    print('E0 (a.u)      :', E0_au)
-    print('λ  (nm)       :', lambda_nm)
-    print('λ  (a.u)      :', lambda_nm * 10 ** -9 / a0)
-    print('w0 (a.u)      :', w0)
-    print('T (a.u)       :', T)
-    print('T (f.s)       :', T * T0 * 10**15)
-    print('tf (a.u)      :', tf)
-    print('tf (f.s)      :', tf * T0 * 10**15)
-    print('dt (a.u)      :', dt)
-    print('dt (atto)     :', dt * T0 * 10**18)
-    print('nopt          :', len(t), '\n')
-
-    print('~~~~~~~~~~~: S-matrix info :~~~~~~~~~~~')
-    print('l_max         :', l_max)
-    print('k_max         :', k_max)
-    print('dt            :', dt, '\n')
-    

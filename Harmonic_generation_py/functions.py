@@ -1,4 +1,37 @@
+"""
+File: functions.py
+Project: HHG-SaDAS
+
+Code Description:
+    - Contains collocation points and functions that are requiremed by other scripts.
+    - All other simulation codes fetch functions from this script.
+
+Author: Siddhartha Mithiya
+Affiliation: Indian Institute of Technology (IIT) Mandi
+License: MIT License
+Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git
+
+Notes:
+------
+- This file is part of the HHG-SaDAS package, developed during the MS(R) thesis:
+  "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
+"""
+
 from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.conf_model_bank import *
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#      collocation grid (radial & angular)       |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+colloc_file = f'Algo-3_N={N}_Gauss_Lobatto_collocation_points.txt'                      # File that holds the collocation points.
+colloc_file = this_dir / 'collocation_points' / 'generator' / colloc_file               # fetching collocation data from relative path.
+colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                              # Gauss-Lobatto collocation points.
+
+int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
+roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
+theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -639,3 +672,70 @@ def generate_states(l_val):
     return [str(i) + orbital_types.get(l_val, '') for i in range(l_val + 1, 200)]
 
 
+def state_name(n_val, l_val):
+    r"""
+    Converts quantum numbers n and l to a string representation of the atomic state.
+
+    :param n_val: Principal quantum number (n ≥ 1).
+    :param l_val: Orbital angular momentum quantum number (l ≥ 0).
+    :return: Atomic state string (e.g., '1s', '2p', '3d').
+    :raises ValueError: If l is outside the allowed range (0–6).
+
+    Example:
+
+    >>> state_name(1, 0)
+    '1s'
+    """
+    orbital_letters = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}
+    if l_val in orbital_letters:
+        return f"{n_val}{orbital_letters[l_val]}"
+    else:
+        raise ValueError(f"Invalid orbital angular momentum quantum number l={l_val}. Allowed values are 0 to 6.")
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#                 Printing info                  |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def print_info():
+    print('*** RuntimeWarning     : Blocked from parameters.py ***')
+    print('*** DeprecationWarning : Blocked from parameters.py ***\n')
+
+    print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
+    print('mapping param (L_map)       :', L_map)
+    print('mapping param (r_max)       :', r_max)
+    print('radial colloc points (N-1)  :', N-1)
+    print('angular colloc points (L+1) :', L+1, '\n')
+
+    # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
+    # print(f'Ip (a.u)              : {Ip:.3f}')
+    # print(f'Up (a.u)              : {Up_au:.5f}')
+    # print(f'N_cutoff              : {N_cut:.3f}')
+    # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
+
+    print('~~~~~~~~~: Atom & Laser info :~~~~~~~~~')
+    if not confined:
+        print(f'atom system   : {evolving_atom}')
+    else:
+        print(f'atom system   : {evolving_atom}@C60')
+        print(f'conf. model   : {confinement_model}')
+
+    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
+    print(f'I0 (W/cm2)    : {I0:.2e}')
+    print('I0 (a.u)      :', I0 / Int_0)
+    print('E0 (a.u)      :', E0_au)
+    print('λ  (nm)       :', lambda_nm)
+    print('λ  (a.u)      :', lambda_nm * 10 ** -9 / a0)
+    print('w0 (a.u)      :', w0)
+    print('T (a.u)       :', T)
+    print('T (f.s)       :', T * T0 * 10**15)
+    print('tf (a.u)      :', tf)
+    print('tf (f.s)      :', tf * T0 * 10**15)
+    print('dt (a.u)      :', dt)
+    print('dt (atto)     :', dt * T0 * 10**18)
+    print('nopt          :', len(t), '\n')
+
+    print('~~~~~~~~~~~: S-matrix info :~~~~~~~~~~~')
+    print('l_max         :', l_max)
+    print('k_max         :', k_max)
+    print('dt            :', dt, '\n')
+    

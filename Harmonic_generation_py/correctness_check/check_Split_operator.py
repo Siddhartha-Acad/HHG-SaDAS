@@ -72,13 +72,7 @@ but the chosen files are :
     S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
-
     def f(x, Lmap=L_map):
-        r"
-        Nonlinear radial mapping function.
-        ...
-        "
-
 produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
@@ -125,8 +119,8 @@ print('S_matrix shape      :', np.shape(S_matrix))
 
 r = f(colloc_pt)                                      # Radial coordinate in a.u
 A_r = state_data[1:][n - 1]                           # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
-A_mesh, _ = np.meshgrid(A_r, theta_k)             # Initial wavefunction ~ determined by (n, l).
-r_m, theta_m = np.meshgrid(r, theta_k)            # creating a meshgrid of nonlinear radial grid and angular colloc. points
+A_mesh, _ = np.meshgrid(A_r, theta_k)                 # Initial wavefunction ~ determined by (n, l).
+r_m, theta_m = np.meshgrid(r, theta_k)                # creating a meshgrid of nonlinear radial grid and angular colloc. points
 U_r = A_mesh * Y_lm(l, m, np.cos(theta_m))            # U(r, θ) = A(r) • Y_lm(cosθ)
 
 
@@ -138,7 +132,7 @@ U_r_recon = np.zeros((L+1, N-1), dtype=np.complex128)       # Reconstructed U(r,
 psi_1 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
 psi_2 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
 psi_evolved = np.zeros((L+1, N-1), dtype=np.complex128)     # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
-gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)      # Empty gl_array to be passed in gl() function.
+gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)    # Empty gl_array to be passed in gl() function.
 
 
 

@@ -42,7 +42,7 @@ import time
 import argparse
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters import *
-from Harmonic_generation_py.functions import *
+from Harmonic_generation_py.functions import print_info, conf_selector, state_name, colloc_pt, H, f
 start_time = time.perf_counter()
 
 parser = argparse.ArgumentParser()
@@ -52,7 +52,10 @@ args = parser.parse_args()
 if args.v:
     print_info()
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     File name and data arrangement system      |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 total_states = 5           # how many states you want to keep in the GPSM_state file (.dat)
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
@@ -72,8 +75,9 @@ if file_path.exists():
     sys.exit(0)                         # Exit program gracefully
 
 
-
-# ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  H matrix, Eigenvalues (E), Eigenvectors (A)   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
 
 for i in range(N - 1):
@@ -86,7 +90,9 @@ E, A = eigh(H_matrix, subset_by_index=[0, total_states-1])
 A = A.T
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .dat file :~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     Writing GPSM-states data to .dat file      |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                       # radial coordinate in atomic unit. (Nonlinearly discretised)
 
 header = "r(a.u.) " + " ".join([f"A({state_name(Eth + l + 1, l)})" for Eth in range(total_states)])
@@ -94,7 +100,9 @@ data = np.column_stack([r] + [A[Eth] for Eth in range(total_states)])
 np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Printing eigenvalues :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#              Printing eigenvalues              |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
@@ -102,3 +110,4 @@ print(f"\nstate_file = '{file_name}'\n")
 
 end_time = time.perf_counter()
 print(f'Wall Time : {end_time - start_time:.3f} seconds')
+

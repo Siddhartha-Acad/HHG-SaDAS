@@ -28,7 +28,7 @@ import argparse
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters import *
-from Harmonic_generation_py.functions import *
+from Harmonic_generation_py.functions import print_info, conf_selector, H
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", action="store_true")
@@ -87,7 +87,7 @@ for l in range(m, l_max+m+1):
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A                     # A: (k_max, n); A.T*(phase): (n, k_max)
-    
+
     data_S_matrix.append(S_matrix)
 
 
