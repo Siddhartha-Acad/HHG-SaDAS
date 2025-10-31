@@ -195,4 +195,4 @@ if len(colloc_pt) == N - 1:
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created: {file_name}\n')
+    print(f'file created : {file_name}\n')

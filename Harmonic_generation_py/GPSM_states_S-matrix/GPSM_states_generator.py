@@ -39,13 +39,20 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters_and_functions import *
 start_time = time.perf_counter()
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", action="store_true")
+args = parser.parse_args()
+
+if args.v:
+    print_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 10           # how many states you want to keep in the GPSM_state file (.dat)
+total_states = 5           # how many states you want to keep in the GPSM_state file (.dat)
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
@@ -60,7 +67,9 @@ output_dir.mkdir(parents=True, exist_ok=True)       # Create if it doesn't exist
 
 file_path = output_dir / file_name
 if file_path.exists():
-    raise FileExistsError(f"File already exists:\nbound_states_file = '{file_name}'")
+    print(f"File already exists : {file_path.name}\n")
+    sys.exit(0)                         # Exit program gracefully
+
 
 
 # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~

@@ -25,6 +25,7 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
@@ -37,6 +38,13 @@ from parameters_and_functions import (
     f, g_lm_vect, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array,             # functions
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
 )
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", action="store_true")
+args = parser.parse_args()
+
+if args.v:
+    print_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches

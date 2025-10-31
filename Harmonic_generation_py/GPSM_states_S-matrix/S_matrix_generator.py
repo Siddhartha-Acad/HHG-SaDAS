@@ -24,10 +24,17 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters_and_functions import *
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", action="store_true")
+args = parser.parse_args()
+
+if args.v:
+    print_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
 conf_info_string = conf_selector(confinement_model, 0)[1]
