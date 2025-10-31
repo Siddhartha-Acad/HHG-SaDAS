@@ -27,13 +27,21 @@ Notes:
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
+import argparse
 import numpy as np
 import pandas as pd
 import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L as da
-from Harmonic_generation_py.parameters_and_functions import dt, tf, w0, T
+from Harmonic_generation_py.parameters import dt, tf, w0, T
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", action="store_true")
+args = parser.parse_args()
+
+if args.v:
+    print_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches

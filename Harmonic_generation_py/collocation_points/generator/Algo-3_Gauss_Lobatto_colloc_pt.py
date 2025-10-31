@@ -11,6 +11,10 @@ Code Description:
     |   (in the negative interval) are obtained using the parity relation in Eq.A.10.
     | - This algorithm is graphically presented in the flowchart of Fig.A.4.
 
+Example:
+    $ python3 Algo-3_Gauss_Lobatto_colloc_pt.py -N 20 --plot
+    $ # This computes Gauss–Lobatto collocation points for N = 20 and plots the results. (default N=200)
+
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
 License: MIT License
@@ -41,6 +45,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--plot", action="store_true")
+parser.add_argument("-N", type=int, default=200)                 # default N = 200
 args = parser.parse_args()
 
 
@@ -84,8 +89,8 @@ def Lambda(x, N):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Main control                            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N = 200                     # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
-Write_PN = False            # setting True : creates data file (.txt) with P_N(xj) to the second column.
+N = args.N          # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
+Write_PN = False    # setting True : creates data file (.txt) with P_N(xj) to the second column.
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,4 +200,4 @@ if len(colloc_pt) == N - 1:
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created: {file_name}\n')
+    print(f'file created : {file_name}\n')
