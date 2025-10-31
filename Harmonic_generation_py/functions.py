@@ -182,10 +182,10 @@ def Y_lm(l_val, m_val, x):
 
 def Y_lm_array(l_max, m, roots):
     """
-    Fully vectorized computation of Y_lm(l, m, x) for all l in [0, l_max] and x in roots.
+    Fully vectorized computation of Y_lm(l, m, x)
     """
-    l_vals = np.arange(0, l_max + 1)[:, None]    # shape (l_max+1, 1)
-    x = np.asarray(roots)[None, :]               # shape (1, L+1)
+    l_vals = np.arange(m, l_max + m + 1)[:, None]    # shape (l_max+1, 1)
+    x = np.asarray(roots)[None, :]                   # shape (1, L+1)
 
     # Broadcast l_vals and x to same shape
     # lpmv can handle broadcasting since m is scalar

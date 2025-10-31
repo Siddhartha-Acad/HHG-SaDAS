@@ -7,12 +7,13 @@ N := $(shell PYTHONPATH=$(PROJECT_ROOT) python3 -c "from parameters import N; pr
 
 COLLOC_DAT := $(COLLOC_SCRIPT)/Algo-3_N=$(N)_Gauss_Lobatto_collocation_points.txt
 
-.PHONY: clear_colloc_pt
+
+.PHONY : clear_colloc_pt
 
 
-$(COLLOC_DAT):
+$(COLLOC_DAT) :
 	python3 $(COLLOC_SCRIPT)/Algo-3_Gauss_Lobatto_colloc_pt.py -N $(N)
 
-clear_colloc_pt:
+clear_colloc_pt :
 	rm -f collocation_points/generator/*.txt
 

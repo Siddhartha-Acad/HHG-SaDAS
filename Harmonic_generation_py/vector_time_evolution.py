@@ -179,43 +179,44 @@ p_step = 10                 # p_step = progress step. print every p_step(%) comp
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
 # Precompute spherical harmonics matrix
-Y_lm_cos_theta_j = Y_lm_array(l_max, m, roots)     # (l_max+1, L+1)
-Y_T = Y_lm_cos_theta_j.T                           # shape: (L+1, l_max+1)
+Y_lm_cos_theta_j = Y_lm_array(l_max-1, m, roots)                 # (l_max, L+1)
+Y_T = Y_lm_cos_theta_j.T                                         # shape: (L+1, l_max)
 
 # Make sure arrays friendly for BLAS and contiguous memory
-r = np.ascontiguousarray(r)                        # (N-1,)
-cos_theta = np.ascontiguousarray(roots)            # (L+1,)
-S_matrix = np.ascontiguousarray(S_matrix)          # (l_max+1, N-1, N-1)
-init_glm = np.ascontiguousarray(init_glm)          # (l_max+1, N-1)
+r = np.ascontiguousarray(r)                                      # (N-1,)
+cos_theta = np.ascontiguousarray(roots)                          # (L+1,)
+S_matrix = np.ascontiguousarray(S_matrix)                        # (l_max+1, N-1, N-1)
+init_glm = np.ascontiguousarray(init_glm)                        # (l_max+1, N-1)
 absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
 
 # Allocate temporaries once to avoid reallocation in the loop
-A = np.empty_like(init_glm)                        # (l_max+1, N-1)  holds S_matrix @ init_glm for each l
-psi_1 = np.empty((L + 1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
-psi_2 = np.empty_like(psi_1)                       # (L+1, N-1)
-glm_tilde = glm_empty                              # reuse user's provided empty array
+A = np.empty((l_max, N-1), dtype=np.complex128)                  # (l_max, N-1)  holds S_matrix @ init_glm for each l
+psi_1 = np.empty((L+1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
+psi_2 = np.empty_like(psi_1)                                     # (L+1, N-1)
+V_int_matrix = np.empty((L+1, N-1), dtype=np.float64)            # (L+1, N-1)
+glm_tilde = glm_empty                                            # reuse user's provided empty array
 
-start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
+start_time = time.perf_counter()                                 # Start measuring execution time (serial time evolution)
 
-# Main time-stepping loop (vectorized)  <-- written by ChatGPT :)
+# Main time-stepping loop (vectorized)  <-- written by ChatGPT :) and fixed by Claude :)
 for ti in range(time_step):
     tmid = t[ti] + dt / 2.0
 
     # 1) Batched matmul: A[l, :] = S_matrix[l] @ init_glm[l, :]
-    #    shapes: S_matrix (l_max+1, N-1, N-1) and init_glm[...,None] (l_max+1, N-1, 1) -> (l_max+1, N-1, 1)
-    A[:] = np.squeeze(np.matmul(S_matrix, init_glm[..., None]), axis=-1)
+    #    shapes: S_matrix (l_max, N-1, N-1) and init_glm[:l_max, :, None] (l_max, N-1, 1) -> (l_max, N-1, 1)
+    A[:] = np.squeeze(np.matmul(S_matrix[:l_max], init_glm[:l_max, :, None]), axis=-1)
 
     # 2) Construct psi_1 across all angles at once:
     #    psi_1[j, r] = sum_l Y_lm_cos_theta_j[l, j] * A[l, r]
-    #    Matrix multiply: (L+1, l_max+1) @ (l_max+1, N-1) -> (L+1, N-1)
-    psi_1[:] = Y_T.dot(A)
+    #    Matrix multiply: (L+1, l_max) @ (l_max, N-1) -> (L+1, N-1)
+    psi_1[:] = Y_T @ A
 
     # 3) Build interaction potential V_int(θ_j, r, tmid) in a fully vectorized form:
     #    Each element: V_int[j, r] = -E_field(tmid) * cos(θ_j) * r[r]
     #    E_field(tmid) is a scalar; np.multiply.outer automatically forms
     #    the outer product of cos_theta (shape: L+1) and r (shape: N-1),
     #    producing a (L+1, N-1) array without explicit broadcasting.
-    V_int_matrix = np.multiply.outer(-E_field(tmid) * cos_theta, r)
+    V_int_matrix[:] = (-E_field(tmid) * cos_theta)[:, None] * r
 
     # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
     psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
@@ -224,7 +225,7 @@ for ti in range(time_step):
     glm_tilde = g_lm_vect(psi_2, glm_tilde)   # returns (l_max+1, N-1)
 
     # 6) Update init_glm with S_matrix * glm_tilde and apply absorber (batched matmul)
-    init_glm[:] = np.squeeze(np.matmul(S_matrix, glm_tilde[..., None]), axis=-1) * absorber
+    init_glm[:l_max] = np.squeeze(np.matmul(S_matrix[:l_max], glm_tilde[:l_max, :, None]), axis=-1) * absorber
 
     # Progress printing
     if print_serial_prog and ti in checkpoints:
