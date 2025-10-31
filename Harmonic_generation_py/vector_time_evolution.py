@@ -178,9 +178,14 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 p_step = 10                 # p_step = progress step. print every p_step(%) completion
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
+# Precompute all E_field values and interaction potentials
+t_mid = t[:time_step] + dt / 2.0
+E_field_vals = E_field(t_mid)                                    # (time_step,)
+V_int_matrix = np.empty((L+1, N-1), dtype=np.float64)            # (L+1, N-1)
+
 # Precompute spherical harmonics matrix
 Y_lm_cos_theta_j = Y_lm_array(l_max-1, m, roots)                 # (l_max, L+1)
-Y_T = Y_lm_cos_theta_j.T                                         # shape: (L+1, l_max)
+Y_T = np.ascontiguousarray(Y_lm_cos_theta_j.T)                   # (L+1, l_max)
 
 # Make sure arrays friendly for BLAS and contiguous memory
 r = np.ascontiguousarray(r)                                      # (N-1,)
@@ -193,14 +198,12 @@ absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
 A = np.empty((l_max, N-1), dtype=np.complex128)                  # (l_max, N-1)  holds S_matrix @ init_glm for each l
 psi_1 = np.empty((L+1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
 psi_2 = np.empty_like(psi_1)                                     # (L+1, N-1)
-V_int_matrix = np.empty((L+1, N-1), dtype=np.float64)            # (L+1, N-1)
 glm_tilde = glm_empty                                            # reuse user's provided empty array
 
 start_time = time.perf_counter()                                 # Start measuring execution time (serial time evolution)
 
 # Main time-stepping loop (vectorized)  <-- written by ChatGPT :) and fixed by Claude :)
 for ti in range(time_step):
-    tmid = t[ti] + dt / 2.0
 
     # 1) Batched matmul: A[l, :] = S_matrix[l] @ init_glm[l, :]
     #    shapes: S_matrix (l_max, N-1, N-1) and init_glm[:l_max, :, None] (l_max, N-1, 1) -> (l_max, N-1, 1)
@@ -216,7 +219,7 @@ for ti in range(time_step):
     #    E_field(tmid) is a scalar; np.multiply.outer automatically forms
     #    the outer product of cos_theta (shape: L+1) and r (shape: N-1),
     #    producing a (L+1, N-1) array without explicit broadcasting.
-    V_int_matrix[:] = (-E_field(tmid) * cos_theta)[:, None] * r
+    V_int_matrix[:] = (-E_field_vals[ti] * cos_theta)[:, None] * r
 
     # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
     psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
