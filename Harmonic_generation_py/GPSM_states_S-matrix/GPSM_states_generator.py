@@ -56,11 +56,10 @@ if args.v:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     File name and data arrangement system      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
-else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_{confinement_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
 
 data_dir = 'Confined_atom' if confined else 'Free_atom'
 file_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / file_name

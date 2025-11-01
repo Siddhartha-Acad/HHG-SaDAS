@@ -1,19 +1,21 @@
 # Makefile for Harmonic_generation_py
 
 PYTHONPATH   := PYTHONPATH=$(shell pwd)/..
-COLLOC_dPATH := collocation_points/generator
-GPSM_dPATH   := GPSM_states_S-matrix/data_GPSM_states_S-matrix/Free_atom
 
 PARAMS := $(shell $(PYTHONPATH) python3 read_parameters.py)
 
-PARAM_NAMES := EVOLVING_ATOM SAE_MODEL L TOTAL_STATES N R_MAX L_MAP CONFINED
-${foreach i,1 2 3 4 5 6 7 8,${eval ${word $i,${PARAM_NAMES}} := ${word $i,${PARAMS}}}}
+PARAM_NAMES := EVOLVING_ATOM SAE_MODEL L TOTAL_STATES N R_MAX L_MAP CONFINED CONF_MODEL
+${foreach i,1 2 3 4 5 6 7 8 9,${eval ${word $i,${PARAM_NAMES}} := ${word $i,${PARAMS}}}}
 
+COLLOC_dPATH := collocation_points/generator
+GPSM_dPATH   := GPSM_states_S-matrix/data_GPSM_states_S-matrix/
 
 COLLOC_DAT := $(COLLOC_dPATH)/Algo-3_N=$(N)_Gauss_Lobatto_collocation_points.txt
 
 ifeq (${CONFINED}, False)
-    GPSM_DAT := $(GPSM_dPATH)/${EVOLVING_ATOM}_States_${SAE_MODEL}_l=${L}_nos=${TOTAL_STATES}_N=${N}_rmax=${R_MAX}_Lmap=${L_MAP}.dat
+    GPSM_DAT := $(GPSM_dPATH)/Free_atom/${EVOLVING_ATOM}_States_${SAE_MODEL}_l=${L}_nos=${TOTAL_STATES}_N=${N}_rmax=${R_MAX}_Lmap=${L_MAP}.dat
+else
+    GPSM_DAT := $(GPSM_dPATH)/Confined_atom/${EVOLVING_ATOM}@C60_States_${SAE_MODEL}_${CONF_MODEL}_l=${L}_nos=${TOTAL_STATES}_N=${N}_rmax=${R_MAX}_Lmap=${L_MAP}.dat
 endif
 
 
@@ -32,4 +34,4 @@ clear_colloc_pt :
 
 clear_GPSM :
 	rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Free_atom/*States*.dat
-
+	rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Confined_atom/*States*.dat
