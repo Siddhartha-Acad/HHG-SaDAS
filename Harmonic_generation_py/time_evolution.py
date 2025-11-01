@@ -66,10 +66,7 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=da.mc.C_L)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-if confined:
-    data_dir = 'Confined_atom'
-else:
-    data_dir = 'Free_atom'
+data_dir = 'Confined_atom' if confined else 'Free_atom'
 
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
@@ -99,11 +96,11 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
-state_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+state_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
 S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
-S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / S_matrix_file
 S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
@@ -212,9 +209,7 @@ if not confined:
 else:
     Evo_data_file = f'Evo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 
-output_dir = this_dir / 'Time_evolution_data'
-output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
-d_file_path = output_dir / f'{Evo_data_file}'
+d_file_path = this_dir / 'Time_evolution_data' / f'{Evo_data_file}'
 
 header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)"
 data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array])

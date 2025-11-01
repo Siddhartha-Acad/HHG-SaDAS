@@ -97,7 +97,7 @@ def V_GASW(r):
     V_ASW2[mask] = -amp_ASW
     v_gasw = V_Gau + V_ASW2
 
-    info_string = f'GASW_prat={p_rat}_w0={depth_w0}_sigma={sigma_au}_delta={delta_au}_rc={rc_au}'
+    info_string = f'GASW_prat={p_rat}_w0={depth_w0:.3f}_sigma={sigma_au:.2f}_delta={delta_au}_rc={rc_au:.2f}'
     return v_gasw, info_string
 
 
@@ -116,7 +116,7 @@ def V_Lorentz(r):
     W_au = 1.86046
     rc_au = 6.68963
 
-    info_string = f'Lor_U={U_au}_A={A_au}_W={W_au}_rc={rc_au}'
+    info_string = f'Lor_U={U_au:.3f}_A={A_au:.3f}_W={W_au:.3f}_rc={rc_au:.3f}'
     return U_au + 2 * A_au * W_au / (np.pi * (4 * (r - rc_au)**2 + W_au**2)), info_string
 
 
@@ -142,7 +142,7 @@ def V_SSW(r):
     S1 = sigmoid(r - (rc_au - delta_au / 2), k_smooth)
     S2 = sigmoid(r - (rc_au + delta_au / 2), k_smooth)
 
-    SSW_info_string = f'SSW_w0={w0_au:.3f}_delta={delta_au}_k={k_smooth}_rc={rc_au:.3f}'
+    SSW_info_string = f'SSW_w0={w0_au:.3f}_delta={delta_au:.3f}_k={k_smooth:.3f}_rc={rc_au:.3f}'
     return -w0_au * (S1 - S2), SSW_info_string
 
 
