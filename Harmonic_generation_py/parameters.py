@@ -80,7 +80,7 @@ l_max = 20                  # Number of partial waves = number of S-matrices = l
 k_max = 50                  # number of GPSM states (maximum k index) in S matrix
 L_map = 80; r_max = 200     # radial mapping parameters
 r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
-
+total_states = 5            # how many states you want to keep in the GPSM_state file (.dat)
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #          LASER and temporal grid info          |

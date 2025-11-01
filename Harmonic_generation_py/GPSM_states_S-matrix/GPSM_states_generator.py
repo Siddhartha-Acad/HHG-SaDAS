@@ -56,7 +56,6 @@ if args.v:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     File name and data arrangement system      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 5           # how many states you want to keep in the GPSM_state file (.dat)
 conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
