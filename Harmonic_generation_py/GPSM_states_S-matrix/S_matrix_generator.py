@@ -88,10 +88,19 @@ for l in range(m, l_max+m+1):
     data_S_matrix.append(S_matrix)
 
 
+end_time = time.perf_counter()
+wall_time = end_time - start_time
+
+if wall_time > 300.0:
+    print(f'\nExecution Wall-Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
+else:
+    print(f'\nExecution Wall-Time : {wall_time:.3f} seconds')
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .npy file :~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = np.array(data_S_matrix, dtype=np.complex128)            # shape: (l_max+1, N-1, N-1)
 np.save(file_path, data_S_matrix)
-print(f"\nS_matrix_file = '{file_name}'")
+print(f"S_matrix_file = '{file_name}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,7 +113,7 @@ if save_Egvals_with_Smatrix:
     output_path = output_dir / output_name
 
     if output_path.exists():
-        print(f"File already exists: '{output_name}' — skipping.")
+        print(f"File already exists: '{output_name}' — skipping.\n")
     else:
         with open(output_path, 'w') as f:
             f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
@@ -117,13 +126,5 @@ if save_Egvals_with_Smatrix:
                         if row < len(energy_eigenvalues[f'l={l}']) else ""
                     )
                 f.write(" ".join(row_data) + "\n")
-        print(f"EgVals_file = '{output_name}'")
+        print(f"EgVals_file = '{output_name}'\n")
 
-
-end_time = time.perf_counter()
-wall_time = end_time - start_time
-
-if wall_time > 300.0:
-    print(f'\nExecution Wall-Time (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
-else:
-    print(f'\nExecution Wall-Time : {wall_time:.3f} seconds')

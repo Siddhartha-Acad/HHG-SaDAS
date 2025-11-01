@@ -27,12 +27,21 @@ endif
 all : $(COLLOC_DAT) $(GPSM_DAT) $(SMAT_DAT)
 
 $(COLLOC_DAT) :
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "|               Algo-3_Gauss_Lobatto_colloc_pt.py                  |"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	python3 $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_colloc_pt.py -N $(N)
 
 $(GPSM_DAT) :
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "|                    GPSM_state_generator.py                       |"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	python3 GPSM_states_S-matrix/GPSM_states_generator.py
 
 $(SMAT_DAT) :
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "|                     S_matrix_generator.py                        |"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	python3 GPSM_states_S-matrix/S_matrix_generator.py
 
 clear_colloc_pt :

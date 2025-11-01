@@ -19,7 +19,7 @@ Notes:
 # for function_bank.py : comment box size = 60
 # for normal codes     : comment box size = 50
 
-comment_symbol = ''
+comment_symbol = '#'            # comment symbol: '#', '!', '\\'
 def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     line = f"{comment_symbol} {border * (width - 2)}"
     middle = f"{comment_symbol} {text.center(width - 4)} |"
@@ -30,7 +30,7 @@ def pretty_title(text: str, width: int = 80, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "Algo-3_Gauss_Lobatto_colloc_pt.py"
+comment_head_string = "S_matrix_generator.py"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Main time evolution algorithm ends here"

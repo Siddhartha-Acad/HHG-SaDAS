@@ -100,8 +100,6 @@ np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
-print(f"\nstate_file = '{file_name}'\n")
-
 end_time = time.perf_counter()
-print(f'Execution Wall-time : {end_time - start_time:.5f} seconds\n')
-
+print(f'\nExecution Wall-time : {end_time - start_time:.5f} seconds')
+print(f"state_file = '{file_name}'\n")
