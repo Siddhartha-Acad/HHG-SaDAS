@@ -64,8 +64,8 @@ n = 1; l = 0; m = 0        # defines initial state. [NOTE]: PLEASE ADAPT TO THE 
 evolving_atom = 'H'        # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
-confined = False                    # whether the atom is confined or not?
-confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
+confined = True                     # whether the atom is confined or not?
+conf_model = 'P-Gau'                # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
                                     # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
                                     # in: HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/Energy_level_diagram.py
@@ -133,4 +133,27 @@ atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and
     # "Ar4+": {"C0": 5, "Zc": 13, "c": 0.8529,  "a1": -17.4441, "a2": -26.0893, "a3": 2.1135, "b1": 1.4141,  "b2": 4.4613,  "b3": 101.5018},
     # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
 }
+
+
+def state_name(n_val, l_val):
+    r"""
+    Converts quantum numbers n and l to a string representation of the atomic state.
+
+    :param n_val: Principal quantum number (n ≥ 1).
+    :param l_val: Orbital angular momentum quantum number (l ≥ 0).
+    :return: Atomic state string (e.g., '1s', '2p', '3d').
+    :raises ValueError: If l is outside the allowed range (0–6).
+
+    Example:
+
+    >>> state_name(1, 0)
+    '1s'
+    """
+    orbital_letters = {0: 's', 1: 'p', 2: 'd', 3: 'f', 4: 'g', 5: 'h', 6: 'i'}
+    if l_val in orbital_letters:
+        return f"{n_val}{orbital_letters[l_val]}"
+    else:
+        raise ValueError(f"Invalid orbital angular momentum quantum number l={l_val}. Allowed values are 0 to 6.")
+
+state_symb = state_name(n + l, l)   # precomputing state name that is going to evolve.
 

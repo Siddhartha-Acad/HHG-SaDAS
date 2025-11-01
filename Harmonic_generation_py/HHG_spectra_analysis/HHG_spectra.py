@@ -59,7 +59,7 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-evo_data_file = 'Evo_steps=500_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+evo_data_file = 'VEvo_nopt=88036_H(1s)@C60_m=0_SAE-M1_Pexp_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 evo_data_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file}'
 evo_data = np.loadtxt(evo_data_path, skiprows=1)
 

@@ -41,7 +41,7 @@ if args.v:
 
 if not confined:
     file_name = f'{evolving_atom}_Smatrix_{SAE_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
-else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}_{confinement_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
+else: file_name = f'{evolving_atom}@C60_Smatrix_{SAE_model}_{conf_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
 
 data_dir = 'Confined_atom' if confined else 'Free_atom'
 
@@ -108,7 +108,7 @@ if save_Egvals_with_Smatrix:
     if not confined:
         output_name = f'{evolving_atom}_EgVals_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
     else:
-        output_name = f'{evolving_atom}@C60_EgVals_{confinement_model}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
+        output_name = f'{evolving_atom}@C60_EgVals_{conf_model}_lmax={l_max}_N={N}_rmax={r_max}_Lmap={L_map}.txt'
 
     output_path = output_dir / output_name
 

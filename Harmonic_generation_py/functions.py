@@ -134,7 +134,7 @@ def H(l_val, i, j, model=SAE_model):
     if i != j:
         return term1
 
-    conf_term = conf_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
+    conf_term = conf_selector(conf_model, f(colloc_pt[i]))[0] if confined else 0.0
 
     if model == 'SAE-M1':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
@@ -719,7 +719,7 @@ def print_info():
         print(f'atom system   : {evolving_atom}@C60')
         print(f'conf. model   : {confinement_model}')
 
-    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
+    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)
