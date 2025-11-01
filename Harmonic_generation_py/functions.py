@@ -135,7 +135,7 @@ def H(l_val, i, j, model=SAE_model):
     if i != j:
         return term1
 
-    conf_term = conf_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
+    conf_term = conf_selector(conf_model, f(colloc_pt[i]))[0] if confined else 0.0
 
     if model == 'SAE-M1':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
@@ -183,10 +183,10 @@ def Y_lm(l_val, m_val, x):
 
 def Y_lm_array(l_max, m, roots):
     """
-    Fully vectorized computation of Y_lm(l, m, x) for all l in [0, l_max] and x in roots.
+    Fully vectorized computation of Y_lm(l, m, x)
     """
-    l_vals = np.arange(0, l_max + 1)[:, None]    # shape (l_max+1, 1)
-    x = np.asarray(roots)[None, :]               # shape (1, L+1)
+    l_vals = np.arange(m, l_max + m + 1)[:, None]    # shape (l_max+1, 1)
+    x = np.asarray(roots)[None, :]                   # shape (1, L+1)
 
     # Broadcast l_vals and x to same shape
     # lpmv can handle broadcasting since m is scalar
@@ -718,9 +718,9 @@ def print_info():
         print(f'atom system   : {evolving_atom}')
     else:
         print(f'atom system   : {evolving_atom}@C60')
-        print(f'conf. model   : {confinement_model}')
+        print(f'conf. model   : {conf_model}')
 
-    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
+    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)

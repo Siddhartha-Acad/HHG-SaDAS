@@ -6,6 +6,10 @@ Code Description:
     | Evolves initial m >= 0 states for n time steps using partial-wave expansion.
     | Computes electric field and dipole moment, saving the data in Excel.
     | Wavefunction evolution is calculated only at radial and angular collocation points (ri, theta_j).
+    |
+    |       python3 vector_time_evolution.py [-A | --auto]
+    | With the -A (--auto) flag, the program automatically detects the input GPSM and S-matrix files 
+    | based on the parameters defined in parameters.py and builds upon them.
 
 Author: Siddhartha Mithiya & ChatGPT :)
 Affiliation (1): Indian Institute of Technology (IIT) Mandi
@@ -32,17 +36,20 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from parameters import (
-    t, n, l, m,                                                                                                 # time, initial state 
-    show_E_field, print_serial_prog, confined,                                                                  # booleans
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step, evolving_atom, eta_t, SAE_model, confinement_model     # parameters
+    t, n, l, m,                                                              # time, initial state 
+    show_E_field, print_serial_prog, confined,                               # booleans
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step,                     # parameters
+    evolving_atom, eta_t, SAE_model, conf_model, total_states, state_symb    # parameters
 )
 from functions import (
-    roots, colloc_pt, theta_k,                                                                                  # collocation arrays
-    f, g_lm_vect, conf_selector, Absorber_func, state_name, E_field, dipole_moment, Ps, Y_lm_array              # functions
+    roots, colloc_pt, theta_k,                                                            # collocation arrays
+    f, g_lm_vect, conf_selector, Absorber_func, E_field, dipole_moment, Ps, Y_lm_array    # functions
 )
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", action="store_true")
+parser.add_argument('-v', action='store_true', help='verbose mode')
+parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input GPSM and S-matrix data')
+parser.add_argument('--plot', action='store_true', help='allows to plot electric field and computed results')
 args = parser.parse_args()
 
 if args.v:
@@ -67,13 +74,15 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=da.mc.C_L)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-if confined:
-    data_dir = 'Confined_atom'
-else:
-    data_dir = 'Free_atom'
+data_dir = 'Confined_atom' if confined else 'Free_atom'
 
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
+
+    python3 vector_time_evolution.py [-A | --auto]
+
+With the -A (--auto) flag, the program automatically detects the input GPSM and S-matrix files 
+based on the parameters defined in parameters.py and builds upon them.
 
 [Extremely Important Notice]:
 By "compatible," the parameters used in these files must match those defined 
@@ -99,12 +108,21 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
-state_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+if args.auto:
+    if not confined:
+        state_file = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+        S_matrix_file = f'{evolving_atom}_Smatrix_{SAE_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
+    else:
+        state_file = f'{evolving_atom}@C60_States_{SAE_model}_{conf_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+        S_matrix_file = f'{evolving_atom}@C60_Smatrix_{SAE_model}_{conf_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
+else:
+    state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
+    S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+
+state_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
-S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
-S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / S_matrix_file
 S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
@@ -113,21 +131,21 @@ S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1
 #           Printing system info. and show Electric field.           |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if confined:
-    conf_string = conf_selector(confinement_model, 0)[1]
+    conf_string = conf_selector(conf_model, 0)[1]
 
     print("~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~")
     parts = conf_string.split('_')                  # Split by underscores
-    conf_model = parts[0]                           # The first part (before first '_') is the confinement model
+    confmodel = parts[0]                            # The first part (before first '_') is the confinement model
     params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
 
-    print(f"{'Conf. model':<10}: {conf_model}")
+    print(f"{'Conf model':<10}: {confmodel}")
     for p in params:
         key, val = p.split('=')
         print(f"{key:<10}: {val}")
 
-print('~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
+print('\n~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
 print('Evolving atom            :', evolving_atom)
-print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
+print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
 print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
 print(f'θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
 print('S_matrix file name       :', S_matrix_file)
@@ -136,7 +154,7 @@ print('Absorber radius (r_0)    :', r0)
 print('Total time steps         :', time_step)
 print('Estimated time (h, m, s) :', secs_to_hr_min_sec(eta_t * time_step), '\n')
 
-if show_E_field:
+if show_E_field and args.plot:
     fig1 = plt.figure(figsize=fig_size)
     ax1 = fig1.add_subplot(111)
     da.decorate_2d(ax1)
@@ -178,44 +196,48 @@ zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wa
 p_step = 10                 # p_step = progress step. print every p_step(%) completion
 checkpoints = {min(int(i * time_step / 100), time_step - 1): i for i in range(0, 101, p_step)}
 
+# Precompute all E_field values and interaction potentials
+t_mid = t[:time_step] + dt / 2.0
+E_field_vals = E_field(t_mid)                                    # (time_step,)
+V_int_matrix = np.empty((L+1, N-1), dtype=np.float64)            # (L+1, N-1)
+
 # Precompute spherical harmonics matrix
-Y_lm_cos_theta_j = Y_lm_array(l_max, m, roots)     # (l_max+1, L+1)
-Y_T = Y_lm_cos_theta_j.T                           # shape: (L+1, l_max+1)
+Y_lm_cos_theta_j = Y_lm_array(l_max-1, m, roots)                 # (l_max, L+1)
+Y_T = np.ascontiguousarray(Y_lm_cos_theta_j.T)                   # (L+1, l_max)
 
 # Make sure arrays friendly for BLAS and contiguous memory
-r = np.ascontiguousarray(r)                        # (N-1,)
-cos_theta = np.ascontiguousarray(roots)            # (L+1,)
-S_matrix = np.ascontiguousarray(S_matrix)          # (l_max+1, N-1, N-1)
-init_glm = np.ascontiguousarray(init_glm)          # (l_max+1, N-1)
+r = np.ascontiguousarray(r)                                      # (N-1,)
+cos_theta = np.ascontiguousarray(roots)                          # (L+1,)
+S_matrix = np.ascontiguousarray(S_matrix)                        # (l_max+1, N-1, N-1)
+init_glm = np.ascontiguousarray(init_glm)                        # (l_max+1, N-1)
 absorber = np.ascontiguousarray(absorber).astype(np.complex128)  # (N-1,)
 
 # Allocate temporaries once to avoid reallocation in the loop
-A = np.empty_like(init_glm)                        # (l_max+1, N-1)  holds S_matrix @ init_glm for each l
-psi_1 = np.empty((L + 1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
-psi_2 = np.empty_like(psi_1)                       # (L+1, N-1)
-glm_tilde = glm_empty                              # reuse user's provided empty array
+A = np.empty((l_max, N-1), dtype=np.complex128)                  # (l_max, N-1)  holds S_matrix @ init_glm for each l
+psi_1 = np.empty((L+1, init_glm.shape[1]), dtype=np.complex128)  # (L+1, N-1)
+psi_2 = np.empty_like(psi_1)                                     # (L+1, N-1)
+glm_tilde = glm_empty                                            # reuse user's provided empty array
 
-start_time = time.perf_counter()            # Start measuring execution time (serial time evolution)
+start_time = time.perf_counter()                                 # Start measuring execution time (serial time evolution)
 
-# Main time-stepping loop (vectorized)  <-- written by ChatGPT :)
+# Main time-stepping loop (vectorized)  <-- written by ChatGPT :) and fixed by Claude :)
 for ti in range(time_step):
-    tmid = t[ti] + dt / 2.0
 
     # 1) Batched matmul: A[l, :] = S_matrix[l] @ init_glm[l, :]
-    #    shapes: S_matrix (l_max+1, N-1, N-1) and init_glm[...,None] (l_max+1, N-1, 1) -> (l_max+1, N-1, 1)
-    A[:] = np.squeeze(np.matmul(S_matrix, init_glm[..., None]), axis=-1)
+    #    shapes: S_matrix (l_max, N-1, N-1) and init_glm[:l_max, :, None] (l_max, N-1, 1) -> (l_max, N-1, 1)
+    A[:] = np.squeeze(np.matmul(S_matrix[:l_max], init_glm[:l_max, :, None]), axis=-1)
 
     # 2) Construct psi_1 across all angles at once:
     #    psi_1[j, r] = sum_l Y_lm_cos_theta_j[l, j] * A[l, r]
-    #    Matrix multiply: (L+1, l_max+1) @ (l_max+1, N-1) -> (L+1, N-1)
-    psi_1[:] = Y_T.dot(A)
+    #    Matrix multiply: (L+1, l_max) @ (l_max, N-1) -> (L+1, N-1)
+    psi_1[:] = Y_T @ A
 
     # 3) Build interaction potential V_int(θ_j, r, tmid) in a fully vectorized form:
     #    Each element: V_int[j, r] = -E_field(tmid) * cos(θ_j) * r[r]
     #    E_field(tmid) is a scalar; np.multiply.outer automatically forms
     #    the outer product of cos_theta (shape: L+1) and r (shape: N-1),
     #    producing a (L+1, N-1) array without explicit broadcasting.
-    V_int_matrix = np.multiply.outer(-E_field(tmid) * cos_theta, r)
+    V_int_matrix[:] = (-E_field_vals[ti] * cos_theta)[:, None] * r
 
     # 4) Apply exp(-i V_int dt) factor elementwise (vectorized over j and r)
     psi_2[:] = np.exp(-1j * V_int_matrix * dt) * psi_1
@@ -224,7 +246,7 @@ for ti in range(time_step):
     glm_tilde = g_lm_vect(psi_2, glm_tilde)   # returns (l_max+1, N-1)
 
     # 6) Update init_glm with S_matrix * glm_tilde and apply absorber (batched matmul)
-    init_glm[:] = np.squeeze(np.matmul(S_matrix, glm_tilde[..., None]), axis=-1) * absorber
+    init_glm[:l_max] = np.squeeze(np.matmul(S_matrix[:l_max], glm_tilde[:l_max, :, None]), axis=-1) * absorber
 
     # Progress printing
     if print_serial_prog and ti in checkpoints:
@@ -243,59 +265,57 @@ wall_time = end_time - start_time          # Wall time for computing the total t
 # Saving dipole moment; survival probability & correlation functions |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if not confined:
-    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_name(n + l, l)})@C60_m={m}_{SAE_model}_{confinement_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+    Evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})@C60_m={m}_{SAE_model}_{conf_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 
-output_dir = this_dir / 'Time_evolution_data'
-output_dir.mkdir(parents=True, exist_ok=True)           # Create if it doesn't exist
-d_file_path = output_dir / f'{Evo_data_file}'
+
+d_file_path = this_dir / 'Time_evolution_data' / f'{Evo_data_file}'
 
 header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)"
 data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array])
 np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
-print('\n')
-print(f"evo_data_file = '{Evo_data_file}'")
-print('\n')
-
 if wall_time > 300.0:
-    print(f"Average wall-time per step (eta_t)      : {wall_time / time_step:.5f} seconds")
+    print(f"\nAverage wall-time per step (eta_t)      : {wall_time / time_step:.5f} seconds")
     print(f'Total wall-time for all steps (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
 else:
-    print(f"Average wall-time per step (eta_t) : {wall_time / time_step:.5f} seconds")
+    print(f"\nAverage wall-time per step (eta_t) : {wall_time / time_step:.5f} seconds")
     print(f'Total wall-time for all steps      : {wall_time:.5f} seconds')
+
+print(f"evo_data_file = '{Evo_data_file}'\n")
 
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fig2 = plt.figure(figsize=(16, 9))
-ax2 = fig2.add_subplot(221)                         # Electric Field
-ax3 = fig2.add_subplot(223)                         # dipole moment
-ax4 = fig2.add_subplot(122)                         # survival probability
-da.decorate_2d([ax2, ax3, ax4])
+if args.plot:
+    fig2 = plt.figure(figsize=(16, 9))
+    ax2 = fig2.add_subplot(221)                         # Electric Field
+    ax3 = fig2.add_subplot(223)                         # dipole moment
+    ax4 = fig2.add_subplot(122)                         # survival probability
+    da.decorate_2d([ax2, ax3, ax4])
 
-ax3.plot(d_t_array, lw=1.5, color='deeppink', label='d(t)')
-ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=1.5, color='#58C4DD', label='E(t)')
-ax4.plot(population_den_array, lw=1.5, color='orangered', label=r'P$_s$(t)')
+    ax3.plot(d_t_array, lw=1.5, color='deeppink', label='d(t)')
+    ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=1.5, color='#58C4DD', label='E(t)')
+    ax4.plot(population_den_array, lw=1.5, color='orangered', label=r'P$_s$(t)')
 
-ax3.set_xlabel('time steps', fontsize=15)
-ax4.set_xlabel('time steps', fontsize=15)
+    ax3.set_xlabel('time steps', fontsize=15)
+    ax4.set_xlabel('time steps', fontsize=15)
 
-ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
-ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
+    ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+    ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
+    ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
 
-fig2.subplots_adjust(
-    top=0.91,
-    bottom=0.075,
-    left=0.04,
-    right=0.985,
-    hspace=0.16,
-    wspace=0.125
-)
+    fig2.subplots_adjust(
+        top=0.91,
+        bottom=0.075,
+        left=0.04,
+        right=0.985,
+        hspace=0.16,
+        wspace=0.125
+    )
 
-plt.show()
+    plt.show()

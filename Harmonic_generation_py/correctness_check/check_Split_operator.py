@@ -52,10 +52,7 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-if confined:
-    data_dir = 'Confined_atom'
-else:
-    data_dir = 'Free_atom'
+data_dir = 'Confined_atom' if confined else 'Free_atom'
 
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
@@ -85,11 +82,11 @@ Make sure these parameters are matching with the given datafile names: `state_fi
 """
 
 state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
-state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
 S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
-S_matrix_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / S_matrix_file
 S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 

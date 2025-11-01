@@ -56,20 +56,14 @@ if args.v:
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     File name and data arrangement system      |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 5           # how many states you want to keep in the GPSM_state file (.dat)
-conf_info_string = conf_selector(confinement_model, 0)[1]
 
 if not confined:
     file_name = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
-else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_{conf_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
 
-if confined:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Confined_atom'
-else:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Free_atom'
-output_dir.mkdir(parents=True, exist_ok=True)       # Create if it doesn't exist
+data_dir = 'Confined_atom' if confined else 'Free_atom'
+file_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / file_name
 
-file_path = output_dir / file_name
 if file_path.exists():
     print(f"File already exists : {file_path.name}\n")
     sys.exit(0)                         # Exit program gracefully
@@ -106,8 +100,6 @@ np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
-print(f"\nstate_file = '{file_name}'\n")
-
 end_time = time.perf_counter()
-print(f'Wall Time : {end_time - start_time:.3f} seconds')
-
+print(f'\nExecution Wall-time : {end_time - start_time:.5f} seconds')
+print(f"state_file = '{file_name}'\n")
