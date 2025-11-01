@@ -162,6 +162,6 @@ def V_PowerExpo(r):
     rc_A = 3.54
 
     w0_au = 0.5 * w0_Ryd; sigma_au = sigma_A * 10 ** -10 / a0; rc_au = rc_A * 10 ** -10 / a0
-    PGau_info_string = f'Pexp_p={p}_w0={w0_au:.3f}_sigma={sigma_au:.3f}_rc={rc_au:.3f}'
+    PGau_info_string = f'P-Gau_p={p}_w0={w0_au:.3f}_sigma={sigma_au:.3f}_rc={rc_au:.3f}'
     return -w0_au * np.exp(-(r - rc_au)**p / sigma_au**p), PGau_info_string
 

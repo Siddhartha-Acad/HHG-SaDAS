@@ -24,9 +24,9 @@ else
 endif
 
 
-.PHONY : all clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
+.PHONY : all HHG_spectra clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
 
-all : $(COLLOC_DAT) $(GPSM_DAT) $(SMAT_DAT) $(TEVO_DAT)
+all : $(COLLOC_DAT) $(GPSM_DAT) $(SMAT_DAT) $(TEVO_DAT) HHG_spectra
 
 $(COLLOC_DAT) :
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -38,7 +38,7 @@ $(GPSM_DAT) :
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	@echo "|                    GPSM_state_generator.py                       |"
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 GPSM_states_S-matrix/GPSM_states_generator.py
+	python3 GPSM_states_S-matrix/GPSM_states_generator.py -v
 
 $(SMAT_DAT) :
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -51,6 +51,12 @@ $(TEVO_DAT) :
 	@echo "|                    vector_time_evolution.py                      |"
 	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 	python3 vector_time_evolution.py -A
+
+HHG_spectra :
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	@echo "                          HHG_spectra.py                           |"
+	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	python3 HHG_spectra_analysis/HHG_spectra.py -A
 
 
 clear_colloc_pt :

@@ -34,10 +34,15 @@ import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L as da
-from Harmonic_generation_py.parameters import dt, tf, w0, T
+from Harmonic_generation_py.parameters import (
+    confined, time_step, evolving_atom, state_symb, m, SAE_model,
+    L, k_max, N, r_max, L_map, conf_model,
+    dt, tf, w0, T
+)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", action="store_true")
+parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input time evolution data')
+parser.add_argument('-v', action='store_true', help='verbose mode')
 args = parser.parse_args()
 
 if args.v:
@@ -59,7 +64,14 @@ plt.rc('font', **{'family': 'serif', 'size': 14})
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-evo_data_file = 'VEvo_nopt=88036_H(1s)@C60_m=0_SAE-M1_Pexp_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+if args.auto:
+    if not confined:
+        evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})_m={m}_{SAE_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+    else:
+        evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})@C60_m={m}_{SAE_model}_{conf_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
+else:
+    evo_data_file = 'VEvo_nopt=88036_H(1s)@C60_m=0_SAE-M1_P-Gau_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+
 evo_data_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file}'
 evo_data = np.loadtxt(evo_data_path, skiprows=1)
 
@@ -92,8 +104,18 @@ harmonic_energy = np.trapezoid(dip_mom_power_spectra, freq_pos)
 laser_energy = np.trapezoid(E_t**2, t)
 
 eta = harmonic_energy / laser_energy
-print(f"Conversion efficiency (eta): {eta:.10f}")
 
+
+print("~~~~~~~~~~~: Harmonic Spectra Summary :~~~~~~~~~~")
+print(f"Number of time points (len(t))   : {len(t)}")
+print(f"Time step (dt)                   : {dt} a.u.")
+print(f"Fundamental frequency (ω₀)       : {w0:.5f} a.u.")
+print(f"Max frequency (Nyquist, ω_max)   : {freq_pos[-1]:.5f} a.u.")
+
+print("\n~~~~~~~~~~~~: Conversion efficiency :~~~~~~~~~~~~")
+print(f"Total laser energy (∫E² dt)      : {laser_energy:.6e}")
+print(f"Total harmonic energy (∫P(ω) dω) : {harmonic_energy:.6e}")
+print(f"Conversion efficiency (eta)      : {eta:.6e}")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

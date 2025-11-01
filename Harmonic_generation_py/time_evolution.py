@@ -130,15 +130,15 @@ if confined:
 
     print("~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~")
     parts = conf_string.split('_')                  # Split by underscores
-    confmodel = parts[0]                           # The first part (before first '_') is the confinement model
+    confmodel = parts[0]                            # The first part (before first '_') is the confinement model
     params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
 
-    print(f"{'Conf. model':<10}: {confmodel}")
+    print(f"{'Conf model':<10}: {confmodel}")
     for p in params:
         key, val = p.split('=')
         print(f"{key:<10}: {val}")
 
-print('~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
+print('\n~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
 print('Evolving atom            :', evolving_atom)
 print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
 print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
@@ -234,10 +234,10 @@ np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
 if wall_time > 300.0:
-    print(f"Average wall-time per step (eta_t)      : {wall_time / time_step:.5f} seconds")
+    print(f"\nAverage wall-time per step (eta_t)      : {wall_time / time_step:.5f} seconds")
     print(f'Total wall-time for all steps (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
 else:
-    print(f"Average wall-time per step (eta_t) : {wall_time / time_step:.5f} seconds")
+    print(f"\nAverage wall-time per step (eta_t) : {wall_time / time_step:.5f} seconds")
     print(f'Total wall-time for all steps      : {wall_time:.5f} seconds')
 
 print(f"evo_data_file = '{Evo_data_file}'\n")

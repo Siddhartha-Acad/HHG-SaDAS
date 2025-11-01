@@ -717,7 +717,7 @@ def print_info():
         print(f'atom system   : {evolving_atom}')
     else:
         print(f'atom system   : {evolving_atom}@C60')
-        print(f'conf. model   : {confinement_model}')
+        print(f'conf. model   : {conf_model}')
 
     print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
