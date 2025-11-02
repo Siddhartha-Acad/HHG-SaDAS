@@ -250,7 +250,7 @@ for ti in range(time_step):
 
     # Progress printing
     if print_serial_prog and ti in checkpoints:
-        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.1f}%")
+        print(f"Evolution step {ti:<6}: {checkpoints[ti]:5.1f}%")
 
     # Dipole and survival probability
     d_t_array[ti] = dipole_moment(r, init_glm)

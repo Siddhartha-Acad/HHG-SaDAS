@@ -64,7 +64,7 @@ n = 1; l = 0; m = 0        # defines initial state. [NOTE]: PLEASE ADAPT TO THE 
 evolving_atom = 'H'        # Atoms are listed down in 'SAE dataset' section.
 SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
 
-confined = True                     # whether the atom is confined or not?
+confined = False                    # whether the atom is confined or not?
 conf_model = 'P-Gau'                # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
 save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
                                     # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
