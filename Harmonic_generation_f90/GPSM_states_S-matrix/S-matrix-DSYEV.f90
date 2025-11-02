@@ -6,7 +6,8 @@ program S_matrix
     integer :: i, j
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
-    
+    real(kind=8), dimension(N-1, N-1) :: S_matrix
+
     character :: jobz, uplo
     integer :: lda, lwork, info
     real(kind=8), dimension(N-1) :: E_egval
@@ -49,21 +50,30 @@ program S_matrix
     allocate(work_array(lwork))
     call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
     deallocate(work_array)
-    
-    ! useful part of H-matrix for S-matrix: H_matrix[:, kmax]
-    
+
+
     if (info .eq. 0) then
         do i = 1, kmax
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
-    
+
+    do j = 1, N-1
+        do i = 1, j
+            s_ij = 0
+            do k = 1, kmax
+                s_ij = s_ij + H_matrix(i, k) * exp(cmplx(0.0d0, -E_egval(k) * dt / 2.0d0)) * H_matrix(j, k)
+            end do
+            S_matrix(i, j) = s_ij
+        end do
+    end do
+
+
     else
         print '(A, I2)', 'DSYEV failed. info = ', info
     end if
-    
-    
-    
-    
+
+
+
 contains
     pure real(kind=8) function d2(i, j)
         integer, intent(in) :: i, j
@@ -102,11 +112,6 @@ contains
             H = term1 + term2
         end if
     end function H
-    
-    pure complex(kind=8) function S(l_val, E, A, i, j)
-        integer, intent(in) :: l_val, i, j
-        real(kind=8)
-    end function S
     
 end program S_matrix
 
