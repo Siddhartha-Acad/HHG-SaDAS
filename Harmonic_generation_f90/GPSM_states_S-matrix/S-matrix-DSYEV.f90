@@ -3,7 +3,7 @@
 program S_matrix_generator
     use parameters
     implicit none
-    integer :: i, j, k
+    integer :: i, j, k, l_val
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     complex(kind=8), dimension(N-1, N-1) :: S_matrix
@@ -14,6 +14,7 @@ program S_matrix_generator
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
 
+
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -23,19 +24,9 @@ program S_matrix_generator
     close(10)
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    !                     real symmetric [H] matrix                      |
-    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    do j = 1, N-1       ! Fill upper triangle (good cache access)
-        do i = 1, j
-            H_matrix(i, j) = H(l_qn, i, j)
-        end do
-    end do
-
-    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    !          energy eigenvalues and eigenvectors : [H] matrix          |
+    !                   eigen-decomposition workspace                    |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     ! DSYEV(JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO)
-
     lda = N-1        ! Leading dimension of H_matrix (number of rows in memory)
     jobz = 'V'       ! 'V' = compute eigenvectors; 'N' = eigenvalues only
     uplo = 'U'       ! 'U' = upper triangle of H_matrix is stored/used
@@ -47,23 +38,33 @@ program S_matrix_generator
     deallocate(work_array)
 
     allocate(work_array(lwork))
-    call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
-    deallocate(work_array)
 
-
-    if (info .eq. 0) then
-        do i = 1, kmax
-            print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
+    do l_val = m_qn, l_max + m_qn
+        ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        !                     real symmetric [H] matrix                      |
+        ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        do j = 1, N-1       ! Fill upper triangle (good cache access)
+            do i = 1, j
+                H_matrix(i, j) = H(l_val, i, j)
+            end do
         end do
 
-        S_matrix = matmul(H_matrix(:, 1:kmax) * &
-                          spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
-                          transpose(H_matrix(:, 1:kmax)))
-        print *, S_matrix(1, 1:5)
+        ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        !                      [H]-matrix & [S]-matrix                       |
+        ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
 
-    else
-        print '(A, I2)', 'DSYEV failed. info = ', info
-    end if
+        if (info .eq. 0) then
+            S_matrix = matmul(H_matrix(:, 1:kmax) * &
+                              spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
+                              transpose(H_matrix(:, 1:kmax)))
+            print '(I3, 5ES20.10)', l_val, real(S_matrix(1, 1:5))
+        else
+            print '(A, I2)', 'DSYEV failed. info = ', info
+        end if
+    end do
+
+    deallocate(work_array)
 
 
 contains
