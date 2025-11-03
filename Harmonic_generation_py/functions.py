@@ -1,38 +1,10 @@
 """
-File: parameters_and_functions.py
+File: functions.py
 Project: HHG-SaDAS
 
 Code Description:
-    - Contains all parameters that define the entire system and numerical requirements.
-    - All other simulation codes fetch parameters and functions from this script.
-
-*** [NAMING CONVENTION FOLLOWED IN THE ENTIRE PACKAGE] ***
-
-Quantum Number Convention:
---------------------------
-- n here is the radial index for a given l.
-- For a given orbital angular momentum quantum number l ≥ 0,
-  the **actual principal quantum number** is: n_effective = n + l
-- This mapping corresponds to standard spectroscopic notation.
-
-Example mapping of quantum numbers (n, l, m) to standard orbitals:
-------------------------------------------
-  l   |   n   |   m   |   Orbital / State
-  ----------------------------------------
-  0   |   1   |   0   |    1s
-  1   |   1   |   0   |    2p_{z}
-  1   |   2   |   0   |    3p_{z}
-  1   |   1   |   1   |    2p_{x}
-  1   |   2   |   1   |    3p_{x}
-  3   |   1   |   0   |    4f_{z^3}
-------------------------------------------
-
-Key Ideas:
------------
-1. n is the **radial index**, starting from 1 for each l.
-2. l determines the **orbital type**: 0→s, 1→p, 2→d, 3→f, etc.
-3. m determines the **magnetic sublevel**, i.e., orbital orientation.
-4. The **actual principal quantum number** = n + l.
+    - Contains collocation points and functions that are requiremed by other scripts.
+    - All other simulation codes fetch functions from this script.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
@@ -45,45 +17,8 @@ Notes:
   "Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60".
 """
 
-import warnings
-from pathlib import Path
-from scipy.special import legendre
-from scipy.special import factorial, lpmv
-from Atomic_units import Int_0, omega_au, T0
+from Harmonic_generation_py.parameters import *
 from Harmonic_generation_py.conf_model_bank import *
-
-this_dir = Path(__file__).resolve().parent     # Relative path system
-warnings.filterwarnings("ignore", category=RuntimeWarning)
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-print('*** RuntimeWarning     : Blocked from parameters_and_functions.py ***')
-print('*** DeprecationWarning : Blocked from parameters_and_functions.py ***\n')
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#           Atom, SAE and Confinement            |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-n = 1; l = 0; m = 0        # defines initial state. [NOTE]: PLEASE ADAPT TO THE NAMING CONVENTION MENTIONED IN TEH DOCSTRING.
-evolving_atom = 'H'        # Atoms are listed down in 'SAE dataset' section.
-SAE_model = 'SAE-M1'       # Single active electron model; option: SAE_model = 'SAE-M1' or 'SAE-M2'. [NOTE]: For 'Xe' always use 'SAE-M1'
-
-confined = False                    # whether the atom is confined or not?
-confinement_model = 'P-Gau'         # which type of confinement potential? Options: 'ASW', 'GASW', 'Lor', 'SSW', 'Gau', 'P-Gau'
-save_Egvals_with_Smatrix = True     # Eigenvalues for all l=(m, l_max+m) will be saved in 'GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/
-                                    # setting: save_Egvals_with_Smatrix=True will save eigenvalues that are used to make an energy level diagram
-                                    # in: HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/Energy_level_diagram.py
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                GPSM Parameters                 |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N = 200                     # P'_N(xj) = 0 ; radial grid size: len(colloc_pt) = N-1
-L = 20                      # must be >= l ; angular grid size: len(theta_k) = L+1
-l_max = 20                  # Number of partial waves = number of S-matrices = l_max+1
-k_max = 50                  # number of GPSM states (maximum k index) in S matrix
-L_map = 80; r_max = 200     # radial mapping parameters
-r0 = 150                    # absorber layer thickness = (r_max - r0) a.u.
 
 
 
@@ -97,63 +32,6 @@ colloc_pt = np.loadtxt(colloc_file, skiprows=1, usecols=0)                      
 int_w = 2 / (N * (N + 1) * (legendre(N)(colloc_pt))**2)           # Gauss-Lobatto  Quadrature weights: w_j
 roots, weights = np.polynomial.legendre.leggauss(L+1)             # Gauss-Legendre Quadrature weights and collocation points (or, nodes): x_k
 theta_k = np.arccos(roots)                                        # Angular collocation points: cos(theta_k) = x_k
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#          LASER and temporal grid info          |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-lambda_nm = 1064                                # wavelength (nm)
-I0 = 5 * 10**13                                 # Intensity (W/cm2)
-I0_au = I0 / Int_0                              # Intensity (a.u)
-E0_au = np.sqrt(I0_au)                          # Field intensity (a.u)
-w0 = omega_au(lambda_nm); T = 2 * np.pi / w0    # Angular frequency and time period.
-cpp = 60; tf = cpp*T; dt = 0.1                  # cpp = cycles per pulse.
-t = np.arange(0, tf+dt, dt)                     # total number of time steps.
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#   Time evolution controls: time_evolution.py   |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-eta_t = 0.027               # Execution time for a single time-step (dt) evolution. eta_t = 0.03 is the execution speed achieved on my system.
-time_step = len(t) - 1      # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
-show_E_field = True         # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
-print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}
-
-
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                  SAE dataset                   |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-atomic_params_SAE_M1 = {        # Ref: X. M. Tong and C. D. Lin, J. Phys. B: At. Mol. Opt. Phys., 38, 2593 (2005).
-    "H"  :  {"Zc": 1.0, "a1": 0.000,  "a2": 0.000,  "a3": 0.000,   "a4": 0.000, "a5": 0.000,  "a6": 0.000},
-    "He" :  {"Zc": 1.0, "a1": 1.231,  "a2": 0.662,  "a3": -1.325,  "a4": 1.236, "a5": -0.231, "a6": 0.480},
-    "Ne" :  {"Zc": 1.0, "a1": 8.069,  "a2": 2.148,  "a3": -3.570,  "a4": 1.986, "a5": 0.931,  "a6": 0.602},
-    "Ar" :  {"Zc": 1.0, "a1": 16.039, "a2": 2.007,  "a3": -25.543, "a4": 4.525, "a5": 0.961,  "a6": 0.443},
-    "Xe" :  {"Zc": 1.0, "a1": 51.356, "a2": 2.112,  "a3": -99.927, "a4": 3.737, "a5": 1.644,  "a6": 0.431},
-    # "Rb" :  {"Zc": 1.0, "a1": 24.023, "a2": 11.107, "a3": 115.200, "a4": 6.629, "a5": 11.977, "a6": 1.245},
-    # "Ne+":  {"Zc": 2.0, "a1": 8.043,  "a2": 2.715,  "a3": 0.506,   "a4": 0.982, "a5": -0.043, "a6": 0.401},
-    # "Ar+":  {"Zc": 2.0, "a1": 14.989, "a2": 2.217,  "a3": -23.606, "a4": 4.585, "a5": 1.011,  "a6": 0.551}
-}
-
-atomic_params_SAE_M2 = {        # Ref: R. Reiff, T. Joyce, A. Jaroń-Becker, and A. Becker, J. Phys. Commun., 4, 065011 (2020).
-    "H"   : {"C0": 1, "Zc": 0,  "c": 0.000,   "a1": 0.000,    "a2": 0.000,    "a3": 0.000,  "b1": 0.000,   "b2": 0.000,   "b3": 0.000},
-    "He"  : {"C0": 1, "Zc": 1,  "c": 2.0329,  "a1": 0.3953,   "a2": 0.000,    "a3": 0.000,  "b1": 6.1805,  "b2": 0.000,   "b3": 0.000},
-    "Ne"  : {"C0": 1, "Zc": 9,  "c": 0.8870,  "a1": -9.9286,  "a2": -5.9950,  "a3": 0.000,  "b1": 1.3746,  "b2": 3.7963,  "b3": 0.000},
-    "Ar"  : {"C0": 1, "Zc": 17, "c": 0.8103,  "a1": -15.9583, "a2": -27.7467, "a3": 2.1768, "b1": 1.2305,  "b2": 4.3946,  "b3": 86.7179},
-    # "Li"  : {"C0": 1, "Zc": 2,  "c": 15.9594, "a1": 9.1124,   "a2": 19.3145,  "a3": 0.000,  "b1": 3.6040,  "b2": 11.3082, "b3": 0.000},
-    # "Be"  : {"C0": 1, "Zc": 3,  "c": 2.0481,  "a1": 0.5294,   "a2": 0.3219,   "a3": 0.000,  "b1": 0.8475,  "b2": 37.5567, "b3": 0.000},
-    # "Na"  : {"C0": 1, "Zc": 10, "c": 1.4927,  "a1": -11.3552, "a2": -2.0302,  "a3": 1.6028, "b1": 2.5597,  "b2": 10.1463, "b3": 47.9555},
-    # "Mg"  : {"C0": 1, "Zc": 11, "c": 1.4248,  "a1": -14.5892, "a2": -1.9433,  "a3": 1.8141, "b1": 2.7001,  "b2": 12.3150, "b3": 51.7100},
-    # "Ar+" : {"C0": 2, "Zc": 16, "c": 0.8698,  "a1": -16.0391, "a2": -26.9860, "a3": 2.1780, "b1": 1.3146,  "b2": 4.4514,  "b3": 88.3315},
-    # "Ar2+": {"C0": 3, "Zc": 15, "c": 0.8792,  "a1": -16.4007, "a2": -26.6805, "a3": 2.1681, "b1": 1.3486,  "b2": 4.4656,  "b3": 90.3068},
-    # "Ar3+": {"C0": 4, "Zc": 14, "c": 0.9445,  "a1": -16.4800, "a2": -25.8243, "a3": 2.1550, "b1": 1.4521,  "b2": 4.5171,  "b3": 94.5151},
-    # "Ar4+": {"C0": 5, "Zc": 13, "c": 0.8529,  "a1": -17.4441, "a2": -26.0893, "a3": 2.1135, "b1": 1.4141,  "b2": 4.4613,  "b3": 101.5018},
-    # "Ar5+": {"C0": 6, "Zc": 12, "c": 0.8929,  "a1": -17.5407, "a2": -25.4398, "a3": 2.0818, "b1": 1.5024,  "b2": 4.4823,  "b3": 108.4695}
-}
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Function Bank :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -257,7 +135,7 @@ def H(l_val, i, j, model=SAE_model):
     if i != j:
         return term1
 
-    conf_term = conf_selector(confinement_model, f(colloc_pt[i]))[0] if confined else 0.0
+    conf_term = conf_selector(conf_model, f(colloc_pt[i]))[0] if confined else 0.0
 
     if model == 'SAE-M1':
         term2 = (l_val * (l_val + 1) / (2 * f(colloc_pt[i]) ** 2) +
@@ -301,6 +179,26 @@ def Y_lm(l_val, m_val, x):
     Y_lm(x) = N_lm * P_lm(x)
     """
     return N_fact(l_val, m_val) * a_legendre(l_val, m_val, x)
+
+
+def Y_lm_array(l_max, m, roots):
+    """
+    Fully vectorized computation of Y_lm(l, m, x)
+    """
+    l_vals = np.arange(m, l_max + m + 1)[:, None]    # shape (l_max+1, 1)
+    x = np.asarray(roots)[None, :]                   # shape (1, L+1)
+
+    # Broadcast l_vals and x to same shape
+    # lpmv can handle broadcasting since m is scalar
+    P_lm = lpmv(m, l_vals, x)                    # shape (l_max+1, L+1)
+
+    # Normalization factors
+    N_lm = (-1)**m * np.sqrt(
+        (2 * l_vals + 1) *
+        factorial(l_vals - m, exact=False) /
+        (4 * np.pi * factorial(l_vals + m, exact=False))
+    )
+    return N_lm * P_lm
 
 
 
@@ -363,36 +261,67 @@ def g_lm(Psi_t, glm_arr):
     for l_ind in range(l_max+1):
         glm_arr[l_ind] = np.tensordot(weights * a_legendre_vals[l_ind], Psi_t, axes=([0], [0])) / (N_fact(l_ind+m, m) * C_fact(l_ind+m, m))
     return glm_arr
-a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])   # will be used in g_lm(Psi_t, glm_arr)
 
+a_legendre_vals = np.array([[a_legendre(l_index+m, m, root) for root in roots] for l_index in range(l_max+1)])  # shape = (l_max+1, L+1)
+vect_norm_fact = np.array([1.0 / (N_fact(l_index+m, m) * C_fact(l_index+m, m)) for l_index in range(l_max+1)])  # shape = (l_max+1, )
+weighted_legendre_vals = weights[None, :] * a_legendre_vals                                                     # shape = (l_max+1, L+1)
 
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                  Partial-wave evolution                  |
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def G(Sl_matrix, gl_arr, l_ind):
+def g_lm_vect(Psi_t, glm_arr):
     r"""
-    Compute the third bracket of Eq.(2.86),
-    which is a matrix multiplication of the S-matrix block with the partial-wave projection.
+    Compute the radial partial-wave projections :math:`g_{\ell m}(r)` in a fully
+    vectorized manner using precomputed Legendre polynomials and normalization
+    constants.
+
+    This function is mathematically equivalent to ``g_lm()``, but it eliminates
+    all Python-level loops and redundant intermediate allocations for maximum
+    performance. It performs the projection over all angular momentum quantum
+    numbers :math:`\ell` in a single matrix multiplication using BLAS-optimized
+    NumPy routines.
+
+    The underlying formula is identical to the standard partial-wave expansion:
 
     .. math::
-        G_\ell(r_i, t) = \sum_{j=1}^{N-1} S_{ij}(\ell) \, g_\ell(r_j, t)
+        g_{\ell m}(r) =
+            \frac{1}{N_{\ell m} C_{\ell m}}
+            \sum_k w_k P_\ell^{(m)}(\cos \theta_k) \, \psi(\theta_k, r)
+
+    where:
+        - :math:`w_k` are Gauss–Legendre quadrature weights,
+        - :math:`P_\ell^{(m)}(\cos \theta_k)` are precomputed associated Legendre polynomials,
+        - :math:`N_{\ell m}` and :math:`C_{\ell m}` are normalization factors.
 
     Parameters
     ----------
-    Sl_matrix : ndarray, shape (l_max+1, N-1, N-1)
-        S-matrix blocks :math:`S_\ell` for each angular momentum :math:`\ell`.
-    gl_arr : ndarray, shape (l_max+1, N-1)
-        Radial partial-wave projections :math:`g_\ell(r, t)`.
-    l_ind : int
-        Angular momentum index :math:`\ell`.
+    Psi_t : ndarray, shape (n_theta, N-1)
+        Angular–radial wavefunction ψ(θ, r) at a fixed time step,
+        evaluated at Gauss–Legendre quadrature points.
+
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Preallocated output array for in-place storage of
+        partial-wave projections g_{ℓm}(r). This avoids repeated
+        memory allocations in time propagation loops.
 
     Returns
     -------
-    ndarray, shape (N-1,)
-        Transformed radial component :math:`G_\ell(r, t)`.
+    glm_arr : ndarray, shape (l_max+1, N-1)
+        Radial partial-wave projections for ℓ = 0, …, ℓ_max
+        corresponding to the given magnetic quantum number m.
+
+    Notes
+    -----
+    - This version is **fully vectorized** and performs all ℓ projections
+      simultaneously via a single matrix multiplication.
+    - Functionally identical to :func:`g_lm`, differing only in implementation.
+    - Significantly faster and more memory-efficient for long time evolutions.
+
+    Example
+    -------
+    >>> glm_arr = np.empty((l_max + 1, N - 1), dtype=np.complex128)
+    >>> g_lm_vect(Psi_t, glm_arr)  # In-place computation
     """
-    return np.dot(Sl_matrix[l_ind], gl_arr[l_ind])
+    np.dot(weighted_legendre_vals, Psi_t, out=glm_arr)
+    glm_arr *= vect_norm_fact[:, None]
+    return glm_arr
 
 
 
@@ -423,33 +352,47 @@ def alpha_lm(l_val, m_val):
 
 
 def dipole_moment(r, glm_arr):
-    r"""
-    Computes the dipole moment for a given radial grid and a set of partial-waves at an instant of time.
-
-    .. math::
-        d_{i\sigma}(t) = 2 \sum_\ell \alpha_{\ell,m} \int r \, \mathrm{Re}\left[g_\ell^*(r, t) g_{\ell+1}(r, t)\right] \, dr
+    """
+    Computes the dipole moment for a given radial grid and a set of partial-waves
+    at an instant of time (vectorized implementation).
 
     Parameters
     ----------
     r : ndarray, shape (N-1,)
         Nonlinear Radial collocation grid points: r(x)
     glm_arr : ndarray, shape (l_max+1, N-1)
-        Partial-wave amplitudes :math:`g_\ell(r)` of the wavefunction.
-
-        - `l_max+1` : number of angular momentum channels.
-        - `N-1`     : number of radial grid points.
+        Partial-waves g_lm(r) of a wavefunction at some instant.
 
     Returns
     -------
     float
-        Total dipole moment computed from the partial-wave amplitudes.
+        Total dipole moment computed from the partial-waves.
 
     Notes
     -----
     - `l_ind_arr = np.arange(l_max)` is used to iterate over angular momentum indices : precomputed
     - `alpha_factor = alpha(l_ind_arr + m, m)` : precomputed
     """
-    integrals = np.array([np.sum(r * np.real(np.conj(glm_arr[l_ind]) * glm_arr[l_ind + 1])) for l_ind in l_ind_arr])
+
+    # ┌──────────────────────────────────────┬───────────────┬─────────────────────────────┐
+    # │ Expression                           │   Shape       │ Description                 │
+    # ├──────────────────────────────────────┼───────────────┼─────────────────────────────┤
+    # │ glm_arr[:-1]                         │ (l_max, N-1)  │ all g_l(r)                  │
+    # │ glm_arr[1:]                          │ (l_max, N-1)  │ all g_{l+1}(r)              │
+    # │ np.conj(glm_arr[:-1]) * glm_arr[1:]  │ (l_max, N-1)  │ elementwise g*_l * g_{l+1}  │
+    # │ np.real(...)                         │ (l_max, N-1)  │ real part                   │
+    # │ r * np.real(...)                     │ (l_max, N-1)  │ broadcast multiply by r     │
+    # │ integrals = np.sum(..., axis=-1)     │ (l_max,)      │ integrate over r            │
+    # └──────────────────────────────────────┴───────────────┴─────────────────────────────┘
+    integrals = np.sum(r * np.real(np.conj(glm_arr[:-1]) * glm_arr[1:]), axis=1)
+
+    # ┌───────────────────────────┬───────────┬─────────────────────────────┐
+    # │ Expression                │ Shape     │ Description                 │
+    # ├───────────────────────────┼───────────┼─────────────────────────────┤
+    # │ alpha_factor              │ (l_max,)  │ dipole coupling coefficients│
+    # │ alpha_factor * integrals  │ (l_max,)  │ weighted partial integrals  │
+    # │ np.sum(...)               │ scalar    │ total dipole moment         │
+    # └───────────────────────────┴───────────┴─────────────────────────────┘
     return 2 * np.sum(alpha_factor * integrals)
 
 l_ind_arr = np.arange(l_max)            # l_max because in Eq.~E.21, the `l' index goes from (m) to (l_max+m-1). So, in total (l_max-1).
@@ -710,7 +653,7 @@ def dydx(integrand, x):
 
 
 def generate_states(l_val):
-    """
+    r"""
     Generate a list of electronic states for a given orbital angular momentum quantum number.
 
     The states are labeled by the principal quantum number (starting from :math:`n = l + 1`)
@@ -731,7 +674,7 @@ def generate_states(l_val):
 
 
 def state_name(n_val, l_val):
-    """
+    r"""
     Converts quantum numbers n and l to a string representation of the atomic state.
 
     :param n_val: Principal quantum number (n ≥ 1).
@@ -751,12 +694,13 @@ def state_name(n_val, l_val):
         raise ValueError(f"Invalid orbital angular momentum quantum number l={l_val}. Allowed values are 0 to 6.")
 
 
-
-
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                 Printing info                  |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-if __name__ != '__main__':
+def print_info():
+    print('*** RuntimeWarning     : Blocked from parameters.py ***')
+    print('*** DeprecationWarning : Blocked from parameters.py ***\n')
+
     print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
     print('mapping param (L_map)       :', L_map)
     print('mapping param (r_max)       :', r_max)
@@ -774,9 +718,9 @@ if __name__ != '__main__':
         print(f'atom system   : {evolving_atom}')
     else:
         print(f'atom system   : {evolving_atom}@C60')
-        print(f'conf. model   : {confinement_model}')
+        print(f'conf. model   : {conf_model}')
 
-    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_name(n+l, l)} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
+    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> time_evolution.py')      # PRINCIPLE QUANTUM NUMBER = n+l
     print(f'I0 (W/cm2)    : {I0:.2e}')
     print('I0 (a.u)      :', I0 / Int_0)
     print('E0 (a.u)      :', E0_au)
@@ -795,3 +739,4 @@ if __name__ != '__main__':
     print('l_max         :', l_max)
     print('k_max         :', k_max)
     print('dt            :', dt, '\n')
+    

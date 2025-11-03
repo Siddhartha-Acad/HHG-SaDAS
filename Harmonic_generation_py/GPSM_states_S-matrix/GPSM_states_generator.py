@@ -39,31 +39,39 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 from scipy.linalg import eigh
-from Harmonic_generation_py.parameters_and_functions import *
+from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.functions import print_info, conf_selector, state_name, colloc_pt, H, f
 start_time = time.perf_counter()
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-v", action="store_true")
+args = parser.parse_args()
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
-total_states = 10           # how many states you want to keep in the GPSM_state file (.dat)
-conf_info_string = conf_selector(confinement_model, 0)[1]
+if args.v:
+    print_info()
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     File name and data arrangement system      |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 if not confined:
     file_name = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
-else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_l={l}_{conf_info_string}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+else: file_name = f'{evolving_atom}@C60_States_{SAE_model}_{conf_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
 
-if confined:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Confined_atom'
-else:
-    output_dir = this_dir / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / 'Free_atom'
-output_dir.mkdir(parents=True, exist_ok=True)       # Create if it doesn't exist
+data_dir = 'Confined_atom' if confined else 'Free_atom'
+file_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / file_name
 
-file_path = output_dir / file_name
 if file_path.exists():
-    raise FileExistsError(f"File already exists:\nbound_states_file = '{file_name}'")
+    print(f"File already exists : {file_path.name}\n")
+    sys.exit(0)                         # Exit program gracefully
 
 
-# ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#  H matrix, Eigenvalues (E), Eigenvectors (A)   |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 H_matrix = np.zeros((N - 1, N - 1))
 
 for i in range(N - 1):
@@ -76,7 +84,9 @@ E, A = eigh(H_matrix, subset_by_index=[0, total_states-1])
 A = A.T
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~: Writing GPSM-states data to .dat file :~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     Writing GPSM-states data to .dat file      |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                       # radial coordinate in atomic unit. (Nonlinearly discretised)
 
 header = "r(a.u.) " + " ".join([f"A({state_name(Eth + l + 1, l)})" for Eth in range(total_states)])
@@ -84,11 +94,12 @@ data = np.column_stack([r] + [A[Eth] for Eth in range(total_states)])
 np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Printing eigenvalues :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#              Printing eigenvalues              |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 print(f'Total number of states  :', total_states)
 [print(f'E[{i}]~ {state_name(i + l + 1, l)} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
-print(f"\nstate_file = '{file_name}'\n")
-
 end_time = time.perf_counter()
-print(f'Wall Time : {end_time - start_time:.3f} seconds')
+print(f'\nExecution Wall-time : {end_time - start_time:.5f} seconds')
+print(f"state_file = '{file_name}'\n")

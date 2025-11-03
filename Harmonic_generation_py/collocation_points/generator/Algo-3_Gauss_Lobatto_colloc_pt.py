@@ -11,6 +11,10 @@ Code Description:
     |   (in the negative interval) are obtained using the parity relation in Eq.A.10.
     | - This algorithm is graphically presented in the flowchart of Fig.A.4.
 
+Example:
+    $ python3 Algo-3_Gauss_Lobatto_colloc_pt.py -N 20 --plot
+    $ # This computes Gauss–Lobatto collocation points for N = 20 and plots the results. (default N=200)
+
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
 License: MIT License
@@ -28,26 +32,21 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 import warnings
 import numpy as np
 from pathlib import Path
-import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from scipy.special import legendre
 from scipy.signal import find_peaks
-from Assistant.Decorate_axes import decorate_axes_L as da
 
 this_dir = Path(__file__).resolve().parent                       # Relative file path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-# ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
-width = 6.2                         # Width in inches
-height = 4                          # Height in inches
-fig_scale_factor = 1.5              # big=2 ; medium=1.5; small=1
-fig_size = (fig_scale_factor*width, fig_scale_factor*height)
-
-plt.rc('font', **{'family': 'serif', 'size': 14})
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parser = argparse.ArgumentParser()
+parser.add_argument("--plot", action="store_true")
+parser.add_argument("-N", type=int, default=200)                 # default N = 200
+args = parser.parse_args()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,8 +89,8 @@ def Lambda(x, N):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                            Main control                            |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-N = 200                     # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
-Write_PN = False            # setting True : creates data file (.txt) with P_N(xj) to the second column.
+N = args.N          # Collocation points (xj) = P'_N(xj) = 0 :: total collocation points = N-1. (my thesis work was done with N=200)
+Write_PN = False    # setting True : creates data file (.txt) with P_N(xj) to the second column.
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,35 +130,48 @@ power = int(np.floor(np.log10(max_abs_value)))
 
 scaled_mean = mean_error / 10 ** power
 scaled_std_dev = std_dev_error / 10 ** power
-print(f'\n~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
+print(f'~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'wall-time : {wall_time:.4f} seconds')
+print(f'Execution wall-time : {wall_time:.4f} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              Plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fig = plt.figure(figsize=fig_size)
-ax1 = fig.add_subplot(111)
-da.decorate_2d(ax1)
+if args.plot:
+    import matplotlib.pyplot as plt
+    from Assistant.Decorate_axes import decorate_axes_L as da
 
-ax1.plot(xi_mapped, PN_deriv_array, lw=2.0, color=da.mc.sweet_green, label=r"P'$_N$(x)", zorder=1)
-ax1.scatter(xi_mapped[pks_at], np.zeros_like(pks_at), color='darkviolet', label=r"P'$_N$(x$_j$)", zorder=2)
+    # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
+    width = 6.2                         # Width in inches
+    height = 4                          # Height in inches
+    fig_scale_factor = 1.5              # big=2 ; medium=1.5; small=1
+    fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 
-ax1.set_xlabel(r'$x = f_{rev}(\xi); \xi \in (-1, 1)$', fontsize=15)
-ax1.set_ylabel(r"P'$_N$(x)", fontsize=15)
-ax1.set_title(f"Algorithm 3: Gauss–Lobatto collocation points ($x_j$ : $P'_N(x_j) = 0$) ; N={N}", fontsize=14, pad=15)
-ax1.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
-fig.subplots_adjust(
-    top=0.905,
-    bottom=0.12,
-    left=0.125,
-    right=0.95,
-    hspace=0.2,
-    wspace=0.2
-)
-plt.show()
+    plt.rc('font', **{'family': 'serif', 'size': 14})
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    fig = plt.figure(figsize=fig_size)
+    ax1 = fig.add_subplot(111)
+    da.decorate_2d(ax1)
+
+    ax1.plot(xi_mapped, PN_deriv_array, lw=2.0, color=da.mc.sweet_green, label=r"P'$_N$(x)", zorder=1)
+    ax1.scatter(xi_mapped[pks_at], np.zeros_like(pks_at), color='darkviolet', label=r"P'$_N$(x$_j$)", zorder=2)
+
+    ax1.set_xlabel(r'$x = f_{rev}(\xi); \xi \in (-1, 1)$', fontsize=15)
+    ax1.set_ylabel(r"P'$_N$(x)", fontsize=15)
+    ax1.set_title(f"Algorithm 3: Gauss–Lobatto collocation points ($x_j$ : $P'_N(x_j) = 0$) ; N={N}", fontsize=14, pad=15)
+    ax1.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
+    fig.subplots_adjust(
+        top=0.905,
+        bottom=0.12,
+        left=0.125,
+        right=0.95,
+        hspace=0.2,
+        wspace=0.2
+    )
+    plt.show()
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,7 +183,8 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            raise FileExistsError(f"File already exists: {file_path.name}")
+            print(f"File already exists : {file_path.name}\n")
+            sys.exit(0)                         # Exit program gracefully
 
         header = f'{"colloc_pt":>12} (N={N})'
         np.savetxt(file_path, colloc_pt, fmt='%20.15f', header=header, comments='')
@@ -180,10 +193,11 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            raise FileExistsError(f"File already exists: {file_path.name}")
+            print(f"File already exists : {file_path.name}\n")
+            sys.exit(0)                         # Exit program gracefully
 
         colloc_pt_and_PN = np.column_stack((colloc_pt, legendre(N)(colloc_pt)))
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created: {file_name}')
+    print(f'file created : {file_name}\n')

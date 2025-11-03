@@ -15,12 +15,12 @@
 
 ---
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree at the **Indian Institute of Technology (IIT) Mandi, India**.  
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree at the **Indian Institute of Technology (IIT) Mandi, India**.
 The overall tenure of my MS(R) program was **August 2022 – August 2025**.
 
 These codes form an integral part of my MS(R) thesis and are released to ensure academic transparency and reproducibility of the research.
 
-The original Git repository, maintained throughout the research period, is kept private.  
+The original Git repository, maintained throughout the research period, is kept private.
 Whereas, this public repository is a streamlined version, providing the main useful codes in a straightforward manner.
 
 
@@ -28,9 +28,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 ### Thesis Information
 
-- **MS(R) Thesis Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*  
-- **Thesis Supervisor:** Prof. Hari R. Varma  
-- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)  
+- **MS(R) Thesis Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
+- **Thesis Supervisor:** Prof. Hari R. Varma
+- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
 - **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
 
 ---
@@ -81,22 +81,23 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 ## A brief description of the workflow diagram:
 
-**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
-> Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`  
->  
-> `Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:  
->> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*  
+**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
+> Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`
+>
+> `Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
+>> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
 > 
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
+> With `--plot` flag it will show the computed collocation points.
 
 
-**Step 2: `parameters_and_functions.py`**  
-> The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.  
-> As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.  
->  
-> Users only need to modify a given parameter once inside this file. All other scripts will then read the updated values and functions directly from it.  
->  
-> As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.  
+**Step 2: `parameters_and_functions.py`**
+> The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.
+> As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.
+>
+> Users only need to modify a given parameter once inside this file. All other scripts will then read the updated values and functions directly from it.
+>
+> As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.
 
 
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
@@ -106,9 +107,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > **`GPSM_states_generator.py`** solves the time independent Schrödinger equation for atomic system (free or confined) defined inside the `parameters_and_functions.py` script.
 > 
-> Thereafter, it saves the solutions, for a particular `l` value inside the self-generated path: `/GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/` as an `.xlsx` file with the given format:
+> Thereafter, it saves the solutions, for a particular `l` value inside the self-generated path: `/GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/` as an `.dat` file with the given format:
 >```
->state_file = He_States_SAE-M1__l=0_nos=10_N=200_rmax=200_Lmap=20.xlsx
+>state_file = He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat
 >
 >+-----+-------------+----------+----------+----------+-----+----------+
 >| Row | r(x) (a.u.) |   A(1s)  |   A(2s)  |   A(3s)  | ... |  A(10s)  |
@@ -135,47 +136,31 @@ Whereas, this public repository is a streamlined version, providing the main use
 ></picture>
 ></div>
 >
->After computing the S-matrices (with `shape=(N-1, N-1)`), it flattens each matrix (with `shape=((N-1)*(N-1),)`) and stores them in consecutive columns in a dedicated `.xlsx` file with the format:
->                                       
->```
->S_matrix_file = 'He_Smatrix_SAE-M1__m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.xlsx'
+>After computing the S-matrices (each with `shape = (N-1, N-1)`), all of them are stored together in a single NumPy binary file (`.npy`) for efficient storage and retrieval.
+>The resulting file is a 3D complex array with the format:
 >
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->| Row |    S(l=1)     |    S(l=2)     |    S(l=3)     |    S(l=4)     | ... |   S(l=21)     |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  1  | (1.028e-14,   | (4.204e-22,   | (3.431e-24,   | (2.106e-24,   | ... | (2.902e-24,   |
->|     |  -3.338e-17)  |  -3.592e-24)  |  -1.813e-26)  |  -1.942e-26)  |     |  -5.925e-26)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  2  | (-1.545e-13,  | (-2.159e-20,  | (2.993e-23,   | (1.965e-23,   | ... | (3.212e-23,   |
->|     |  5.016e-16)   |  1.953e-22)   |  -1.612e-25)  |  -1.812e-25)  |     |  -6.558e-25)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  3  | (8.164e-13,   | (2.398e-19,   | (9.406e-23,   | (6.743e-23,   | ... | (1.387e-22,   |
->|     |  -2.651e-15)  |  -2.149e-21)  |  -4.245e-25)  |  -6.211e-25)  |     |  -2.833e-24)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  4  | (-2.726e-12,  | (-1.379e-18,  | (2.017e-22,   | (1.492e-22,   | ... | (3.957e-22,   |
->|     |  8.852e-15)   |  1.239e-20)   |  -1.771e-24)  |  -1.374e-24)  |     |  -8.080e-24)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  5  | (7.009e-12,   | (5.436e-18,   | (2.933e-22,   | (2.633e-22,   | ... | (8.895e-22,   |
->|     |  -2.276e-14)  |  -4.879e-20)  |  2.741e-24)   |  -2.413e-24)  |     |  -1.816e-23)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|  6  | (-1.521e-11,  | (-1.681e-17,  | (6.506e-22,   | (4.020e-22,   | ... | (1.712e-21,   |
->|     |  4.939e-14)   |  1.510e-19)   |  -2.223e-23)  |  -3.737e-24)  |     |  -3.496e-23)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->| ... | ...           | ...           | ...           | ...           | ... | ...           |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
->|39601| (1.311e-03,   | (1.360e-03,   | (1.422e-03,   | (1.464e-03,   | ... | (2.167e-03,   |
->|     |  -1.134e-05)  |  -1.207e-05)  |  -1.302e-05)  |  -1.368e-05)  |     |  -2.703e-05)  |
->+-----+---------------+---------------+---------------+---------------+-----+---------------+
+>```
+>S_matrix_file = 'He_Smatrix_SAE-M1_m=1_lmax=20_kmax=50_N=200_r_max=200_L_map=80_dt=0.1.npy'
+>data_S_matrix.shape = (l_max + 1, N - 1, N - 1)    # data structure
+>
+>+-----------------------------+--------------------------+
+>|   Array Slice               |   Corresponding S-Matrix |
+>+-----------------------------+--------------------------+
+>| data_S_matrix[0, :, :]      |  S(l = 0)                |
+>| data_S_matrix[1, :, :]      |  S(l = 1)                |
+>| ...                         |  ...                     |
+>| data_S_matrix[l_max, :, :]  |  S(l = l_max)            |
+>+-----------------------------+--------------------------+
 >```
 
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 
-> Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/Correctness_check/`  
+> Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/Correctness_check/`
 > 
-> **`check_GPSM.py`** script takes information about the atom (free or confined) of interest and other parameters from `parameters_and_functions.py`, and independently solves the **time-independent Schrödinger equation** using GPSM and visualizes the results through various plots, including different sets of eigenvectors (both collectively and individually).  
+> **`check_GPSM.py`** script takes information about the atom (free or confined) of interest and other parameters from `parameters_and_functions.py`, and independently solves the **time-independent Schrödinger equation** using GPSM and visualizes the results through various plots, including different sets of eigenvectors (both collectively and individually).
 >
-> Using the GPSM solutions (eigenvalues and eigenvectors for a particular `l`), it also calculates the **S-matrix** and displays it as a 2D color-mapped matrix.  
+> Using the GPSM solutions (eigenvalues and eigenvectors for a particular `l`), it also calculates the **S-matrix** and displays it as a 2D color-mapped matrix.
 >
 > In addition to plotting eigenvectors, the script verifies their **normalization**, prints the results, and outputs other important information regarding the parameters used.
 > 
@@ -189,7 +174,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 >angular colloc points (L+1) : 21
 >~~~~~~~~~: Atom & Laser info :~~~~~~~~~
 >atom system   : He
->initial state : (n=1, l=1, m=1) ~ 2p --> time_evolution.py
+>initial state : (n=1, l=1, m=1) ~ 2p --> vector_time_evolution.py
 >I0 (W/cm2)    : 5.00e+13
 >...
 >...
@@ -231,13 +216,13 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > The script will plot the LHS and RHS overlapping together to verify their agreement.
 
-> Collectively, the two scripts `check_GPSM.py` & `check_Split_operator.py` make sure everything is going correctly and we are now good to go for the full time evolution code `time_evolution.py`.
+> Collectively, the two scripts `check_GPSM.py` & `check_Split_operator.py` make sure everything is going correctly and we are now good to go for the full time evolution code `vector_time_evolution.py`.
 > 
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
 
-**Step 5: `time_evolution.py`**
-> This module imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
+**Step 5: `vector_time_evolution.py`**
+> This script imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
 > 
 > With these compatible input parameters and data, it evolves the initial wavefunction iteratively using the **Split-Operator method**:
 > 
@@ -261,10 +246,10 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > At each time step, the dipole moment and other observables are computed using the time-evolved partial waves.
 > Upon completion, it shows a plot of computed dipole moment `d(t)` and Survival probability `Ps(t)`.
-> Thereafter, these data are written (column wise) to an `.xlsx` file for further analysis. The format is given by:
+> Thereafter, these data are written (column wise) to an `.dat` file for further analysis. The format is given by:
 >
 >```
->Evo_data = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'
+>Evo_data = 'Evo_steps=88036_He(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 >
 >+-------+-------------+-------------+-------------+-------------+
 >| Row   | t (a.u.)    |    E(t)     |    d(t)     |   Ps(t)     |
@@ -284,7 +269,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 > Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_spectra_analysis/`,
 >
 > the script `HHG_spectra.py` first imports the required parameters from `parameters_and_functions.py`.
-> It then reads the time-evolution data generated by `time_evolution.py` and computes the power spectrum `P(ω)` using:
+> It then reads the time-evolution data generated by `vector_time_evolution.py` and computes the power spectrum `P(ω)` using:
 > 
 > <div align="center">
 > <picture>
@@ -304,7 +289,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 > </picture>
 > </div>
 >
->> References:  Section 2.4.2: “The HHG spectra”  
+>> References:  Section 2.4.2: “The HHG spectra”
 >> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section 3.4.2: “The conversion efficiency”
 > 
 > Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
@@ -321,17 +306,18 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 ## Run commands
 
-**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**  
+**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
+> `--plot` flag to display the collocation points.
 >- Linux/macOS (terminal):
 >```console
->python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py
+>python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
 >```
 >- Windows (powershell)
 >```console
->python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py
+>python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py --plot
 >```
 
-**Step 2: `parameters_and_functions.py`**  
+**Step 2: `parameters_and_functions.py`**
 > Do not need to run this script. Instead, set required system parameters and save changes.
 > Other scripts will fetch parameters and functions from this script.
 
@@ -367,14 +353,14 @@ Whereas, this public repository is a streamlined version, providing the main use
 >python .\Harmonic_generation_py\correctness_check\check_Split_operator.py
 >```
 
-**Step 5: `time_evolution.py`**
+**Step 5: `vector_time_evolution.py`**
 >- Linux/macOS (terminal):
 >```console
->python3 ./Harmonic_generation_py/time_evolution.py
+>python3 ./Harmonic_generation_py/vector_time_evolution.py
 >```
 >- Windows (powershell)
 >```console
->python .\Harmonic_generation_py\time_evolution.py
+>python .\Harmonic_generation_py\vector_time_evolution.py
 >```
 
 **Step 6: `HHG_spectra.py`**
@@ -392,3 +378,4 @@ Whereas, this public repository is a streamlined version, providing the main use
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+

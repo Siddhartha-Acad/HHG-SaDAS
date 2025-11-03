@@ -25,7 +25,7 @@ def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     middle = f"{comment_symbol} {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
-def pretty_title(text: str, width: int = 80, fill: str = "~") -> str:
+def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
     line = f": {text} :"
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
@@ -33,5 +33,5 @@ def pretty_title(text: str, width: int = 80, fill: str = "~") -> str:
 comment_head_string = "collocation points & Precompute l_val independent terms"
 print(center_comment(comment_head_string))
 
-# comment_title_string = "Main time evolution algorithm ends here"
+# comment_title_string = "Conversion efficiency"
 # print(pretty_title(comment_title_string))

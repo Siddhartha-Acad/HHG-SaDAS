@@ -27,7 +27,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 
 import time
 import matplotlib.pyplot as plt
-from Harmonic_generation_py.parameters_and_functions import *
+from Harmonic_generation_py.parameters import *
+from Harmonic_generation_py.functions import *
 import Assistant.Decorate_axes.decorate_axes_L as da
 start_time = time.perf_counter()
 
@@ -51,10 +52,7 @@ plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 this_dir = Path(__file__).resolve().parent
 
-if confined:
-    data_dir = 'Confined_atom'
-else:
-    data_dir = 'Free_atom'
+data_dir = 'Confined_atom' if confined else 'Free_atom'
 
 """
 Specify the data file names for the 'compatible' GPSM_states and S_matrix.
@@ -71,13 +69,7 @@ but the chosen files are :
     S_matrix_file = 'He_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_r_max=200_L_map=20_dt=0.1.dat'
 then the code will give wrong results. This is because the imported nonlinear radial mapping 
 function in this script from parameters_and_functions.py:
-
     def f(x, Lmap=L_map):
-        r"
-        Nonlinear radial mapping function.
-        ...
-        "
-
 produces a radial grid that does not match the one encoded in the data files.
 
 In short: ensure that the parameters in the data file names are consistent 
@@ -89,12 +81,12 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=80.dat'
-state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / state_file
+state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
+state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
 S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
-S_matrix_path = this_dir.parent / 'GPSM_states_S-matrix' / 'GPSM_states_S-matrix_data' / data_dir / S_matrix_file
+S_matrix_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / S_matrix_file
 S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
 
@@ -124,8 +116,8 @@ print('S_matrix shape      :', np.shape(S_matrix))
 
 r = f(colloc_pt)                                      # Radial coordinate in a.u
 A_r = state_data[1:][n - 1]                           # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
-A_mesh, _ = np.meshgrid(A_r, theta_k)             # Initial wavefunction ~ determined by (n, l).
-r_m, theta_m = np.meshgrid(r, theta_k)            # creating a meshgrid of nonlinear radial grid and angular colloc. points
+A_mesh, _ = np.meshgrid(A_r, theta_k)                 # Initial wavefunction ~ determined by (n, l).
+r_m, theta_m = np.meshgrid(r, theta_k)                # creating a meshgrid of nonlinear radial grid and angular colloc. points
 U_r = A_mesh * Y_lm(l, m, np.cos(theta_m))            # U(r, θ) = A(r) • Y_lm(cosθ)
 
 
@@ -137,7 +129,7 @@ U_r_recon = np.zeros((L+1, N-1), dtype=np.complex128)       # Reconstructed U(r,
 psi_1 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ1(r, θ) = exp{-iH0(dt)/2} • ψ0(r, θ)
 psi_2 = np.zeros((L+1, N-1), dtype=np.complex128)           # ψ2(r, θ) = exp{-iV(r, θ, t+dt/2)(dt)/2} • ψ1(r, θ)
 psi_evolved = np.zeros((L+1, N-1), dtype=np.complex128)     # ψ(r, θ, t+dt) = exp{-iH0(dt)/2} • ψ2(r, θ)
-gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)      # Empty gl_array to be passed in gl() function.
+gl_empty = np.empty((l_max+1, N-1), dtype=np.complex128)    # Empty gl_array to be passed in gl() function.
 
 
 
@@ -149,13 +141,13 @@ gl_0_array = g_lm(U_r, gl_empty)                                                
 for j in range(L+1):                          # looping over all angular colloc grid
     for l_index in range(l_max+1):            # looping over all partial waves
         U_r_recon[j] += gl_0_array[l_index] * Y_lm_cos_theta_j[l_index, j]            # This will confirm whether the partial wave expansion was correctly done or not.
-        psi_1[j] += G(S_matrix, gl_0_array, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
+        psi_1[j] += np.dot(S_matrix[l_index], gl_0_array[l_index]) * Y_lm_cos_theta_j[l_index, j]   # [STEP-1]: calculating psi_1 (details: Section-2.3.7)
     psi_2[j] = np.exp(-1j * V_int(r, theta_k[j], t[0] + dt / 2) * dt) * psi_1[j]      # [STEP-2]: calculating psi_2 (details: Section-2.3.7)
 
 glm_tilde = g_lm(psi_2, gl_empty)                                                     # again calculating partial waves after interaction term being applied.
 for j in range(L+1):                          # looping over all angular colloc grid
     for l_index in range(l_max+1):            # looping over all partial waves
-        psi_evolved[j] += G(S_matrix, glm_tilde, l_index) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
+        psi_evolved[j] += np.dot(S_matrix[l_index], glm_tilde[l_index]) * Y_lm_cos_theta_j[l_index, j]   # [STEP-3]: final evolution (details: Section-2.3.7)
 
 
 
@@ -221,7 +213,7 @@ ax3.plot(np.diff(r), 'o-', label=r'dr$_i$', color=da.mc.C_L[5])
 ax4.plot(np.diff(roots), 'o-', label=r'dx$_j$', color=da.mc.C_L[2])
 
 ax9.plot(r, np.abs(gl_0_array[l-m])**2, 'o-', markersize=10, label=rf'|g(r, {l=}, {m=}, t=0)|$^2$')
-ax9.plot(r, np.abs(G(S_matrix, gl_0_array, l-m))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
+ax9.plot(r, np.abs(np.dot(S_matrix[l-m], gl_0_array[l-m]))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
 
 state_name = generate_states(l)[n-1]
 ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
