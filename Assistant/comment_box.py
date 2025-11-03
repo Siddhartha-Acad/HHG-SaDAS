@@ -20,7 +20,7 @@ Notes:
 # for normal codes     : comment box size = 50
 
 comment_symbol = '!'
-def center_comment(text: str, width: int = 50, border: str = "~") -> str:
+def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     line = f"{comment_symbol} {border * (width - 2)}"
     middle = f"{comment_symbol} {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
@@ -30,7 +30,7 @@ def pretty_title(text: str, width: int = 80, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "Atom"
+comment_head_string = "collocation points & Precompute l_val independent terms"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Main time evolution algorithm ends here"
