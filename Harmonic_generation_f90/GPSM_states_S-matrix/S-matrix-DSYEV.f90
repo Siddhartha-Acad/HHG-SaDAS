@@ -6,7 +6,7 @@ program S_matrix_generator
     integer :: i, j, k
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
-    real(kind=8), dimension(N-1, N-1) :: S_matrix
+    complex(kind=8), dimension(N-1, N-1) :: S_matrix
     complex(kind=8) :: s_ij
 
     character :: jobz, uplo
@@ -58,17 +58,10 @@ program S_matrix_generator
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
 
-        do j = 1, N-1
-            do i = 1, j
-                s_ij = (0.0d0, 0.0d0)
-                do k = 1, kmax
-                    s_ij = s_ij + H_matrix(i, k) * exp(cmplx(0.0d0, -E_egval(k) * dt / 2.0d0)) * H_matrix(j, k)
-                end do
-                S_matrix(i, j) = s_ij
-            end do
-        end do
-        print *, S_matrix(1, 1)
-        print *, H_matrix(1, 1)
+        S_matrix = matmul(H_matrix(:, 1:kmax) * &
+                          spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
+                          transpose(H_matrix(:, 1:kmax)))
+        print *, S_matrix(1, 1:5)
 
     else
         print '(A, I2)', 'DSYEV failed. info = ', info
