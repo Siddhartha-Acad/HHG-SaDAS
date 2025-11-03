@@ -47,6 +47,7 @@ program S_matrix_generator
     deallocate(work_array)
 
     allocate(work_array(lwork))
+    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices.bin', form='unformatted', access='sequential', status='replace')
 
     do l_val = m_qn, l_max + m_qn
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,13 +74,15 @@ program S_matrix_generator
                               spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
                               transpose(H_matrix(:, 1:kmax)))
 
-            print '(I3, 5ES20.10)', l_val, real(S_matrix(1, 1:5))
+            print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
+            write(20) l_val, S_matrix
 
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
         end if
     end do
 
+    close(20)
 
     deallocate(work_array)
 end program S_matrix_generator
