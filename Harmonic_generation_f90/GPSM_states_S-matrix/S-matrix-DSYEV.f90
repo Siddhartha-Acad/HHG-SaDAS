@@ -3,11 +3,12 @@
 program S_matrix_generator
     use parameters
     implicit none
-    integer :: i, j, k, l_val
-    real(kind=8), dimension(N-1) :: x                   ! collocation points
+    integer :: i, j, l_val
+    real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
+    real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
+
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     complex(kind=8), dimension(N-1, N-1) :: S_matrix
-    complex(kind=8) :: s_ij
 
     character :: jobz, uplo
     integer :: lda, lwork, info
@@ -16,12 +17,20 @@ program S_matrix_generator
 
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    !                     reading collocation points                     |
+    !      collocation points & Precompute l_val independent terms       |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     open(unit=10, file='./../collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
         read(10, *) x
     close(10)
+
+    f_arr  = Lmap * (1.0d0 + x) / (1.0d0 - x + alpha_map)
+    fp_arr = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x + alpha_map)**2
+    fp_outer = spread(fp_arr, dim=2, ncopies=N-1) * transpose(spread(fp_arr, dim=2, ncopies=N-1))
+
+    d2_diag = -dble(N*(N+1)) / (3.0d0 * (1.0d0 - x**2))                    ! d(2)_ij : i = j
+    d2_off_diag = 1.0d0 / (spread(x, dim=2, ncopies=N-1) - &
+                           transpose(spread(x, dim=2, ncopies=N-1)))**2    ! d(2)_ij : i != j
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                   eigen-decomposition workspace                    |
@@ -31,7 +40,7 @@ program S_matrix_generator
     jobz = 'V'       ! 'V' = compute eigenvectors; 'N' = eigenvalues only
     uplo = 'U'       ! 'U' = upper triangle of H_matrix is stored/used
 
-    lwork = -1      ! Setting LWORK = -1 activates workspace query mode in LAPACK.
+    lwork = -1       ! Setting LWORK = -1 activates workspace query mode in LAPACK.
     allocate(work_array(1))
     call DSYEV(jobz, uplo, N-1, H_matrix, lda, E_egval, work_array, lwork, info)
     lwork = int(work_array(1)) 
@@ -43,10 +52,15 @@ program S_matrix_generator
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         !                     real symmetric [H] matrix                      |
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        do j = 1, N-1       ! Fill upper triangle (good cache access)
-            do i = 1, j
-                H_matrix(i, j) = H(l_val, i, j)
-            end do
+        do j = 1, N-1
+            ! Off-diagonal (Fill upper triangle)
+            if (j > 1) then
+                H_matrix(1:j-1, j) = d2_off_diag(1:j-1, j) / fp_outer(1:j-1, j)     ! -2 factor cancelled out.
+            end if
+
+            ! Diagonal element (i = j)
+            H_matrix(j, j) = -0.5d0 * d2_diag(j) / fp_arr(j)**2 &
+                            + dble(l_val*(l_val+1)) / (2.0d0 * f_arr(j)**2) - 1.0d0 / f_arr(j)
         end do
 
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,53 +72,15 @@ program S_matrix_generator
             S_matrix = matmul(H_matrix(:, 1:kmax) * &
                               spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
                               transpose(H_matrix(:, 1:kmax)))
+
             print '(I3, 5ES20.10)', l_val, real(S_matrix(1, 1:5))
+
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
         end if
     end do
 
+
     deallocate(work_array)
-
-
-contains
-    pure real(kind=8) function d2(i, j)
-        integer, intent(in) :: i, j
-        
-        if (i .ne. j) then
-            d2 = -2.0d0 / (x(i) - x(j))**2
-        else
-            d2 = -N*(N+1) / (3.0d0*(1.0d0 - x(i)**2))
-        end if
-    end function d2
-
-
-    pure real(kind=8) function f(x_val)
-        real(kind=8), intent(in) :: x_val
-        
-        f = Lmap * (1.0d0 + x_val) / (1.0d0 - x_val + alpha_map)
-    end function f
-
-
-    pure real(kind=8) function f_p(x_val)
-        real(kind=8), intent(in) :: x_val
-        
-        f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x_val + alpha_map)**2
-    end function f_p
-
-
-    pure real(kind=8) function H(l_val, i, j)
-        integer, intent(in) :: l_val, i, j
-        real(kind=8) :: term1, term2
-        
-        term1 = -0.5d0 * (1.0d0 / f_p(x(i))) * d2(i, j) * (1.0d0 / f_p(x(j)))
-        if (i .ne. j) then
-            H = term1
-        else
-            term2 = l_val * (l_val + 1) / (2.0d0 * f(x(i)) ** 2) - 1.0d0 / f(x(i))
-            H = term1 + term2
-        end if
-    end function H
-
 end program S_matrix_generator
 
