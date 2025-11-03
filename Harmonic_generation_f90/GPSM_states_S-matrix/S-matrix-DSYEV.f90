@@ -1,12 +1,13 @@
 ! fortran implementation for generating S-matrices.
 
-program S_matrix
+program S_matrix_generator
     use parameters
     implicit none
-    integer :: i, j
+    integer :: i, j, k
     real(kind=8), dimension(N-1) :: x                   ! collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     real(kind=8), dimension(N-1, N-1) :: S_matrix
+    complex(kind=8) :: s_ij
 
     character :: jobz, uplo
     integer :: lda, lwork, info
@@ -57,16 +58,17 @@ program S_matrix
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
 
-    do j = 1, N-1
-        do i = 1, j
-            s_ij = 0
-            do k = 1, kmax
-                s_ij = s_ij + H_matrix(i, k) * exp(cmplx(0.0d0, -E_egval(k) * dt / 2.0d0)) * H_matrix(j, k)
+        do j = 1, N-1
+            do i = 1, j
+                s_ij = (0.0d0, 0.0d0)
+                do k = 1, kmax
+                    s_ij = s_ij + H_matrix(i, k) * exp(cmplx(0.0d0, -E_egval(k) * dt / 2.0d0)) * H_matrix(j, k)
+                end do
+                S_matrix(i, j) = s_ij
             end do
-            S_matrix(i, j) = s_ij
         end do
-    end do
-
+        print *, S_matrix(1, 1)
+        print *, H_matrix(1, 1)
 
     else
         print '(A, I2)', 'DSYEV failed. info = ', info
@@ -113,5 +115,5 @@ contains
         end if
     end function H
     
-end program S_matrix
+end program S_matrix_generator
 
