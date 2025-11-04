@@ -57,13 +57,13 @@ program GPSM
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
         
-        open(unit=11, file='./GPSM_states_S-matrix_data/GPSM-DSYEV_states.bin', &
+        open(unit=11, file='data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
              form='unformatted', access='stream', status='replace')
         do i = 1, N-1
             write(11) f(x(i)), H_matrix(i, 1:kmax)
         end do
         close(11)
-        print '(A)', 'GPSM Eigenvctors: ./GPSM_states_S-matrix_data/GPSM-DSYEV_states.bin'
+        print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin'
     else
         print '(A, I2)', 'DSYEV failed. info = ', info
     end if

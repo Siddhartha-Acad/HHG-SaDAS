@@ -58,6 +58,9 @@ print(f'S matrix range              : S({m}) to S({m+l_max})')
 print('total S matrix (l_max+1)    :', l_max+1, '\n')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+data_S_matrix = []
+energy_eigenvalues = {}
+start_time = time.perf_counter()
 
 for l in range(m, l_max+m+1):
     # ~~~~~~~~~~~~~~~~~~~~~: H matrix, Eigenvalues (E), Eigenvectors (A) :~~~~~~~~~~~~~~~~~~~~~
@@ -72,7 +75,14 @@ for l in range(m, l_max+m+1):
     E, A = eigh(H_matrix, subset_by_index=[0, k_max-1])
     A = A.T
 
+    energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
+    print(f'S-matrix for l={l:<3}:  DONE')
+    # positive_energy_states = np.sum(E > 0)
+    # negative_energy_states = np.sum(E < 0)
+    # print(f'negative energy states (E<0) : {negative_energy_states}')
+    # print(f'positive energy states (E>0) : {positive_energy_states}\n')
 
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A                     # A: (k_max, n); A.T*(phase): (n, k_max)
 
     data_S_matrix.append(S_matrix)
