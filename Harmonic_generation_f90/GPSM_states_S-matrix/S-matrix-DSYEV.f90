@@ -75,7 +75,7 @@ program S_matrix_generator
                               transpose(H_matrix(:, 1:kmax)))
 
             print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
-            write(20) l_val, S_matrix
+            write(20) S_matrix
 
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
