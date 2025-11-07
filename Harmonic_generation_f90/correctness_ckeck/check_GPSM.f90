@@ -4,7 +4,7 @@ program read_GPSM_data
     integer :: i
     real :: rad_theory
     real(kind=8), dimension(N-1) :: r
-    real(kind=8), dimension(N-1, kmax) :: A
+    real(kind=8), dimension(N-1, total_states) :: A
 
     open(unit=12, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
         form='unformatted', access='stream', status='old')
@@ -12,7 +12,7 @@ program read_GPSM_data
     close(12)
 
     print '(A2, A14, A22)', 'n', 'radius_Th', 'radius_GPSM'
-    do i = 1, kmax
+    do i = 1, total_states
         rad_theory = 0.5 * real(3*i**2 - l_qn*(l_qn+1))
         print '(I2, F14.8, F22.16)', i, rad_theory, sum(r * A(:, i)**2)
     end do

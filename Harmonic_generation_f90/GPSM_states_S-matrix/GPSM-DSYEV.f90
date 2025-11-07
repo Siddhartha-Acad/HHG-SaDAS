@@ -57,13 +57,13 @@ program GPSM
     !               Writing eigenvectors to an output file               |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (info .eq. 0) then
-        do i = 1, kmax
+        do i = 1, total_states
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
 
         open(unit=11, file='data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
              form='unformatted', access='stream', status='replace')
-            write(11) f, H_matrix(:, 1:kmax)
+            write(11) f, H_matrix(:, 1:total_states)
         close(11)
         print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin'
     else
