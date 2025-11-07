@@ -3,7 +3,7 @@
 program S_matrix_generator
     use parameters
     implicit none
-    integer :: i, j, l_val
+    integer :: i, j, l_val, recl_size
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
 
@@ -15,6 +15,8 @@ program S_matrix_generator
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
 
+    inquire(iolength=recl_size) S_matrix            ! "How many units does S_matrix need?"
+    print *, "Record length needed:", recl_size
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !      collocation points & Precompute l_val independent terms       |
@@ -47,8 +49,9 @@ program S_matrix_generator
     deallocate(work_array)
 
     allocate(work_array(lwork))
-    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', form='unformatted', access='sequential', status='replace')
-
+    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
+            form='unformatted', access='direct', recl=recl_size, status='replace')
+    
     do l_val = m_qn, l_max + m_qn
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         !                     real symmetric [H] matrix                      |
@@ -75,7 +78,7 @@ program S_matrix_generator
                               transpose(H_matrix(:, 1:kmax)))
 
             print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
-            write(20) S_matrix
+            write(20, rec = l_val-m_qn+1) S_matrix
 
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
