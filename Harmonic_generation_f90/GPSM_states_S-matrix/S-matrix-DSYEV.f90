@@ -47,7 +47,7 @@ program S_matrix_generator
     deallocate(work_array)
 
     allocate(work_array(lwork))
-    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices.bin', form='unformatted', access='sequential', status='replace')
+    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', form='unformatted', access='sequential', status='replace')
 
     do l_val = m_qn, l_max + m_qn
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

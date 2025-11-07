@@ -6,10 +6,9 @@ program read_GPSM_data
     real(kind=8), dimension(N-1) :: r
     real(kind=8), dimension(N-1, kmax) :: A
 
-    open(unit=12, file='../GPSM-DSYEV_states.bin', form='unformatted', access='stream', status='old')
-        do i = 1, N-1
-            read(12) r(i), A(i, 1:kmax)
-        end do
+    open(unit=12, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
+        form='unformatted', access='stream', status='old')
+        read(12) r, A
     close(12)
 
     print '(A2, A14, A22)', 'n', 'radius_Th', 'radius_GPSM'
