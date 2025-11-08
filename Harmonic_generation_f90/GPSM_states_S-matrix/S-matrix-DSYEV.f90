@@ -10,12 +10,6 @@ program S_matrix_generator
     logical, parameter :: save_states = .false.
 #endif
 
-#ifndef N_STATES
-    integer, parameter :: n_states = 5
-#else
-    integer, parameter :: n_states = N_STATES
-#endif
-
     integer :: i, j, l_val, recl_size
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
@@ -45,6 +39,7 @@ program S_matrix_generator
     d2_off_diag = 1.0d0 / (spread(x, dim=2, ncopies=N-1) - &
                            transpose(spread(x, dim=2, ncopies=N-1)))**2    ! d(2)_ij : i != j
 
+
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                   eigen-decomposition workspace                    |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -61,6 +56,9 @@ program S_matrix_generator
     allocate(work_array(lwork))
 
 
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !                       Open relevant file(s)                        |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (.not. save_states) then
         inquire(iolength=recl_size) S_matrix
         print '(A, 1x, I0)', "Record length for S_matrix:", recl_size
@@ -68,7 +66,7 @@ program S_matrix_generator
         open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
             form='unformatted', access='direct', recl=recl_size, status='replace')
     else
-        inquire(iolength=recl_size) H_matrix(:, 1:n_states)
+        inquire(iolength=recl_size) H_matrix(:, 1:check_n_states)
         print '(A, 1x, I0)', "Record length for eigenstates:", recl_size
 
         open(unit=30, file='data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin', &
@@ -103,10 +101,10 @@ program S_matrix_generator
                       transpose(H_matrix(:, 1:kmax)))
 
                 write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-                print '(A, I2, A)', 'S(l=', l_val, ') : DONE'
+                print '(A, I2, A)', 'S(l=', l_val, ') matrix : DONE'
             else
-                write(30, rec = l_val - m_qn + 1) H_matrix(:, 1:n_states)
-                print '(I2, A, I2, A)', n_states, ' A(l=', l_val, ') states : DONE'
+                write(30, rec = l_val-m_qn+1) H_matrix(:, 1:check_n_states)
+                print '(I2, A, I2, A)', check_n_states, ' A(l=', l_val, ') states : DONE'
             end if
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
