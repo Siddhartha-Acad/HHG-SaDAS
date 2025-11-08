@@ -30,7 +30,7 @@ program S_matrix_generator
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !      collocation points & Precompute l_val independent terms       |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    open(unit=10, file='./../collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
+    open(unit=10, file='./../collocation_points/generator/Algo-3_Gauss_Lobatto_collocation_points.dat', &
             status='old', action='read')
         read(10, *) x
     close(10)
@@ -65,13 +65,13 @@ program S_matrix_generator
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (.not. save_states) then
         inquire(iolength=recl_size) S_matrix
-        print '(A, 1x, I0)', "Record length for S_matrix:", recl_size
+        ! print '(A, 1x, I0)', "Record length for S_matrix:", recl_size
 
         open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
             form='unformatted', access='direct', recl=recl_size, status='replace')
     else
         inquire(iolength=recl_size) H_matrix(:, 1:check_n_states)
-        print '(A, 1x, I0)', "Record length for eigenstates:", recl_size
+        ! print '(A, 1x, I0)', "Record length for eigenstates:", recl_size
 
         open(unit=30, file='data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin', &
             form='unformatted', access='direct', recl=recl_size, status='replace')
@@ -106,16 +106,17 @@ program S_matrix_generator
                       transpose(H_matrix(:, 1:kmax)))
 
                 write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-                print '(A, I2, A)', 'S(l=', l_val, ') matrix : ' // green // 'DONE' // reset
+                print '(1x, A, I2, A)', 'S(l=', l_val, ') matrix : ' // green // 'DONE' // reset
 
             else
                 write(30, rec = l_val-m_qn+1) H_matrix(:, 1:check_n_states)
-                print '(A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
+                print '(1x, A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
             end if
         else
             print '(A, I0)', 'DSYEV failed. info = ', info
         end if
     end do
+    print *
 
     if (.not. save_states) close(20)
     if (save_states) close(30)

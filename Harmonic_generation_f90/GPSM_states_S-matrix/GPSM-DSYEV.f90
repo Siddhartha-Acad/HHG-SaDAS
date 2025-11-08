@@ -58,7 +58,7 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     if (info .eq. 0) then
         do i = 1, total_states
-            print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
+            print '(1x, A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
 
         open(unit=11, file='data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
@@ -66,6 +66,7 @@ program GPSM
             write(11) f, H_matrix(:, 1:total_states)
         close(11)
         print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin'
+        print *
     else
         print '(A, I0)', 'DSYEV failed. info = ', info
     end if
