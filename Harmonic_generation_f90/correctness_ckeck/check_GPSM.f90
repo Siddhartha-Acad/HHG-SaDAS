@@ -35,5 +35,6 @@ program read_GPSM_data
             print *   ! newline
         end if
     end do
+    print *
 
 end program read_GPSM_data
