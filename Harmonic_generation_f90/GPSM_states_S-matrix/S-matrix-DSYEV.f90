@@ -22,6 +22,10 @@ program S_matrix_generator
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
 
+    character(len=8) :: l_str
+    character(len=*), parameter :: green = char(27)//'[1;32m', &
+                                   reset = char(27)//'[0m'
+
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !      collocation points & Precompute l_val independent terms       |
@@ -95,16 +99,18 @@ program S_matrix_generator
         call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
 
         if (info .eq. 0) then
+            write(l_str, '(I0)') l_val
             if (.not. save_states) then
                 S_matrix = matmul(H_matrix(:, 1:kmax) * &
                       spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
                       transpose(H_matrix(:, 1:kmax)))
 
                 write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-                print '(A, I2, A)', 'S(l=', l_val, ') matrix : DONE'
+                print '(A, I2, A)', 'S(l=', l_val, ') matrix : ' // green // 'DONE' // reset
+
             else
                 write(30, rec = l_val-m_qn+1) H_matrix(:, 1:check_n_states)
-                print '(I2, A, I2, A)', check_n_states, ' A(l=', l_val, ') states : DONE'
+                print '(A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
             end if
         else
             print '(A, I2)', 'DSYEV failed. info = ', info

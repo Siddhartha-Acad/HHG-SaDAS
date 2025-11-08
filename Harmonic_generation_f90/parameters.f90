@@ -21,6 +21,6 @@ module parameters
 
     real(kind=8), parameter :: dt = 0.1
 
-    integer, parameter :: check_n_states = 5    ! how many states you want to include in check_Split_operator.f90?
+    integer, parameter :: check_n_states = 6    ! how many states you want to include in check_Split_operator.f90?
 
 end module parameters
