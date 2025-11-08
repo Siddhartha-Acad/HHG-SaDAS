@@ -3,20 +3,26 @@
 program S_matrix_generator
     use parameters
     implicit none
-    integer :: i, j, l_val, recl_size
+    integer :: i, j, l_val, recl_size_Smatrix, recl_size_states
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
 
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     complex(kind=8), dimension(N-1, N-1) :: S_matrix
+    logical, parameter :: save_states = .false.     ! to control saving eigenstates
 
     character :: jobz, uplo
     integer :: lda, lwork, info
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
 
-    inquire(iolength=recl_size) S_matrix            ! "How many units does S_matrix need?"
-    print *, "Record length needed:", recl_size
+    inquire(iolength=recl_size_Smatrix) S_matrix            ! "How many units does S_matrix need?"
+    print *, "Record length for S_matrix:", recl_size_Smatrix
+
+    if (save_states) then
+        inquire(iolength=recl_size_states) H_matrix(:, 1:total_states)
+        print *, "Record length for eigenstates:", recl_size_states
+    end if
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !      collocation points & Precompute l_val independent terms       |
@@ -47,10 +53,15 @@ program S_matrix_generator
     call DSYEV(jobz, uplo, N-1, H_matrix, lda, E_egval, work_array, lwork, info)
     lwork = int(work_array(1)) 
     deallocate(work_array)
-
     allocate(work_array(lwork))
+
     open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
-            form='unformatted', access='direct', recl=recl_size, status='replace')
+            form='unformatted', access='direct', recl=recl_size_Smatrix, status='replace')
+
+    if (save_states) then
+        open(unit=30, file='data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin', &
+            form='unformatted', access='direct', recl=recl_size_states, status='replace')
+    end if
 
     do l_val = m_qn, l_max + m_qn
         ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,8 +88,13 @@ program S_matrix_generator
                               spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
                               transpose(H_matrix(:, 1:kmax)))
 
-            print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
             write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
+            print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
+
+            if (save_states) then
+                write(30, rec = l_val - m_qn + 1) H_matrix(:, 1:total_states)
+                print '(A, I3, A, I0)', 'Saved first ', total_states, ' eigenstates for l =', l_val
+            end if
 
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
@@ -86,7 +102,8 @@ program S_matrix_generator
     end do
 
     close(20)
-
+    if (save_states) close(30)
     deallocate(work_array)
+
 end program S_matrix_generator
 
