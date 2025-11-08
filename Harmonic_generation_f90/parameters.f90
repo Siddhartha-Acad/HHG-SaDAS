@@ -6,7 +6,7 @@ module parameters
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                      Atom                      |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    integer, parameter :: n_qn = 1, l_qn = 0, m_qn = 0        ! defines initial state. (qn = quantum number)
+    integer, parameter :: n_qn = 1, l_qn = 1, m_qn = 1        ! defines initial state. (qn = quantum number)
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                GPSM Parameters                 |

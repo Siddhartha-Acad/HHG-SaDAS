@@ -3,7 +3,7 @@ program check_Split_operator
     implicit none
 
     integer :: i, recl_size
-    integer, parameter :: l_ind = 1             ! select S_matrix, compatible with GPSM l_qn.
+    integer, parameter :: l_ind = l_qn - m_qn + 1             ! select S_matrix, compatible with GPSM l_qn.
     complex(kind=8) :: S_matrix(N-1, N-1)
 
     real(kind=8) :: max_abs_err
@@ -30,9 +30,9 @@ program check_Split_operator
         max_abs_err = maxval(abs(A_tilde - A(:, i)))
 
         if (max_abs_err .lt. 1.0d-3) then
-            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', l_ind-1, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[PASS]'
+            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', m_qn, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[PASS]'
         else
-            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', l_ind-1, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[FAIL]'
+            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', m_qn, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[FAIL]'
         end if
     end do
 
