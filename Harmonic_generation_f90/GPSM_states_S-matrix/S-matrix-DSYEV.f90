@@ -3,25 +3,32 @@
 program S_matrix_generator
     use parameters
     implicit none
+
+#ifdef SAVE_STATES
+    logical, parameter :: save_states = .true.
+#else
+    logical, parameter :: save_states = .false.
+#endif
+
     integer :: i, j, l_val, recl_size_Smatrix, recl_size_states
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
 
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     complex(kind=8), dimension(N-1, N-1) :: S_matrix
-    logical, parameter :: save_states = .false.     ! to control saving eigenstates
 
     character :: jobz, uplo
     integer :: lda, lwork, info
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
 
-    inquire(iolength=recl_size_Smatrix) S_matrix            ! "How many units does S_matrix need?"
-    print *, "Record length for S_matrix:", recl_size_Smatrix
 
-    if (save_states) then
+    if (.not. save_states) then
+        inquire(iolength=recl_size_Smatrix) S_matrix            ! "How many units does S_matrix need?"
+        print '(A, 1x, I0)', "Record length for S_matrix:", recl_size_Smatrix
+    else
         inquire(iolength=recl_size_states) H_matrix(:, 1:total_states)
-        print *, "Record length for eigenstates:", recl_size_states
+        print '(A, 1x, I0)', "Record length for eigenstates:", recl_size_states
     end if
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,10 +62,11 @@ program S_matrix_generator
     deallocate(work_array)
     allocate(work_array(lwork))
 
-    open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
-            form='unformatted', access='direct', recl=recl_size_Smatrix, status='replace')
 
-    if (save_states) then
+    if (.not. save_states) then
+        open(unit=20, file='data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
+                form='unformatted', access='direct', recl=recl_size_Smatrix, status='replace')
+    else
         open(unit=30, file='data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin', &
             form='unformatted', access='direct', recl=recl_size_states, status='replace')
     end if
@@ -84,24 +92,23 @@ program S_matrix_generator
         call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
 
         if (info .eq. 0) then
-            S_matrix = matmul(H_matrix(:, 1:kmax) * &
-                              spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
-                              transpose(H_matrix(:, 1:kmax)))
+            if (.not. save_states) then
+                S_matrix = matmul(H_matrix(:, 1:kmax) * &
+                      spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
+                      transpose(H_matrix(:, 1:kmax)))
 
-            write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-            print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
-
-            if (save_states) then
+                write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
+                print '(A, I2, A)', 'S(l=', l_val, ') : DONE'
+            else
                 write(30, rec = l_val - m_qn + 1) H_matrix(:, 1:total_states)
-                print '(A, I3, A, I0)', 'Saved first ', total_states, ' eigenstates for l =', l_val
+                print '(I2, A, I2, A)', total_states, ' A(l =', l_val, ') states : DONE'
             end if
-
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
         end if
     end do
 
-    close(20)
+    if (.not. save_states) close(20)
     if (save_states) close(30)
     deallocate(work_array)
 
