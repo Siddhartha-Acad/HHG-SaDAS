@@ -1,26 +1,28 @@
-# Algo-3.f90: to generate Gauss-Lobatto collocation points.
+# Makefile for Harmonic_generation_f90
 
-.PHONY : colloc_pt clear clear_dat
+colloc_path := ./collocation_points/generator
 
-./generator/Algo-3.exe : ./generator/Algo-3.f90 functions.o
-	gfortran -I.. ./generator/Algo-3.f90 functions.o -o ./generator/Algo-3.exe
+.PHONY : colloc_pt clear clobber
 
-parameters.o : ../parameters.f90
-	gfortran -J.. -c ../parameters.f90
+$(colloc_path)/Algo-3.out : $(colloc_path)/Algo-3.f90 functions.o
+	gfortran -I. $(colloc_path)/Algo-3.f90 functions.o -o $(colloc_path)/Algo-3.out
 
-functions.o : ../functions.f90
-	gfortran -J.. -c ../functions.f90
+parameters.o : parameters.f90
+	gfortran -c parameters.f90
+
+functions.o : functions.f90
+	gfortran -c functions.f90
 
 
-colloc_pt : ./generator/Algo-3.exe
-	cd ./generator && ./Algo-3.exe
+colloc_pt : $(colloc_path)/Algo-3.out
+	cd $(colloc_path) && ./Algo-3.out
 
 clear :
 	rm -f *.o
-	rm -f ./generator/Algo-3.exe
-	rm -f ../legendre_stuff.mod
-	rm -f ../parameters.mod ../parameters.o
+	rm -f $(colloc_path)/Algo-3.out
+	rm -f legendre_stuff.mod
+	rm -f parameters.mod parameters.o
 
-clear_dat :
-	rm -f ./generator/*.dat
+clobber :
+	rm -f $(colloc_path)/*.dat
 
