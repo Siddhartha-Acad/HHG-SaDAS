@@ -113,7 +113,7 @@ program S_matrix_generator
                 print '(A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
             end if
         else
-            print '(A, I2)', 'DSYEV failed. info = ', info
+            print '(A, I0)', 'DSYEV failed. info = ', info
         end if
     end do
 

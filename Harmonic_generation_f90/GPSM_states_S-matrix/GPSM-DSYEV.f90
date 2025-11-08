@@ -16,7 +16,7 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    open(unit=10, file='./../collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
+    open(unit=10, file='./../collocation_points/generator/Algo-3_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
         read(10, *) x
     close(10)
@@ -67,7 +67,7 @@ program GPSM
         close(11)
         print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin'
     else
-        print '(A, I2)', 'DSYEV failed. info = ', info
+        print '(A, I0)', 'DSYEV failed. info = ', info
     end if
 
 
