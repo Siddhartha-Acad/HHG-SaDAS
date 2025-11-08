@@ -10,8 +10,12 @@ program check_Split_operator
     real(kind=8), dimension(N-1) :: r, A_tilde
     real(kind=8), dimension(N-1, total_states) :: A
 
-    inquire(iolength=recl_size) S_matrix            ! "How many units does S_matrix need?"
+    character(len=*), parameter :: green = char(27)//'[1;32m'  ! bold + green
+    character(len=*), parameter :: red   = char(27)//'[1;31m'  ! bold + red
+    character(len=*), parameter :: reset = char(27)//'[0m'     ! reset style
 
+
+    inquire(iolength=recl_size) S_matrix            ! "How many units does S_matrix need?"
     open(unit=10, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
             form='unformatted', access='stream', status='old')
         read(10) r, A
@@ -30,9 +34,13 @@ program check_Split_operator
         max_abs_err = maxval(abs(A_tilde - A(:, i)))
 
         if (max_abs_err .lt. 1.0d-3) then
-            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', m_qn, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[PASS]'
+            write(*,'(A,I0,A,I0,A,ES11.3,A,A)', advance='no') &
+                'S(', m_qn, ') @ A(', i, ') | ', max_abs_err, ' | ', green//'[PASS]'//reset
+            print *  ! newline after pass/fail
         else
-            print '(A,I0,A,I0,A,A,ES11.3,A,A)', 'S(', m_qn, ') @ A(', i, ')', ' | ', max_abs_err, ' | ', '[FAIL]'
+            write(*,'(A,I0,A,I0,A,ES11.3,A,A)', advance='no') &
+                'S(', m_qn, ') @ A(', i, ') | ', max_abs_err, ' | ', red//'[FAIL]'//reset
+            print *  ! newline after pass/fail
         end if
     end do
 
