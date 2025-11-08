@@ -7,7 +7,7 @@ program read_GPSM_data
     real(kind=8), dimension(N-1, total_states) :: A
 
     open(unit=12, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
-        form='unformatted', access='stream', status='old')
+            form='unformatted', access='stream', status='old')
         read(12) r, A
     close(12)
 

@@ -22,7 +22,7 @@ program S_matrix_generator
     !      collocation points & Precompute l_val independent terms       |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     open(unit=10, file='./../collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
-         status='old', action='read')
+            status='old', action='read')
         read(10, *) x
     close(10)
 
@@ -78,7 +78,7 @@ program S_matrix_generator
                               transpose(H_matrix(:, 1:kmax)))
 
             print '(A, I3, A)', 'S-matrix for l =', l_val, ' : DONE'
-            write(20, rec = l_val-m_qn+1) S_matrix
+            write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
 
         else
             print '(A, I2)', 'DSYEV failed. info = ', info
