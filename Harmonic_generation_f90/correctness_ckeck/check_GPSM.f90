@@ -7,9 +7,9 @@ program read_GPSM_data
     real(kind=8), dimension(N-1) :: r
     real(kind=8), dimension(N-1, total_states) :: A
 
-    character(len=*), parameter :: green = char(27)//'[1;32m'  ! bold + green
-    character(len=*), parameter :: red   = char(27)//'[1;31m'  ! bold + red
-    character(len=*), parameter :: reset = char(27)//'[0m'     ! reset style
+    character(len=*), parameter :: green = char(27)//'[1;32m', &
+                                   red   = char(27)//'[1;31m', &
+                                   reset = char(27)//'[0m'
 
 
     open(unit=12, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
@@ -35,6 +35,11 @@ program read_GPSM_data
             print *   ! newline
         end if
     end do
+    print *
+    print '(A)', 'Note:'
+    print '(A)', '  rel_err = |rad_gpsm - rad_theory| / rad_theory'
+    print '(A)', '  ' // green // '[PASS]' // reset // ' : rel_err < 1.0d-3'
+    print '(A)', '  ' // red   // '[FAIL]' // reset // ' : rel_err > 1.0d-3'
     print *
 
 end program read_GPSM_data
