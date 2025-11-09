@@ -3,6 +3,7 @@
 CYAN := \033[1;36m
 YELLOW := \033[1;33m
 GREEN := \033[1;32m
+RED := \033[1;31m
 RESET := \033[0m
 
 COLLOC_dPATH := ./collocation_points/generator
@@ -74,21 +75,32 @@ check_Split_operator : S_matrices $(INPUT_dPATH)/Eigenstates-DSYEV.bin
 	@cd $(CHECK_PATH) && ./check_Split_operator.out
 
 parameters.o : parameters.f90
-	gfortran -c parameters.f90
+	@echo "$(YELLOW)gfortran -c parameters.f90$(RESET)"
+	@gfortran -c parameters.f90
 
 functions.o : functions.f90
-	gfortran -c functions.f90
+	@echo "$(YELLOW)gfortran -c functions.f90$(RESET)"
+	@gfortran -c functions.f90
 
 clean :
-	rm -f $(COLLOC_dPATH)/Algo-3.out
-	rm -f $(INPUT_PATH)/GPSM_gen.out
-	rm -f $(INPUT_PATH)/S-matrix_gen.out
-	rm -f $(INPUT_PATH)/A_states_gen.out
-	rm -f $(CHECK_PATH)/check_GPSM.out
-	rm -f $(CHECK_PATH)/check_Split_operator.out
+	@echo "$(RED)rm -f $(COLLOC_dPATH)/Algo-3.out$(RESET)"
+	@rm -f $(COLLOC_dPATH)/Algo-3.out
+	@echo "$(RED)rm -f $(INPUT_PATH)/GPSM_gen.out$(RESET)"
+	@rm -f $(INPUT_PATH)/GPSM_gen.out
+	@echo "$(RED)rm -f $(INPUT_PATH)/S-matrix_gen.out$(RESET)"
+	@rm -f $(INPUT_PATH)/S-matrix_gen.out
+	@echo "$(RED)rm -f $(INPUT_PATH)/A_states_gen.out$(RESET)"
+	@rm -f $(INPUT_PATH)/A_states_gen.out
+	@echo "$(RED)rm -f $(CHECK_PATH)/check_GPSM.out$(RESET)"
+	@rm -f $(CHECK_PATH)/check_GPSM.out
+	@echo "$(RED)rm -f $(CHECK_PATH)/check_Split_operator.out$(RESET)"
+	@rm -f $(CHECK_PATH)/check_Split_operator.out
 
 clobber : clean
-	rm -f *.o *.mod
-	rm -f $(COLLOC_dPATH)/*.dat
-	rm -f $(INPUT_dPATH)/*.bin
+	@echo "$(RED)rm -f *.o *.mod$(RESET)"
+	@rm -f *.o *.mod
+	@echo "$(RED)rm -f $(COLLOC_dPATH)/*.dat$(RESET)"
+	@rm -f $(COLLOC_dPATH)/*.dat
+	@echo "$(RED)rm -f $(INPUT_dPATH)/*.bin$(RESET)"
+	@rm -f $(INPUT_dPATH)/*.bin
 
