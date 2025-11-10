@@ -135,26 +135,26 @@ S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1
 if confined:
     conf_string = conf_selector(conf_model, 0)[1]
 
-    print(f"{WHITE}~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~{RESET}")
+    print(f" {WHITE}~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~{RESET}")
     parts = conf_string.split('_')                  # Split by underscores
     confmodel = parts[0]                            # The first part (before first '_') is the confinement model
     params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
 
-    print(f"{'Conf model':<10}: {confmodel}")
+    print(f" {'Conf model':<10}: {confmodel}")
     for p in params:
         key, val = p.split('=')
-        print(f"{key:<10}: {val}")
+        print(f" {key:<10}: {val}")
 
-print(f'\n{WHITE}~~~~~~~~~~~: Time Evolution :~~~~~~~~~~{RESET}')
-print('Evolving atom            :', evolving_atom)
-print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
-print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
-print(f'θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
-print('S_matrix file name       :', S_matrix_file)
-print('Initial state file name  :', state_file)
-print('Absorber radius (r_0)    :', r0)
-print('Total time steps         :', time_step)
-print(f'Estimated time (h, m, s) : {GREEN}{secs_to_hr_min_sec(eta_t * time_step)}{RESET} ~ {GREEN}{int(eta_t * time_step)}{RESET} seconds\n')
+print(f'\n {WHITE}~~~~~~~~~~~: Time Evolution :~~~~~~~~~~{RESET}')
+print(' Evolving atom            :', evolving_atom)
+print(f' Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
+print(f' θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
+print(f' θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
+print(' S_matrix file name       :', S_matrix_file)
+print(' Initial state file name  :', state_file)
+print(' Absorber radius (r_0)    :', r0)
+print(' Total time steps         :', time_step)
+print(f' Estimated time (h, m, s) : {GREEN}{secs_to_hr_min_sec(eta_t * time_step)}{RESET} ~ {GREEN}{int(eta_t * time_step)}{RESET} seconds\n')
 
 if show_E_field and args.plot:
     fig1 = plt.figure(figsize=fig_size)
@@ -241,13 +241,13 @@ np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
 if wall_time > 300.0:
-    print(f"\nAverage wall-time per step (eta_tv)     : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
-    print(f'Total wall-time for all steps (h, m, s) : {GREEN}{secs_to_hr_min_sec(wall_time)}{RESET}')
+    print(f"\n Average wall-time per step (eta_tv)     : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
+    print(f' Total wall-time for all steps (h, m, s) : {GREEN}{secs_to_hr_min_sec(wall_time)}{RESET}')
 else:
-    print(f"\nAverage wall-time per step (eta_tv) : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
-    print(f'Total wall-time for all steps       : {GREEN}{wall_time:.5f}{RESET} seconds')
+    print(f"\n Average wall-time per step (eta_tv) : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
+    print(f' Total wall-time for all steps       : {GREEN}{wall_time:.5f}{RESET} seconds')
 
-print(f"evo_data_file = '{YELLOW}{Evo_data_file}{RESET}'\n")
+print(f" evo_data_file = '{YELLOW}{Evo_data_file}{RESET}'\n")
 
 
 

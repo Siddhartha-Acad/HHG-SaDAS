@@ -697,20 +697,20 @@ def state_name(n_val, l_val):
 #                 Printing info                  |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def print_grid_info():
-    print(f'{WHITE}*** RuntimeWarning     : Blocked from parameters.py ***{RESET}')
-    print(f'{WHITE}*** DeprecationWarning : Blocked from parameters.py ***{RESET}')
+    print(f' {WHITE}*** RuntimeWarning     : Blocked from parameters.py ***{RESET}')
+    print(f' {WHITE}*** DeprecationWarning : Blocked from parameters.py ***{RESET}')
 
-    print(f'{WHITE}~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~{RESET}')
-    print('radial mapping param (L_map) :', L_map)
-    print('radial mapping param (r_max) :', r_max)
-    print('radial colloc points (N-1)   :', N-1)
-    print('angular colloc points (L+1)  :', L+1, '\n')
+    print(f' {WHITE}~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~{RESET}')
+    print(' radial mapping param (L_map) :', L_map)
+    print(' radial mapping param (r_max) :', r_max)
+    print(' radial colloc points (N-1)   :', N-1)
+    print(' angular colloc points (L+1)  :', L+1, '\n')
 
 def print_smat_info():
-    print(f'{WHITE}~~~~~~~~~~~: S-matrix info :~~~~~~~~~~~{RESET}')
-    print('l_max         :', l_max)
-    print('k_max         :', k_max)
-    print('dt            :', dt, '\n')
+    print(f' {WHITE}~~~~~~~~~~~: S-matrix info :~~~~~~~~~~~{RESET}')
+    print(' l_max  :', l_max)
+    print(' k_max  :', k_max)
+    print(' dt     :', dt, '\n')
 
 # print(f'{WHITE}~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~{RESET}')
 # print(f'Ip (a.u)              : {Ip:.3f}')
@@ -719,26 +719,26 @@ def print_smat_info():
 # print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
 
 def print_atom_info():
-    print(f'{WHITE}~~~~~~~~~~~: Atomic system :~~~~~~~~~~~{RESET}')
+    print(f' {WHITE}~~~~~~~~~~~: Atomic system :~~~~~~~~~~~{RESET}')
     if not confined:
-        print(f'atom system   : {evolving_atom}', '\n')
+        print(f' atom system  : {evolving_atom}', '\n')
     else:
-        print(f'atom system   : {evolving_atom}@C60')
-        print(f'conf. model   : {conf_model}', '\n')
+        print(f' atom system  : {evolving_atom}@C60')
+        print(f' conf. model  : {conf_model}', '\n')
 
 def print_laser_info():
-    print(f'{WHITE}~~~~~~~~~~~~~: LASER info :~~~~~~~~~~~~{RESET}')
-    print(f'initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> {CYAN}time_evolution.py{RESET}')      # PRINCIPLE QUANTUM NUMBER = n+l
-    print(f'I0 (W/cm2)    : {I0:.2e}')
-    print('I0 (a.u)      :', I0 / Int_0)
-    print('E0 (a.u)      :', E0_au)
-    print('λ  (nm)       :', lambda_nm)
-    print('λ  (a.u)      :', lambda_nm * 10 ** -9 / a0)
-    print('w0 (a.u)      :', w0)
-    print('T (a.u)       :', T)
-    print('T (f.s)       :', T * T0 * 10**15)
-    print('tf (a.u)      :', tf)
-    print('tf (f.s)      :', tf * T0 * 10**15)
-    print('dt (a.u)      :', dt)
-    print('dt (atto)     :', dt * T0 * 10**18)
-    print('nopt          :', len(t), '\n')
+    print(f' {WHITE}~~~~~~~~~~~~~: LASER info :~~~~~~~~~~~~{RESET}')
+    print(f' initial state : ({n=}, {l=}, {m=}) ~ {state_symb} --> {CYAN}time_evolution.py{RESET}')      # PRINCIPLE QUANTUM NUMBER = n+l
+    print(f' I0 (W/cm2)    : {I0:.2e}')
+    print(' I0 (a.u)      :', I0 / Int_0)
+    print(' E0 (a.u)      :', E0_au)
+    print(' λ  (nm)       :', lambda_nm)
+    print(' λ  (a.u)      :', lambda_nm * 10 ** -9 / a0)
+    print(' w0 (a.u)      :', w0)
+    print(' T (a.u)       :', T)
+    print(' T (f.s)       :', T * T0 * 10**15)
+    print(' tf (a.u)      :', tf)
+    print(' tf (f.s)      :', tf * T0 * 10**15)
+    print(' dt (a.u)      :', dt)
+    print(' dt (atto)     :', dt * T0 * 10**18)
+    print(' nopt          :', len(t), '\n')

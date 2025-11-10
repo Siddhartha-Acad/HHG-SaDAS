@@ -315,6 +315,6 @@ fig6.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 
 end_time = time.perf_counter()
-print(f'Execution Wall-Time : {end_time - start_time:.2f} seconds')
+print(f'Execution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
 
 plt.show()

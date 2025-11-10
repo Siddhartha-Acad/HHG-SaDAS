@@ -26,6 +26,7 @@ import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))   # Ensure project root (HHG-SaDAS) is in sys.path
 
 import time
+import argparse
 import matplotlib.pyplot as plt
 from Harmonic_generation_py.parameters import *
 from Harmonic_generation_py.functions import *
@@ -45,7 +46,9 @@ plt.rc('font', **{'family': 'serif'})
 plt.rcParams['axes.prop_cycle'] = da.cycler(color=dec_color)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
+parser = argparse.ArgumentParser()
+parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input GPSM and S-matrix data')
+args = parser.parse_args()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          Importing files                           |
@@ -81,11 +84,20 @@ parameters_and_functions.py (and this script) is currently using.
 Make sure these parameters are matching with the given datafile names: `state_file' and `S_matrix_file'.
 """
 
-state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
+if args.auto:
+    if not confined:
+        state_file = f'{evolving_atom}_States_{SAE_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+        S_matrix_file = f'{evolving_atom}_Smatrix_{SAE_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
+    else:
+        state_file = f'{evolving_atom}@C60_States_{SAE_model}_{conf_model}_l={l}_nos={total_states}_N={N}_rmax={r_max}_Lmap={L_map}.dat'
+        S_matrix_file = f'{evolving_atom}@C60_Smatrix_{SAE_model}_{conf_model}_m={m}_lmax={l_max}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.npy'
+else:
+    state_file = 'H_States_SAE-M1_l=0_nos=5_N=200_rmax=200_Lmap=80.dat'
+    S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
+
 state_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / state_file
 state_data = np.loadtxt(state_path, skiprows=1).T
 
-S_matrix_file = 'H_Smatrix_SAE-M1_m=0_lmax=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.npy'
 S_matrix_path = this_dir.parent / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / S_matrix_file
 S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1, N-1, N-1), dtype=complex128
 
@@ -216,8 +228,13 @@ ax9.plot(r, np.abs(gl_0_array[l-m])**2, 'o-', markersize=10, label=rf'|g(r, {l=}
 ax9.plot(r, np.abs(np.dot(S_matrix[l-m], gl_0_array[l-m]))**2, 'o--', color='m', markersize=5, label=rf'|g(r, {l=}, {m=}, t=dt/2)|$^2$')
 
 state_name = generate_states(l)[n-1]
-ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
-ax2.set_title(rf"U(r$_i$, θ$_j$) = A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$): {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
+if confined:
+    ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}@C60({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
+    ax2.set_title(rf"U(r$_i$, θ$_j$) = A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$): {evolving_atom}@C60({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
+else:
+    ax1.set_title(rf'|U(r$_i$, θ$_j$)|$^2$ = |A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$)|$^2$: {evolving_atom}({state_name}, {m=}); On collocation grid [r(x$_i$), $\theta_j$]', pad=20, fontsize=15)
+    ax2.set_title(rf"U(r$_i$, θ$_j$) = A(r$_i$) $\cdot$ Y$_{{\ell}}^{{m}}$(cosθ$_j$): {evolving_atom}({state_name}, {m=}); Initial state's partial waves (t=0)", pad=20, fontsize=15)
+
 ax5.set_title(rf'U(r$_i$, θ$_j$) = $\sum_{{\ell=m}}^{{\ell_{{max}}+m}}$g$_{{{{\ell}}}}$(r$_i$) N$_{{\ell m}}$ P$_{{\ell m}}$(cosθ$_j$); m={m}', pad=30, fontsize=15)
 ax6.set_title(r'ψ$_1$(r$_i$, θ$_j$, t+dt/2) = exp{-iH$_0$(dt)/2} $\cdot$ U(r$_i$, θ$_j$)', pad=30, fontsize=15)
 ax7.set_title(r'ψ$_2$(r$_i$, θ$_j$, t+dt/2) = exp{-iV(r$_i$, θ$_j$, t+dt/2) dt/2} $\cdot$ ψ$_1$(r$_i$, θ$_j$, t+dt/2)', pad=30, fontsize=15)
@@ -276,6 +293,6 @@ fig4.subplots_adjust(
 )
 
 end_time = time.perf_counter()
-print(f'\nExecution Wall-Time : {end_time - start_time:.2f} seconds')
+print(f'\nExecution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
 
 plt.show()

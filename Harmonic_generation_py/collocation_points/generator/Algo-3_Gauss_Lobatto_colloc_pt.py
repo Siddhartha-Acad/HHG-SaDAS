@@ -128,17 +128,17 @@ mean_error = np.mean(errors)
 std_dev_error = np.std(errors, ddof=1)  # Using ddof=1 for sample standard deviation
 
 # for i in range(N-1):
-#     print(f'xj[{i}]= {colloc_pt[i]:.5f}; err= {errors[i]:.5e}')
+#     print(f' xj[{i}]= {colloc_pt[i]:.5f}; err= {errors[i]:.5e}')
 
 max_abs_value = max(abs(mean_error), abs(std_dev_error))
 power = int(np.floor(np.log10(max_abs_value)))
 
 scaled_mean = mean_error / 10 ** power
 scaled_std_dev = std_dev_error / 10 ** power
-print(f'{WHITE}~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~{RESET}')
-print(f'no. of collocation point  : {len(colloc_pt)}')
-print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'Execution wall-time : {GREEN}{wall_time:.4f}{RESET} seconds')
+print(f' {WHITE}~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~{RESET}')
+print(f' no. of collocation point  : {len(colloc_pt)}')
+print(f" mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
+print(f' Execution wall-time : {GREEN}{wall_time:.4f}{RESET} seconds')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              Plotting                              |
@@ -187,7 +187,7 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            print(f"{RED}File already exists : {file_path.name}{RESET}\n")
+            print(f" {RED}File already exists : {file_path.name}{RESET}\n")
             sys.exit(0)                         # Exit program gracefully
 
         header = f'{"colloc_pt":>12} (N={N})'
@@ -197,11 +197,11 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            print(f"{RED}File already exists : {file_path.name}{RESET}\n")
+            print(f" {RED}File already exists : {file_path.name}{RESET}\n")
             sys.exit(0)                         # Exit program gracefully
 
         colloc_pt_and_PN = np.column_stack((colloc_pt, legendre(N)(colloc_pt)))
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created : {YELLOW}{file_name}{RESET}\n')
+    print(f' file created : {YELLOW}{file_name}{RESET}\n')

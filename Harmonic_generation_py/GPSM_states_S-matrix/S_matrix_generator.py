@@ -57,13 +57,13 @@ output_dir = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / d
 file_path = output_dir / file_name
 
 if file_path.exists():
-    print(f"{RED}File already exists : {file_path.name}{RESET}\n")
+    print(f" {RED}File already exists : {file_path.name}{RESET}\n")
     sys.exit(0)                         # Exit program gracefully
 
 
-print('Azimuthal quantum num. (m)  :', m)
-print(f'S matrix range              : S({m}) to S({m+l_max})')
-print('total S matrix (l_max+1)    :', l_max+1, '\n')
+print(' Azimuthal quantum num. (m) :', m)
+print(f' S matrix range             : S({m}) to S({m+l_max})')
+print(' total S matrix (l_max+1)   :', l_max+1, '\n')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: Computing S-matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = []
@@ -87,8 +87,8 @@ for l in range(m, l_max+m+1):
     print(f' S(l={YELLOW}{l:<2}{RESET}) matrix : {GREEN}DONE{RESET}')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
-    # print(f'negative energy states (E<0) : {negative_energy_states}')
-    # print(f'positive energy states (E>0) : {positive_energy_states}\n')
+    # print(f' negative energy states (E<0) : {negative_energy_states}')
+    # print(f' positive energy states (E>0) : {positive_energy_states}\n')
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A                     # A: (k_max, n); A.T*(phase): (n, k_max)
@@ -100,15 +100,15 @@ end_time = time.perf_counter()
 wall_time = end_time - start_time
 
 if wall_time > 300.0:
-    print(f'\nExecution Wall-Time (h, m, s) : {GREEN}{secs_to_hr_min_sec(wall_time)}{RESET}')
+    print(f'\n Execution Wall-Time (h, m, s) : {GREEN}{secs_to_hr_min_sec(wall_time)}{RESET}')
 else:
-    print(f'\nExecution Wall-Time : {GREEN}{wall_time:.3f}{RESET} seconds')
+    print(f'\n Execution Wall-Time : {GREEN}{wall_time:.3f}{RESET} seconds')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: Writing S-matrices data to .npy file :~~~~~~~~~~~~~~~~~~~~~~~~
 data_S_matrix = np.array(data_S_matrix, dtype=np.complex128)            # shape: (l_max+1, N-1, N-1)
 np.save(file_path, data_S_matrix)
-print(f"S_matrix_file = '{YELLOW}{file_name}{RESET}'")
+print(f" S_matrix_file = '{YELLOW}{file_name}{RESET}'")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: saving EgVals: .txt :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,7 +121,7 @@ if save_Egvals_with_Smatrix:
     output_path = output_dir / output_name
 
     if output_path.exists():
-        print(f"{RED}File already exists: '{output_name}' — skipping.{RESET}\n")
+        print(f" {RED}File already exists: '{output_name}' — skipping.{RESET}\n")
     else:
         with open(output_path, 'w') as f:
             f.write(" ".join([f"l={l}" for l in range(m, l_max+m+1)]) + "\n")
@@ -134,5 +134,5 @@ if save_Egvals_with_Smatrix:
                         if row < len(energy_eigenvalues[f'l={l}']) else ""
                     )
                 f.write(" ".join(row_data) + "\n")
-        print(f"EgVals_file = '{YELLOW}{output_name}{RESET}'\n")
+        print(f" EgVals_file = '{YELLOW}{output_name}{RESET}'\n")
 

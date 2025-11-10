@@ -73,7 +73,7 @@ data_dir = 'Confined_atom' if confined else 'Free_atom'
 file_path = this_dir / 'GPSM_states_S-matrix' / 'data_GPSM_states_S-matrix' / data_dir / file_name
 
 if file_path.exists():
-    print(f"{RED}File already exists : {file_path.name}{RESET}\n")
+    print(f" {RED}File already exists : {file_path.name}{RESET}\n")
     sys.exit(0)                         # Exit program gracefully
 
 
@@ -105,9 +105,9 @@ np.savetxt(file_path, data, header=header, comments='', fmt='%.16e')
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #              Printing eigenvalues              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-print(f'Total number of states  :', total_states)
-[print(f'E[{i}]~ {YELLOW}{state_name(i + l + 1, l)}{RESET} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
+print(f' Total number of states  :', total_states)
+[print(f' E[{i}]~ {YELLOW}{state_name(i + l + 1, l)}{RESET} : {np.round(E[i], 10):.9f} a.u (Hartree)') for i in range(total_states)]
 
 end_time = time.perf_counter()
-print(f'\nExecution Wall-time : {GREEN}{end_time - start_time:.5f}{RESET} seconds')
-print(f"state_file = '{YELLOW}{file_name}{RESET}'\n")
+print(f'\n Execution Wall-time : {GREEN}{end_time - start_time:.5f}{RESET} seconds')
+print(f" state_file = '{YELLOW}{file_name}{RESET}'\n")
