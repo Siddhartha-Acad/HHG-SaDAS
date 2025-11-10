@@ -29,7 +29,7 @@ else
 endif
 
 
-.PHONY : all colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra 
+.PHONY : all colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra check_GPSM check_Split_operator
 .PHONY : clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
 
 all : colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra
@@ -73,6 +73,21 @@ HHG_spectra :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(YELLOW)python3 HHG_spectra_analysis/HHG_spectra.py -A -v$(RESET)"
 	@python3 HHG_spectra_analysis/HHG_spectra.py -A -v
+
+check_GPSM : colloc_pt
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                         check_GPSM.py                            |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 correctness_check/check_GPSM.py$(RESET)"
+	@python3 correctness_check/check_GPSM.py
+
+check_Split_operator : colloc_pt GPSM_gen SMAT_gen
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                    check_Split_operator.py                       |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 correctness_check/check_Split_operator.py -A$(RESET)"
+	@python3 correctness_check/check_Split_operator.py -A
+
 
 clear_colloc_pt :
 	@echo "$(RED)rm -f collocation_points/generator/*.txt$(RESET)"

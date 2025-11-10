@@ -30,8 +30,8 @@ def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-# comment_head_string = "HHG_spectra.py"
-# print(center_comment(comment_head_string))
+comment_head_string = "check_Split_operator.py"
+print(center_comment(comment_head_string))
 
-comment_title_string = "LASER info"
-print(pretty_title(comment_title_string))
+# comment_title_string = "LASER info"
+# print(pretty_title(comment_title_string))

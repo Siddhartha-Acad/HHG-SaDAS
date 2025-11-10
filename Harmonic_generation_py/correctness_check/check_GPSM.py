@@ -116,26 +116,26 @@ S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A         # Vector computation of 
 along_S_diag = sum(phi[k]**2 for k in range(E_n))
 
 
-print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
-print(f'Ip (a.u)              : {Ip:.3f}')
-print(f'Up (a.u)              : {Up_au:.3f}')
-print(f'N_cutoff              : {N_cut:.3f}')
-print(f'Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
+print(f' {WHITE}~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~{RESET}')
+print(f' Ip (a.u)              : {Ip:.3f}')
+print(f' Up (a.u)              : {Up_au:.3f}')
+print(f' N_cutoff              : {N_cut:.3f}')
+print(f' Keldysh parameter (γ) : {Keldysh(Ip, Up_au):.3f}\n')
 
-print('~~~~~~~~~~~~~~~~: GPSM :~~~~~~~~~~~~~~~')
-print('No of Eigenvalues found  :', E_n)
-print('H shape                  :', np.shape(H_matrix))
-print('H[0][0]                  :', H_matrix[0][0])
-print('H[-1][-1]                :', H_matrix[-1][-1])
-print(f'E[0](eV) ~ l={l}           :', E[0] * Energy_0)
-print(f'A[{n-1}][0]                  :', A[n-1][0])
-print(f'A[{n-1}][-1]                 :', A[n-1][-1])
-print(f'norm A[{n-1}] = sum(A^2)     :', sum(A[n-1]**2))
-print(f'norm φ[{n-1}] = int(|φ|^2)   :', Gauss_Lobatto_quadrature(phi[n - 1] ** 2))
-[print(f'E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) + f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
+print(f' {WHITE}~~~~~~~~~~~~~~~~: GPSM :~~~~~~~~~~~~~~~{RESET}')
+print(' No of Eigenvalues found  :', E_n)
+print(' H shape                  :', np.shape(H_matrix))
+print(' H[0][0]                  :', H_matrix[0][0])
+print(' H[-1][-1]                :', H_matrix[-1][-1])
+print(f' E[0](eV) ~ l={l}           :', E[0] * Energy_0)
+print(f' A[{n-1}][0]                  :', A[n-1][0])
+print(f' A[{n-1}][-1]                 :', A[n-1][-1])
+print(f' norm A[{n-1}] = sum(A^2)     :', sum(A[n-1]**2))
+print(f' norm φ[{n-1}] = int(|φ|^2)   :', Gauss_Lobatto_quadrature(phi[n - 1] ** 2))
+[print(f' E[{i}]~{state_name(i+1+l, l)}'.ljust(len(str(E_n - 1) + f'~{state_name(E_n, l)}') + 3) + f' : {E[i]:<17.15f} a.u') for i in range(E_n)]
 
-print('u(r) dataset shape       :', np.shape(u_r))
-print(f'S(l={l})-matrix shape      :', np.shape(S_matrix), '\n')
+print(' u(r) dataset shape       :', np.shape(u_r))
+print(f' S(l={l})-matrix shape      :', np.shape(S_matrix), '\n')
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: PLOTTING :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -315,6 +315,6 @@ fig6.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 
 end_time = time.perf_counter()
-print(f'Execution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
+print(f' Execution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
 
 plt.show()

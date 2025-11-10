@@ -122,9 +122,9 @@ n = 3
 #   3   |   1   |   0   |    4f_{z^3}
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-print(f'initial state       : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
-print('S_matrix file       :', S_matrix_file)
-print('S_matrix shape      :', np.shape(S_matrix))
+print(f' initial state       : (n, l, m) : ({n+l}, {l}, {m}) ~', state_name(n + l, l))
+print(' S_matrix file       :', S_matrix_file)
+print(' S_matrix shape      :', np.shape(S_matrix))
 
 r = f(colloc_pt)                                      # Radial coordinate in a.u
 A_r = state_data[1:][n - 1]                           # Being the eigenstate of matrix hamiltonian, we'll evolve A(r).
@@ -163,8 +163,8 @@ for j in range(L+1):                          # looping over all angular colloc 
 
 
 
-print(f'max(|A[{n-1}](t=0)|^2)  :', np.max(np.abs(U_r) ** 2))          # These two should remain same.
-print(f'max(|A[{n-1}](t=dt)|^2) :', np.max(np.abs(psi_evolved)**2))    # as at first step field amplitude is very nearly equal to zero.
+print(f' max(|A[{n-1}](t=0)|^2)  :', np.max(np.abs(U_r) ** 2))          # These two should remain same.
+print(f' max(|A[{n-1}](t=dt)|^2) :', np.max(np.abs(psi_evolved)**2))    # as at first step field amplitude is very nearly equal to zero.
 
 
 
@@ -293,6 +293,6 @@ fig4.subplots_adjust(
 )
 
 end_time = time.perf_counter()
-print(f'\nExecution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
+print(f'\n Execution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
 
 plt.show()
