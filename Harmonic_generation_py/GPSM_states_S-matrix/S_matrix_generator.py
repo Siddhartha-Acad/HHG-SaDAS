@@ -28,14 +28,22 @@ import argparse
 from scipy.linalg import eigh
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Harmonic_generation_py.parameters import *
-from Harmonic_generation_py.functions import print_info, conf_selector, H
-
+from Harmonic_generation_py.functions import (
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,
+    conf_selector, H
+)
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", action="store_true")
+parser.add_argument("-v", action="store_true", help='verbose mode')      # verbous about only necessary information.
 args = parser.parse_args()
 
 if args.v:
-    print_info()
+    print_smat_info()
+else:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~: File name and data arrangement system :~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,7 +84,7 @@ for l in range(m, l_max+m+1):
     A = A.T
 
     energy_eigenvalues[f'l={l}'] = E                # Store eigenvalues for l
-    print(f'S(l={YELLOW}{l:<2}{RESET}) matrix : {GREEN}DONE{RESET}')
+    print(f' S(l={YELLOW}{l:<2}{RESET}) matrix : {GREEN}DONE{RESET}')
     # positive_energy_states = np.sum(E > 0)
     # negative_energy_states = np.sum(E < 0)
     # print(f'negative energy states (E<0) : {negative_energy_states}')

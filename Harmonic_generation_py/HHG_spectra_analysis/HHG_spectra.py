@@ -39,14 +39,22 @@ from Harmonic_generation_py.parameters import (
     L, k_max, N, r_max, L_map, conf_model,
     dt, tf, w0, T
 )
+from Harmonic_generation_py.functions import (
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input time evolution data')
 parser.add_argument('-v', action='store_true', help='verbose mode')
 args = parser.parse_args()
 
-if args.v:
-    print_info()
+if not args.v:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
+else:
+    pass
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches

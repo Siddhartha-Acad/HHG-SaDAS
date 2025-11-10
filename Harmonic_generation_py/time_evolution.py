@@ -32,14 +32,15 @@ from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from parameters import (
     t, n, l, m,                                                              # time, initial state 
-    RED, CYAN, GREEN, YELLOW, RESET,                                         # ANSI colors
+    RED, CYAN, GREEN, WHITE, YELLOW, RESET,                                  # ANSI colors
     show_E_field, print_serial_prog, confined,                               # booleans
     N, L, r_max, L_map, k_max, l_max, r0, dt, time_step,                     # parameters
     evolving_atom, eta_t, SAE_model, conf_model, total_states, state_symb    # parameters
 )
 from functions import (
-    roots, colloc_pt, theta_k,                                                                                  # collocation arrays
-    f, g_lm, Y_lm, conf_selector, Absorber_func, E_field, V_int, dipole_moment, Ps                  # functions
+    roots, colloc_pt, theta_k,                                                         # collocation arrays
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,               # verbous printing
+    f, g_lm, Y_lm, conf_selector, Absorber_func, E_field, V_int, dipole_moment, Ps     # functions
 )
 
 parser = argparse.ArgumentParser()
@@ -49,7 +50,12 @@ parser.add_argument('--plot', action='store_true', help='allows to plot electric
 args = parser.parse_args()
 
 if args.v:
-    print_info()
+    print_laser_info()
+else:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -129,7 +135,7 @@ S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1
 if confined:
     conf_string = conf_selector(conf_model, 0)[1]
 
-    print("~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~")
+    print(f"{WHITE}~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~{RESET}")
     parts = conf_string.split('_')                  # Split by underscores
     confmodel = parts[0]                            # The first part (before first '_') is the confinement model
     params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
@@ -139,7 +145,7 @@ if confined:
         key, val = p.split('=')
         print(f"{key:<10}: {val}")
 
-print('\n~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
+print(f'\n{WHITE}~~~~~~~~~~~: Time Evolution :~~~~~~~~~~{RESET}')
 print('Evolving atom            :', evolving_atom)
 print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
 print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')

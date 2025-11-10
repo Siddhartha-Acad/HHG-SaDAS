@@ -57,22 +57,22 @@ $(SMAT_DAT) :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                     S_matrix_generator.py                        |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)python3 GPSM_states_S-matrix/S_matrix_generator.py$(RESET)"
-	@python3 GPSM_states_S-matrix/S_matrix_generator.py
+	@echo "$(YELLOW)python3 GPSM_states_S-matrix/S_matrix_generator.py -v$(RESET)"
+	@python3 GPSM_states_S-matrix/S_matrix_generator.py -v
 
 $(TEVO_DAT) :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                    vector_time_evolution.py                      |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)python3 vector_time_evolution.py -A$(RESET)"
-	@python3 vector_time_evolution.py -A
+	@echo "$(YELLOW)python3 vector_time_evolution.py -A -v$(RESET)"
+	@python3 vector_time_evolution.py -A -v
 
 HHG_spectra :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                          HHG_spectra.py                          |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)python3 HHG_spectra_analysis/HHG_spectra.py -A$(RESET)"
-	@python3 HHG_spectra_analysis/HHG_spectra.py -A
+	@echo "$(YELLOW)python3 HHG_spectra_analysis/HHG_spectra.py -A -v$(RESET)"
+	@python3 HHG_spectra_analysis/HHG_spectra.py -A -v
 
 clear_colloc_pt :
 	@echo "$(RED)rm -f collocation_points/generator/*.txt$(RESET)"

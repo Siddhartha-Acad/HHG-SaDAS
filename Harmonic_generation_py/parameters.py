@@ -59,6 +59,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 RED    = '\033[1;31m'
 CYAN   = '\033[1;36m'
 GREEN  = '\033[1;32m'
+WHITE  = "\033[1;37m"
 YELLOW = '\033[1;33m'
 RESET  = '\033[0m'
 

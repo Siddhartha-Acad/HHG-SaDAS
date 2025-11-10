@@ -51,6 +51,7 @@ args = parser.parse_args()
 YELLOW = '\033[1;33m'
 GREEN  = '\033[1;32m'
 RED    = '\033[1;31m'
+WHITE  = "\033[1;37m"
 RESET  = '\033[0m'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -134,7 +135,7 @@ power = int(np.floor(np.log10(max_abs_value)))
 
 scaled_mean = mean_error / 10 ** power
 scaled_std_dev = std_dev_error / 10 ** power
-print(f'~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
+print(f'{WHITE}~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~{RESET}')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
 print(f'Execution wall-time : {GREEN}{wall_time:.4f}{RESET} seconds')

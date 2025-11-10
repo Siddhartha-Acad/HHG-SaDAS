@@ -42,16 +42,24 @@ import time
 import argparse
 from scipy.linalg import eigh
 from Harmonic_generation_py.parameters import *
-from Harmonic_generation_py.functions import print_info, conf_selector, state_name, colloc_pt, H, f
+from Harmonic_generation_py.functions import (
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,
+    conf_selector, state_name, colloc_pt, H, f
+)
 start_time = time.perf_counter()
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-v", action="store_true")
+parser.add_argument("-v", action="store_true", help='verbose mode')
 args = parser.parse_args()
 
 if args.v:
-    print_info()
-
+    print_grid_info()
+    print_atom_info()
+else:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     File name and data arrangement system      |
