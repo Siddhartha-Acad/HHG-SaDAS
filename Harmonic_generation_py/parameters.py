@@ -56,6 +56,11 @@ this_dir = Path(__file__).resolve().parent     # Relative path system
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+RED    = '\033[1;31m'
+CYAN   = '\033[1;36m'
+GREEN  = '\033[1;32m'
+YELLOW = '\033[1;33m'
+RESET  = '\033[0m'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #           Atom, SAE and Confinement            |
@@ -98,7 +103,8 @@ t = np.arange(0, tf+dt, dt)                     # total number of time steps.
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #   Time evolution controls: time_evolution.py   |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-eta_t = 0.00154             # Execution time for a single time-step (dt) evolution. eta_t = 0.00154 is the execution speed achieved on my system.
+eta_t = 0.031               # Execution time for a single time-step (dt) evolution in time_evolution.py. Given value is what achieved on my system.
+eta_tv = 0.00141            # Execution time for a single time-step (dt) evolution in vector_time_evolution. Given vaalue is what achieved on my system.
 time_step = len(t) - 1      # number of time steps desired for evolution. Maximum possible steps = len(t)-1. {-1 because time_step used as index}
 show_E_field = False        # Whether to display the laser electric field before the evolution starts. (plot will remain open until you kill it).
 print_serial_prog = True    # when True, running time_evolution.py will print progress. Example:  {Evolution step 49    : 50.00%}

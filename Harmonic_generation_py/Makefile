@@ -29,10 +29,15 @@ else
 endif
 
 
-.PHONY : all HHG_spectra clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
+.PHONY : all colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra 
+.PHONY : clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
 
-all : $(COLLOC_DAT) $(GPSM_DAT) $(SMAT_DAT) $(TEVO_DAT) HHG_spectra
+all : colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra
 
+colloc_pt : $(COLLOC_DAT)
+GPSM_gen  : colloc_pt $(GPSM_DAT)
+SMAT_gen  : colloc_pt $(SMAT_DAT)
+time_evo  : $(TEVO_DAT) GPSM_gen SMAT_gen
 
 $(COLLOC_DAT) :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"

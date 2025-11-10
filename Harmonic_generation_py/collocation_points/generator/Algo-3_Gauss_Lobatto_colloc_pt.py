@@ -48,6 +48,10 @@ parser.add_argument("--plot", action="store_true")
 parser.add_argument("-N", type=int, default=200)                 # default N = 200
 args = parser.parse_args()
 
+YELLOW = '\033[1;33m'
+GREEN  = '\033[1;32m'
+RED    = '\033[1;31m'
+RESET  = '\033[0m'
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                          Useful Functions                          |
@@ -133,8 +137,7 @@ scaled_std_dev = std_dev_error / 10 ** power
 print(f'~~~~~~~~~~~~~~: Algo-3 :: N = {N} :~~~~~~~~~~~~~~')
 print(f'no. of collocation point  : {len(colloc_pt)}')
 print(f"mean ± standard deviation : ({scaled_mean:.2f} ± {scaled_std_dev:.2f}) × 10^{power}\n")
-print(f'Execution wall-time : {wall_time:.4f} seconds')
-
+print(f'Execution wall-time : {GREEN}{wall_time:.4f}{RESET} seconds')
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              Plotting                              |
@@ -183,7 +186,7 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            print(f"File already exists : {file_path.name}\n")
+            print(f"{RED}File already exists : {file_path.name}{RESET}\n")
             sys.exit(0)                         # Exit program gracefully
 
         header = f'{"colloc_pt":>12} (N={N})'
@@ -193,11 +196,11 @@ if len(colloc_pt) == N - 1:
         file_name = f'Algo-3_{N=}_Gauss_Lobatto_collocation_points_with_P{N}.txt'
         file_path = this_dir / file_name
         if file_path.exists():                  # Prevents from overwriting existing data file
-            print(f"File already exists : {file_path.name}\n")
+            print(f"{RED}File already exists : {file_path.name}{RESET}\n")
             sys.exit(0)                         # Exit program gracefully
 
         colloc_pt_and_PN = np.column_stack((colloc_pt, legendre(N)(colloc_pt)))
         header = f'{"colloc_pt":>20} {"P_" + str(N) + "(colloc_pt)":>20}'
         np.savetxt(file_path, colloc_pt_and_PN, fmt='%20.15f', header=header, comments='')
 
-    print(f'file created : {file_name}\n')
+    print(f'file created : {YELLOW}{file_name}{RESET}\n')

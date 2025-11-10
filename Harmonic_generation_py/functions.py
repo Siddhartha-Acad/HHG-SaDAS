@@ -701,10 +701,10 @@ def print_info():
     print('*** DeprecationWarning : Blocked from parameters.py ***\n')
 
     print('~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~')
-    print('mapping param (L_map)       :', L_map)
-    print('mapping param (r_max)       :', r_max)
-    print('radial colloc points (N-1)  :', N-1)
-    print('angular colloc points (L+1) :', L+1, '\n')
+    print('radial mapping param (L_map) :', L_map)
+    print('radial mapping param (r_max) :', r_max)
+    print('radial colloc points (N-1)   :', N-1)
+    print('angular colloc points (L+1)  :', L+1, '\n')
 
     # print('~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~')
     # print(f'Ip (a.u)              : {Ip:.3f}')
