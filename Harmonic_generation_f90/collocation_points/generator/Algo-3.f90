@@ -1,11 +1,6 @@
 ! File: Algo-3.f90
 ! Project: HHG-SaDAS
-!
-! $ cd ./Harmonic_generation_f90/collocation_points/
-! $ gfortran -J.. -c ../functions.f90
-! $ gfortran -I.. -c ./newton_raphson.f90
-! $ gfortran -I.. ./Algo-3.f90 ./newton_raphson.o ./functions.o -o Algo-3.exe
-!
+! 
 ! Author: Siddhartha Mithiya
 ! Affiliation: Indian Institute of Technology (IIT) Mandi
 ! License: MIT License
@@ -14,7 +9,7 @@
 ! Reference
 ! ------------
 ! Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."
-!
+! 
 ! Notes
 ! ------------
 ! - Generates high-precision collocation points (accuracy <= O(10^-15))
@@ -26,8 +21,16 @@
 program main
     use legendre_stuff
     implicit none
+
+#ifdef N_VAL
+    integer, parameter :: N = N_VAL
+    logical, parameter :: N_from_macro = .true.
+#else
+    integer, parameter :: N = 200        ! set as default. (manual)
+    logical, parameter :: N_from_macro = .false.
+#endif
+
     integer :: i, root_count
-    integer, parameter :: N = 200
     integer, parameter :: nop = 3000
 
     logical :: debug_newton = .false.
@@ -38,6 +41,12 @@ program main
     real (kind=8), allocatable :: roots(:)
     real (kind=8) :: xi, dx, guess
     character(len=60) :: file_name
+
+    if (N_from_macro) then
+        write(file_name, '(A, I0, A)') 'Algo-3_N=', N, '_Gauss_Lobatto_collocation_points.dat'
+    else
+        file_name = 'Algo-3_Gauss_Lobatto_collocation_points.dat'
+    end if
 
     dx = (xi_f - xi_i) / dble(nop - 1)
 
@@ -89,42 +98,23 @@ program main
     print '(A, I0)', '  No. of collocation point: ', N - 1
 
     if (mod(N, 2) .eq. 0) then
-        ! First half: reversed negative roots
-        do i = 1, root_count
-            colloc_pt(i) = -roots(root_count - i + 1)
-        end do
-
+        colloc_pt(1:root_count) = -roots(root_count:1:-1)     ! First half: reversed negative roots
         colloc_pt(root_count + 1) = 0.0d0
-
-        ! Second half: positive roots
-        do i = root_count + 2, N - 1
-            colloc_pt(i) = roots(i - root_count - 1)
-        end do
+        colloc_pt(root_count+2:N-1) = roots(1:root_count)     ! Second half: positive roots
     else
-        ! First half: reversed negative roots
-        do i = 1, root_count
-            colloc_pt(i) = -roots(root_count - i + 1)
-        end do
-
-        ! Second half: positive roots
-        do i = root_count + 1, N - 1
-            colloc_pt(i) = roots(i - root_count)
-        end do
+        colloc_pt(1:root_count) = -roots(root_count:1:-1)     ! First half: reversed negative roots
+        colloc_pt(root_count+1:N-1) = roots(1:root_count)     ! Second half: positive roots
     end if
 
     if (allocated(roots)) then
         deallocate(roots)
     end if
 
-    write(file_name, '(A, I0, A)') 'Algo-3_N=', N, '_Gauss_Lobatto_collocation_points.dat'
     open(unit=10, file=file_name, status='replace', action='write')
-
-    do i = 1, N-1
-        write(10, *) colloc_pt(i)
-    end do
-
+    write(10, *) colloc_pt
     close(10)
-    print '(2A)', '  File created: ', file_name; print '(A)', ' '
+
+    print '(2A)', '  File created: ', file_name; print *
 
 
 contains

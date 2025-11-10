@@ -20,11 +20,9 @@ program GPSM
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    open(unit=10, file='./collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
+    open(unit=10, file='./../collocation_points/generator/Algo-3_N=200_Gauss_Lobatto_collocation_points.dat', &
          status='old', action='read')
-        do i=1, N-1
-            read(10, *) x(i)
-        end do
+        read(10, *) x
     close(10)
     
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,12 +74,13 @@ program GPSM
             print '(A, I0, A, F20.16)', 'E(', i, ') =', E_egval(i)
         end do
         
-        open(unit=11, file='GPSM-DSYEVR_states.bin', form='unformatted', access='stream', status='replace')
+        open(unit=11, file='data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
+             form='unformatted', access='stream', status='replace')
         do i = 1, N-1
             write(11) f(x(i)), E_vect(i, :)
         end do
         close(11)
-        print '(A)', 'GPSM Eigenvctors saved in GPSM-DSYEVR_states.bin'
+        print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEVR_states.bin'
     else
         print '(A, I2)', 'DSYEVR failed. info = ', info
     end if
