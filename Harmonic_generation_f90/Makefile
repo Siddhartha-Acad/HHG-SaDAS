@@ -20,39 +20,39 @@ GPSM_states : colloc_pt $(INPUT_dPATH)/GPSM-DSYEV_states.bin
 S_matrices  : colloc_pt $(INPUT_dPATH)/S_matrices-DSYEV.bin
 
 
-$(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Algo-3.f90 functions.o
+$(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Algo-3.f90 functions.o parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                           Algo-3.f90                             |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)gfortran -cpp -I. $(COLLOC_dPATH)/Algo-3.f90 functions.o -o $(COLLOC_dPATH)/Algo-3.out$(RESET)"
-	@gfortran -cpp -I. $(COLLOC_dPATH)/Algo-3.f90 functions.o -o $(COLLOC_dPATH)/Algo-3.out
+	@echo "$(YELLOW)gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Algo-3.out$(RESET)"
+	@gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Algo-3.out
 	@echo "$(YELLOW)cd $(COLLOC_dPATH) && ./Algo-3.out$(RESET)"
 	@cd $(COLLOC_dPATH) && ./Algo-3.out
 
-$(INPUT_dPATH)/GPSM-DSYEV_states.bin : $(INPUT_PATH)/GPSM-DSYEV.f90 parameters.o
+$(INPUT_dPATH)/GPSM-DSYEV_states.bin : $(INPUT_PATH)/GPSM-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                         GPSM-DSYEV.f90                           |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 -llapack -lblas -o GPSM_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 -llapack -lblas -o GPSM_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -lblas -o GPSM_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -lblas -o GPSM_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./GPSM_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./GPSM_gen.out
 
-$(INPUT_dPATH)/S_matrices-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o
+$(INPUT_dPATH)/S_matrices-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                       S-matrix-DSYEV.f90                         |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 -llapack -lblas -o S-matrix_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 -llapack -lblas -o S-matrix_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o S-matrix_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o S-matrix_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./S-matrix_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./S-matrix_gen.out
 
-$(INPUT_dPATH)/Eigenstates-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o
+$(INPUT_dPATH)/Eigenstates-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                 S-matrix-DSYEV.f90 -DSAVE_STATES                 |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 -llapack -lblas -o A_states_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 -llapack -lblas -o A_states_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o A_states_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o A_states_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./A_states_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./A_states_gen.out
 
@@ -60,8 +60,8 @@ check_GPSM  : GPSM_states
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                         check_GPSM.f90                           |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(CHECK_PATH) && gfortran -I.. check_GPSM.f90 -o check_GPSM.out$(RESET)"
-	@cd $(CHECK_PATH) && gfortran -I.. check_GPSM.f90 -o check_GPSM.out
+	@echo "$(YELLOW)cd $(CHECK_PATH) && gfortran -I.. check_GPSM.f90 ../measure_time.o -o check_GPSM.out$(RESET)"
+	@cd $(CHECK_PATH) && gfortran -I.. check_GPSM.f90 ../measure_time.o -o check_GPSM.out
 	@echo "$(YELLOW)cd $(CHECK_PATH) && ./check_GPSM.out$(RESET)"
 	@cd $(CHECK_PATH) && ./check_GPSM.out
 
@@ -69,8 +69,8 @@ check_Split_operator : S_matrices $(INPUT_dPATH)/Eigenstates-DSYEV.bin
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                    check_Split_operator.f90                      |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(CHECK_PATH) && gfortran -I.. check_Split_operator.f90 -o check_Split_operator.out$(RESET)"
-	@cd $(CHECK_PATH) && gfortran -I.. check_Split_operator.f90 -o check_Split_operator.out
+	@echo "$(YELLOW)cd $(CHECK_PATH) && gfortran -I.. check_Split_operator.f90 ../measure_time.o -o check_Split_operator.out$(RESET)"
+	@cd $(CHECK_PATH) && gfortran -I.. check_Split_operator.f90 ../measure_time.o -o check_Split_operator.out
 	@echo "$(YELLOW)cd $(CHECK_PATH) && ./check_Split_operator.out$(RESET)"
 	@cd $(CHECK_PATH) && ./check_Split_operator.out
 
@@ -81,6 +81,11 @@ parameters.o : parameters.f90
 functions.o : functions.f90
 	@echo "$(YELLOW)gfortran -c functions.f90$(RESET)"
 	@gfortran -c functions.f90
+
+measure_time.o : measure_time.f90
+	@echo "$(YELLOW)gfortran -c measure_time.f90$(RESET)"
+	@gfortran -c measure_time.f90
+
 
 clean :
 	@echo "$(RED)rm -f $(COLLOC_dPATH)/Algo-3.out$(RESET)"

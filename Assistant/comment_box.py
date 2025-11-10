@@ -19,8 +19,8 @@ Notes:
 # for function_bank.py : comment box size = 60
 # for normal codes     : comment box size = 50
 
-comment_symbol = ''
-def center_comment(text: str, width: int = 70, border: str = "~") -> str:
+comment_symbol = '!'
+def center_comment(text: str, width: int = 50, border: str = "~") -> str:
     line = f"{comment_symbol} {border * (width - 2)}"
     middle = f"{comment_symbol} {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
@@ -30,7 +30,7 @@ def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "check_Split_operator.f90"
+comment_head_string = "ANSI colors"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Conversion efficiency"

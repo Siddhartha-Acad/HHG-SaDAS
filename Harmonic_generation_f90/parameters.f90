@@ -6,7 +6,7 @@ module parameters
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                      Atom                      |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    integer, parameter :: n_qn = 1, l_qn = 1, m_qn = 1        ! defines initial state. (qn = quantum number)
+    integer, parameter :: n_qn = 1, l_qn = 0, m_qn = 0        ! defines initial state. (qn = quantum number)
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                GPSM Parameters                 |
@@ -19,8 +19,17 @@ module parameters
     real(kind=8), parameter :: Lmap = 80.0d0, r_max = 200.0d0    ! radial mapping parameters
     real(kind=8), parameter :: alpha_map = 2.0d0 * Lmap / r_max
 
-    real(kind=8), parameter :: dt = 0.1
 
+    real(kind=8), parameter :: dt = 0.1
     integer, parameter :: check_n_states = 6    ! how many states you want to include in check_Split_operator.f90?
+
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    !                  ANSI colors                   |
+    ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    character(len=*), parameter :: green  = char(27)//'[1;32m', &
+                                   red    = char(27)//'[1;31m', &
+                                   yellow = char(27)//'[1;33m', &
+                                   white  = char(27)//'[1;37m', &
+                                   reset  = char(27)//'[0m'
 
 end module parameters

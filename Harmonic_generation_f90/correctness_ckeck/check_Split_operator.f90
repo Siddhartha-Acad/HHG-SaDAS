@@ -1,4 +1,5 @@
 program check_Split_operator
+    use timer_mod
     use parameters
     implicit none
 
@@ -8,14 +9,14 @@ program check_Split_operator
     real(kind=8) :: max_abs_err
     real(kind=8), dimension(N-1) :: A_tilde
     real(kind=8), dimension(N-1, check_n_states) :: A
+    real(kind=8) :: exec_time
 
     integer, parameter :: CW = 8         ! column width (adjust if you want wider)
     character(len=CW) :: col             ! temporary column field
     character(len=8)  :: inum            ! enough for the integer -> text
     character(len=20) :: fmtA            ! format string like '(A5)'
-    character(len=*), parameter :: green = char(27)//'[1;32m', &
-                                   red   = char(27)//'[1;31m', &
-                                   reset = char(27)//'[0m'
+
+    call tick()             ! start measuring time
 
     inquire(iolength=S_recl_size) S_matrix
     inquire(iolength=A_recl_size) A
@@ -27,7 +28,7 @@ program check_Split_operator
 
 
     write(fmtA, '(A,I0,A)') '(A', CW, ')'                       ! format string dynamically based on CW
-    print '(A)', repeat('-', (1 + check_n_states) * (CW + 1))   ! Horizontal rule
+    print '(1x, A)', repeat('-', (1 + check_n_states) * (CW + 1))   ! Horizontal rule
 
     write(*, fmtA, advance='no') 'S @ A'
     do i = 1, check_n_states
@@ -35,7 +36,7 @@ program check_Split_operator
         write(*,'(1X'//trim(fmtA)//')', advance='no') 'A(' // trim(inum) // ')'
     end do
     print *
-    print '(A)', repeat('-', (1 + check_n_states) * (CW + 1))
+    print '(1x, A)', repeat('-', (1 + check_n_states) * (CW + 1))
 
 
     do l_val = m_qn, l_max + m_qn
@@ -62,12 +63,15 @@ program check_Split_operator
     close(10)
     close(11)
 
-    print '(A)', repeat('-', (1 + check_n_states) * (CW + 1))
+    call tock(exec_time)            ! stop measuring time
+
+    print '(1x, A)', repeat('-', (1 + check_n_states) * (CW + 1))
     print *
-    print '(A)', 'Note:'
-    print '(A)', '  err = max( | S(l) @ A(n, l) - A(n, l) | )'
-    print '(A)', '  ' // green // '[PASS]' // reset // ' : err < 1.0d-3'
-    print '(A)', '  ' // red   // '[FAIL]' // reset // ' : err > 1.0d-3'
-    print '(A)', repeat('-', (1 + check_n_states) * (CW + 1))
+    print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
+    print '(1x, A)', 'Note:'
+    print '(1x, A)', '  err = max( | S(l) @ A(n, l) - A(n, l) | )'
+    print '(1x, A)', '  ' // green // '[PASS]' // reset // ' : err < 1.0d-3'
+    print '(1x, A)', '  ' // red   // '[FAIL]' // reset // ' : err > 1.0d-3'
+    print '(1x, A)', repeat('-', (1 + check_n_states) * (CW + 1))
 
 end program check_Split_operator
