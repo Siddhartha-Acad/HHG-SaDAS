@@ -31,14 +31,16 @@ import matplotlib.pyplot as plt
 from Assistant.Time_conversion import secs_to_hr_min_sec
 from Assistant.Decorate_axes import decorate_axes_L as da
 from parameters import (
-    t, n, l, m,                                                        # time, initial state 
-    show_E_field, print_serial_prog, confined,                         # booleans
-    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step,               # parameters
-    evolving_atom, eta_t, SAE_model, conf_model, total_states, state_symb          # parameters
+    t, n, l, m,                                                              # time, initial state 
+    RED, CYAN, GREEN, WHITE, YELLOW, RESET,                                  # ANSI colors
+    show_E_field, print_serial_prog, confined,                               # booleans
+    N, L, r_max, L_map, k_max, l_max, r0, dt, time_step,                     # parameters
+    evolving_atom, eta_t, SAE_model, conf_model, total_states, state_symb    # parameters
 )
 from functions import (
-    roots, colloc_pt, theta_k,                                                                                  # collocation arrays
-    f, g_lm, Y_lm, conf_selector, Absorber_func, E_field, V_int, dipole_moment, Ps                  # functions
+    roots, colloc_pt, theta_k,                                                         # collocation arrays
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,               # verbous printing
+    f, g_lm, Y_lm, conf_selector, Absorber_func, E_field, V_int, dipole_moment, Ps     # functions
 )
 
 parser = argparse.ArgumentParser()
@@ -48,7 +50,12 @@ parser.add_argument('--plot', action='store_true', help='allows to plot electric
 args = parser.parse_args()
 
 if args.v:
-    print_info()
+    print_laser_info()
+else:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -128,26 +135,26 @@ S_matrix = np.load(S_matrix_path, allow_pickle=False)          # shape: (l_max+1
 if confined:
     conf_string = conf_selector(conf_model, 0)[1]
 
-    print("~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~")
+    print(f" {WHITE}~~~~~~~~~~~~~: Conf info :~~~~~~~~~~~~~{RESET}")
     parts = conf_string.split('_')                  # Split by underscores
     confmodel = parts[0]                            # The first part (before first '_') is the confinement model
     params = [p for p in parts[1:] if '=' in p]     # Remaining parts contain key=value pairs
 
-    print(f"{'Conf model':<10}: {confmodel}")
+    print(f" {'Conf model':<10}: {confmodel}")
     for p in params:
         key, val = p.split('=')
-        print(f"{key:<10}: {val}")
+        print(f" {key:<10}: {val}")
 
-print('\n~~~~~~~~~~~: Time Evolution :~~~~~~~~~~')
-print('Evolving atom            :', evolving_atom)
-print(f'Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
-print(f'θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
-print(f'θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
-print('S_matrix file name       :', S_matrix_file)
-print('Initial state file name  :', state_file)
-print('Absorber radius (r_0)    :', r0)
-print('Total time steps         :', time_step)
-print('Estimated time (h, m, s) :', secs_to_hr_min_sec(eta_t * time_step), '\n')
+print(f'\n {WHITE}~~~~~~~~~~~: Time Evolution :~~~~~~~~~~{RESET}')
+print(' Evolving atom            :', evolving_atom)
+print(f' Evolving initial state   : (n, l, m) : ({n+l}, {l}, {m}) ~', state_symb)
+print(f' θ_k[0]                   : {np.round(theta_k[0] * 180/np.pi, 4)} deg')
+print(f' θ_k[-1]                  : {np.round(theta_k[-1] * 180/np.pi, 4)} deg')
+print(' S_matrix file name       :', S_matrix_file)
+print(' Initial state file name  :', state_file)
+print(' Absorber radius (r_0)    :', r0)
+print(' Total time steps         :', time_step)
+print(f' Estimated time (h, m, s) : {GREEN}{secs_to_hr_min_sec(eta_t * time_step)}{RESET} ~ {GREEN}{int(eta_t * time_step)}{RESET} seconds\n')
 
 if show_E_field and args.plot:
     fig1 = plt.figure(figsize=fig_size)
@@ -208,7 +215,7 @@ for ti in range(time_step):
     # ~~~~~~~~~~~~~~~~~~: Main time evolution algorithm ends here :~~~~~~~~~~~~~~~~~
 
     if print_serial_prog and ti in checkpoints:
-        print(f"Evolution step {ti:<6}: {checkpoints[ti]:6.1f}%")                # It will show how much the process is completed.
+        print(f" Evolution step {YELLOW}{ti:<5}{RESET}: {GREEN}{checkpoints[ti]:6.1f}%{RESET}")          # It will show how much the process is completed.
 
     d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
     population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
@@ -234,13 +241,13 @@ np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
 if wall_time > 300.0:
-    print(f"\nAverage wall-time per step (eta_t)      : {wall_time / time_step:.5f} seconds")
-    print(f'Total wall-time for all steps (h, m, s) : {secs_to_hr_min_sec(wall_time)}')
+    print(f"\n Average wall-time per step (eta_tv)     : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
+    print(f' Total wall-time for all steps (h, m, s) : {GREEN}{secs_to_hr_min_sec(wall_time)}{RESET}')
 else:
-    print(f"\nAverage wall-time per step (eta_t) : {wall_time / time_step:.5f} seconds")
-    print(f'Total wall-time for all steps      : {wall_time:.5f} seconds')
+    print(f"\n Average wall-time per step (eta_tv) : {GREEN}{wall_time / time_step:.5f}{RESET} seconds")
+    print(f' Total wall-time for all steps       : {GREEN}{wall_time:.5f}{RESET} seconds')
 
-print(f"evo_data_file = '{Evo_data_file}'\n")
+print(f" evo_data_file = '{YELLOW}{Evo_data_file}{RESET}'\n")
 
 
 

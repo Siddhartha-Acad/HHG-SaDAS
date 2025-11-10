@@ -25,13 +25,13 @@ def center_comment(text: str, width: int = 70, border: str = "~") -> str:
     middle = f"{comment_symbol} {text.center(width - 4)} |"
     return "\n".join([line, middle, line])
 
-def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
+def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     line = f": {text} :"
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-# comment_head_string = "HHG_spectra.py"
-# print(center_comment(comment_head_string))
+comment_head_string = "check_Split_operator.py"
+print(center_comment(comment_head_string))
 
-comment_title_string = "Conversion efficiency"
-print(pretty_title(comment_title_string))
+# comment_title_string = "LASER info"
+# print(pretty_title(comment_title_string))

@@ -36,8 +36,11 @@ import matplotlib.pyplot as plt
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters import (
     confined, time_step, evolving_atom, state_symb, m, SAE_model,
-    L, k_max, N, r_max, L_map, conf_model,
-    dt, tf, w0, T
+    L, k_max, N, r_max, L_map, conf_model, WHITE, RESET,
+    dt, tf, w0, T,
+)
+from Harmonic_generation_py.functions import (
+    print_grid_info, print_smat_info, print_atom_info, print_laser_info,
 )
 
 parser = argparse.ArgumentParser()
@@ -45,8 +48,13 @@ parser.add_argument('-A', '--auto', action='store_true', help='enable automatic 
 parser.add_argument('-v', action='store_true', help='verbose mode')
 args = parser.parse_args()
 
-if args.v:
-    print_info()
+if not args.v:
+    print_grid_info()
+    print_smat_info()
+    print_atom_info()
+    print_laser_info()
+else:
+    pass
 
 # ~~~~~~~~~~~~~~~~~~~~~~: Common Figure Settings :~~~~~~~~~~~~~~~~~~~~
 width = 6.2                         # Width in inches
@@ -106,16 +114,16 @@ laser_energy = np.trapezoid(E_t**2, t)
 eta = harmonic_energy / laser_energy
 
 
-print("~~~~~~~~~~~: Harmonic Spectra Summary :~~~~~~~~~~")
-print(f"Number of time points (len(t))   : {len(t)}")
-print(f"Time step (dt)                   : {dt} a.u.")
-print(f"Fundamental frequency (ω₀)       : {w0:.5f} a.u.")
-print(f"Max frequency (Nyquist, ω_max)   : {freq_pos[-1]:.5f} a.u.")
+print(f" {WHITE}~~~~~~~~~~~: Harmonic Spectra Summary :~~~~~~~~~~{RESET}")
+print(f" Number of time points (len(t))   : {len(t)}")
+print(f" Time step (dt)                   : {dt} a.u.")
+print(f" Fundamental frequency (ω₀)       : {w0:.5f} a.u.")
+print(f" Max frequency (Nyquist, ω_max)   : {freq_pos[-1]:.5f} a.u.", '\n')
 
-print("\n~~~~~~~~~~~~: Conversion efficiency :~~~~~~~~~~~~")
-print(f"Total laser energy (∫E² dt)      : {laser_energy:.6e}")
-print(f"Total harmonic energy (∫P(ω) dω) : {harmonic_energy:.6e}")
-print(f"Conversion efficiency (eta)      : {eta:.6e}")
+print(f" {WHITE}~~~~~~~~~~~~: Conversion efficiency :~~~~~~~~~~~~{RESET}")
+print(f" Total laser energy (∫E² dt)      : {laser_energy:.6e}")
+print(f" Total harmonic energy (∫P(ω) dω) : {harmonic_energy:.6e}")
+print(f" Conversion efficiency (eta)      : {eta:.6e}")
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

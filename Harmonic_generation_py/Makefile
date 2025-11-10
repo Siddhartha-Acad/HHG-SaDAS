@@ -1,5 +1,10 @@
 # Makefile for Harmonic_generation_py
 
+CYAN := \033[1;36m
+YELLOW := \033[1;33m
+RED := \033[1;31m
+RESET := \033[0m
+
 PYTHONPATH := PYTHONPATH=$(shell pwd)/..
 PARAMS := $(shell $(PYTHONPATH) python3 read_parameters.py)
 
@@ -24,50 +29,79 @@ else
 endif
 
 
-.PHONY : all HHG_spectra clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
+.PHONY : all colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra check_GPSM check_Split_operator
+.PHONY : clear_colloc_pt clear_GPSM_SMAT clear_evo_data clobber
 
-all : $(COLLOC_DAT) $(GPSM_DAT) $(SMAT_DAT) $(TEVO_DAT) HHG_spectra
+all : colloc_pt GPSM_gen SMAT_gen time_evo HHG_spectra
+
+colloc_pt : $(COLLOC_DAT)
+GPSM_gen  : colloc_pt $(GPSM_DAT)
+SMAT_gen  : colloc_pt $(SMAT_DAT)
+time_evo  : $(TEVO_DAT) GPSM_gen SMAT_gen
 
 $(COLLOC_DAT) :
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "|               Algo-3_Gauss_Lobatto_colloc_pt.py                  |"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_colloc_pt.py -N $(N)
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|               Algo-3_Gauss_Lobatto_colloc_pt.py                  |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_colloc_pt.py -N $(N)$(RESET)"
+	@python3 $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_colloc_pt.py -N $(N)
 
 $(GPSM_DAT) :
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "|                    GPSM_state_generator.py                       |"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 GPSM_states_S-matrix/GPSM_states_generator.py -v
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                    GPSM_state_generator.py                       |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 GPSM_states_S-matrix/GPSM_states_generator.py -v$(RESET)"
+	@python3 GPSM_states_S-matrix/GPSM_states_generator.py -v
 
 $(SMAT_DAT) :
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "|                     S_matrix_generator.py                        |"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 GPSM_states_S-matrix/S_matrix_generator.py
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                     S_matrix_generator.py                        |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 GPSM_states_S-matrix/S_matrix_generator.py -v$(RESET)"
+	@python3 GPSM_states_S-matrix/S_matrix_generator.py -v
 
 $(TEVO_DAT) :
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "|                    vector_time_evolution.py                      |"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 vector_time_evolution.py -A
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                    vector_time_evolution.py                      |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 vector_time_evolution.py -A -v$(RESET)"
+	@python3 vector_time_evolution.py -A -v
 
 HHG_spectra :
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	@echo "                          HHG_spectra.py                           |"
-	@echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-	python3 HHG_spectra_analysis/HHG_spectra.py -A
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                          HHG_spectra.py                          |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 HHG_spectra_analysis/HHG_spectra.py -A -v$(RESET)"
+	@python3 HHG_spectra_analysis/HHG_spectra.py -A -v
+
+check_GPSM : colloc_pt
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                         check_GPSM.py                            |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 correctness_check/check_GPSM.py$(RESET)"
+	@python3 correctness_check/check_GPSM.py
+
+check_Split_operator : colloc_pt GPSM_gen SMAT_gen
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                    check_Split_operator.py                       |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 correctness_check/check_Split_operator.py -A$(RESET)"
+	@python3 correctness_check/check_Split_operator.py -A
 
 
 clear_colloc_pt :
-	rm -f collocation_points/generator/*.txt
+	@echo "$(RED)rm -f collocation_points/generator/*.txt$(RESET)"
+	@rm -f collocation_points/generator/*.txt
 
 clear_GPSM_SMAT :
-	rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Free_atom/*
-	rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Confined_atom/*
+	@echo "$(RED)rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Free_atom/*$(RESET)"
+	@rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Free_atom/*
+	@echo "$(RED)rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Confined_atom/*$(RESET)"
+	@rm -f GPSM_states_S-matrix/data_GPSM_states_S-matrix/Confined_atom/*
 
 clear_evo_data :
-	rm -f Time_evolution_data/*
+	@echo "$(RED)rm -f Time_evolution_data/*$(RESET)"
+	@rm -f Time_evolution_data/*
 
 clobber : clear_colloc_pt clear_GPSM_SMAT clear_evo_data
-
+	@echo "$(RED)All generated data cleared!$(RESET)"
