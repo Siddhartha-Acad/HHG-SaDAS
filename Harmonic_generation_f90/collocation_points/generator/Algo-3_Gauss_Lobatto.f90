@@ -1,4 +1,4 @@
-! File: Algo-3.f90
+! File: Algo-3_Gauss_Lobatto.f90
 ! Project: HHG-SaDAS
 ! 
 ! Author: Siddhartha Mithiya

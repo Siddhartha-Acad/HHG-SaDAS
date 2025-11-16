@@ -1,5 +1,8 @@
 # Makefile for Harmonic_generation_f90
 
+# gl_nodes  : Gauss–Legendre nodes/collocation points
+# glo_nodes : Gauss–Lobatto nodes/collocation points
+
 CYAN := \033[1;36m
 YELLOW := \033[1;33m
 GREEN := \033[1;32m
@@ -11,23 +14,23 @@ INPUT_dPATH  := ./GPSM_states_S-matrix/data_GPSM_states_S-matrix
 INPUT_PATH   := ./GPSM_states_S-matrix
 CHECK_PATH   := ./correctness_ckeck
 
-.PHONY : all clear clobber colloc_pt GPSM_states S_matrices
+.PHONY : all clear clobber glo_nodes GPSM_states S_matrices
 
-all : colloc_pt GPSM_states S_matrices
+all : glo_nodes GPSM_states S_matrices
 
-colloc_pt   : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat
-GPSM_states : colloc_pt $(INPUT_dPATH)/GPSM-DSYEV_states.bin
-S_matrices  : colloc_pt $(INPUT_dPATH)/S_matrices-DSYEV.bin
+glo_nodes    : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat
+GPSM_states : glo_nodes $(INPUT_dPATH)/GPSM-DSYEV_states.bin
+S_matrices  : glo_nodes $(INPUT_dPATH)/S_matrices-DSYEV.bin
 
 
-$(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Algo-3.f90 functions.o parameters.o measure_time.o
+$(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto.f90 functions.o parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(CYAN)|                           Algo-3.f90                             |$(RESET)"
+	@echo "$(CYAN)|                    Algo-3_Gauss_Lobatto.f90                      |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Algo-3.out$(RESET)"
-	@gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Algo-3.out
-	@echo "$(YELLOW)cd $(COLLOC_dPATH) && ./Algo-3.out$(RESET)"
-	@cd $(COLLOC_dPATH) && ./Algo-3.out
+	@echo "$(YELLOW)gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Gauss_Lobatto.out$(RESET)"
+	@gfortran -cpp -I../.. $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto.f90 functions.o measure_time.o -o $(COLLOC_dPATH)/Gauss_Lobatto.out
+	@echo "$(YELLOW)cd $(COLLOC_dPATH) && ./Gauss_Lobatto.out$(RESET)"
+	@cd $(COLLOC_dPATH) && ./Gauss_Lobatto.out
 
 $(INPUT_dPATH)/GPSM-DSYEV_states.bin : $(INPUT_PATH)/GPSM-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
@@ -88,8 +91,8 @@ measure_time.o : measure_time.f90
 
 
 clean :
-	@echo "$(RED)rm -f $(COLLOC_dPATH)/Algo-3.out$(RESET)"
-	@rm -f $(COLLOC_dPATH)/Algo-3.out
+	@echo "$(RED)rm -f $(COLLOC_dPATH)/Gauss_Lobatto.out$(RESET)"
+	@rm -f $(COLLOC_dPATH)/Gauss_Lobatto.out
 	@echo "$(RED)rm -f $(INPUT_PATH)/GPSM_gen.out$(RESET)"
 	@rm -f $(INPUT_PATH)/GPSM_gen.out
 	@echo "$(RED)rm -f $(INPUT_PATH)/S-matrix_gen.out$(RESET)"
