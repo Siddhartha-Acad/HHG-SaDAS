@@ -30,7 +30,7 @@ def pretty_title(text: str, width: int = 50, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "Algo-3_Gauss_Lobatto.f90"
+comment_head_string = "Gauss_Legendre.f90"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Conversion efficiency"

@@ -7,7 +7,7 @@ module legendre_stuff
 contains
 
     pure real (kind=8) function legendre(n, x)
-        ! FORWARD RECURSION ALGORITHM
+        ! FORWARD RECURSION : Bonnet's recursion formula
         ! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
         
         integer :: k
