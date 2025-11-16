@@ -1,6 +1,7 @@
 ! Gauss_Legendre.f90 :: golub–welsch algorithm
 
 program main
+    use parameters, only: green, yellow, reset
     implicit none
     integer, parameter :: L = 5
     integer, parameter :: N = L + 1         ! to keep it simple.
@@ -11,6 +12,9 @@ program main
     
     integer :: i, info
     real(kind=8), allocatable :: work(:)
+    character(len=60) :: file_name
+    
+    file_name = 'Gauss_Legendre_collocation_points_and_weights.dat'
     
     diag = 0.0d0
     do i = 1, N-1
@@ -34,13 +38,20 @@ program main
      weights(i) = 2.0d0 * ( Egvects(1,i) * Egvects(1,i) )   ! = 2 * (v_{1,i})^2
     end do
 
-    print *
-    print '(2x,A,I0)', "Gauss-Legendre collocation points for L+1 = ", N
+    print '(1x,A,I0)', "Gauss-Legendre collocation points for L+1 = ", N
     print '(2A25)', "Node (x_i)", "Weight (w_i)"
     do i = 1, N
         print '(2(ES25.16))', diag(i), weights(i)
     end do
     
     deallocate(work)
+    
+    open(unit=10, file=file_name, status='replace', action='write')
+    write(10, *) diag, weights
+    close(10)
+    
+    print *
+    print '(1x,A)', 'File created: ' // yellow // file_name // reset
+    print *
 
 end program main

@@ -101,7 +101,7 @@ program main
     end do
 
     print '(1x, A, I0)', 'N = ', N
-    print '(1x, A, I0)', 'collocation point = ', N - 1
+    print '(1x, A, I0)', 'Gauss-Lobatto collocation point = ', N - 1
 
     if (mod(N, 2) .eq. 0) then
         colloc_pt(1:root_count) = -roots(root_count:1:-1)     ! First half: reversed negative roots
