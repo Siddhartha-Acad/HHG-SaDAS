@@ -35,11 +35,11 @@ program main
     ! Weights: w_i = mu0 * (v_{0,i})^2. For Legendre on [-1,1], mu0 = 2 and
     ! v_{0,i} corresponds to Egvects(1,i) (first row, column i)
     do i = 1, N
-     weights(i) = 2.0d0 * ( Egvects(1,i) * Egvects(1,i) )   ! = 2 * (v_{1,i})^2
+     weights(i) = 2.0d0 * ( Egvects(1,i) * Egvects(1,i) )   ! w_i = 2 * (v_{1,i})^2
     end do
 
     print '(1x,A,I0)', "Gauss-Legendre collocation points for L+1 = ", N
-    print '(2A25)', "Node (x_i)", "Weight (w_i)"
+    print '(2A25)', "GL Node (x_i)", "Weight (w_i)"
     do i = 1, N
         print '(2(ES25.16))', diag(i), weights(i)
     end do
