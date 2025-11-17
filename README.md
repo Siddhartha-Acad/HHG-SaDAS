@@ -1,10 +1,17 @@
-# HHG-SaDAS  
+# HHG-SaDAS
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="z_doc_figures/Theory_flow_dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="z_doc_figures/Theory_flow_light.svg">
+    <img src="z_doc_figures/Theory_flow_light.svg" alt="HHG-SaDAS Workflow" width="850"/>
+  </picture>
+</p>
+
 > For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-brightgreen)
-
----
 
 ## What is HHG-SaDAS?
 
@@ -75,7 +82,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 # Workflow
 
 <p align="center">
-  <img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
+<img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
 </p>
 
 
@@ -112,13 +119,13 @@ Whereas, this public repository is a streamlined version, providing the main use
 >state_file = He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat
 >
 >+-----+-------------+----------+----------+----------+-----+----------+
->| Row | r(x) (a.u.) |   A(1s)  |   A(2s)  |   A(3s)  | ... |  A(10s)  |
+>| Row | r(x) (a.u.) | A(1s)| A(2s)| A(3s)| ... |A(10s)|
 >+-----+-------------+----------+----------+----------+-----+----------+
->|  1  | 0.00166     | -0.00041 |  4.6E-05 | 0.000118 | ... | 8.64E-06 |
->|  2  | 0.005566    |  0.001819| -0.00021 | -0.00053 | ... | -3.9E-05 |
->|  3  | 0.011707    | -0.00454 |  0.000513| 0.001318 | ... | 9.63E-05 |
->|  4  | 0.020085    |  0.00877 | -0.00099 | -0.00254 | ... | -0.00019 |
->| ... | ...         | ...      | ...      | ...      | ... | ...      |
+>|1| 0.00166 | -0.00041 |4.6E-05 | 0.000118 | ... | 8.64E-06 |
+>|2| 0.005566|0.001819| -0.00021 | -0.00053 | ... | -3.9E-05 |
+>|3| 0.011707| -0.00454 |0.000513| 0.001318 | ... | 9.63E-05 |
+>|4| 0.020085|0.00877 | -0.00099 | -0.00254 | ... | -0.00019 |
+>| ... | ... | ...| ...| ...| ... | ...|
 >+-----+-------------+----------+----------+----------+-----+----------+
 >| 199 | 199.7993166 |-7.14E-13 |-1.38E-10 | 5.80E-11 | ... |-0.000331 |
 >+-----+-------------+----------+----------+----------+-----+----------+
@@ -130,9 +137,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 >
 ><div align="center">
 ><picture>
->  <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
->  <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
->  <img alt="S-matrix formula" src="https://latex.codecogs.com/svg.latex?S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
+><source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
+><source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
+><img alt="S-matrix formula" src="https://latex.codecogs.com/svg.latex?S_%7B%5Calpha%5Cbeta%7D%28%5Cell%29%20%3D%20%5Csum_%7Bk%3D1%7D%5E%7Bk_%7Bmax%7D%7D%20A_%7Bk%5Calpha%7D%28%5Cell%29%20%5Cexp%5C%7B-iE_k%28%5Cell%29%5Cdelta%20t/2%5C%7D%20A_%7Bk%5Cbeta%7D%28%5Cell%29">
 ></picture>
 ></div>
 >
@@ -168,9 +175,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 >```console
 >$ python3 check_GPSM.py
 >~~~~~~~~~~~~~: Grid info :~~~~~~~~~~~~~
->mapping param (L_map)       : 80
->mapping param (r_max)       : 200
->radial colloc points (N-1)  : 199
+>mapping param (L_map) : 80
+>mapping param (r_max) : 200
+>radial colloc points (N-1): 199
 >angular colloc points (L+1) : 21
 >~~~~~~~~~: Atom & Laser info :~~~~~~~~~
 >atom system   : He
@@ -180,23 +187,23 @@ Whereas, this public repository is a streamlined version, providing the main use
 >...
 >...
 >~~~~~~~~~~~~~~~~: GPSM :~~~~~~~~~~~~~~~
->No of Eigenvalues found  : 6
->H shape                  : (199, 199)
->H[0][0]                  : 58820.53831098895
->H[-1][-1]                : 149.90473426757345
->E[0](eV) ~ l=1           : -6.868420982813965
->A[0][0]                  : -2.4141140190625256e-07
->A[0][-1]                 : 3.037738116606903e-11
->norm A[0] = sum(A^2)     : 1.0
->norm φ[0] = int(|φ|^2)   : 1.0000000000000002
+>No of Eigenvalues found: 6
+>H shape: (199, 199)
+>H[0][0]: 58820.53831098895
+>H[-1][-1]: 149.90473426757345
+>E[0](eV) ~ l=1 : -6.868420982813965
+>A[0][0]: -2.4141140190625256e-07
+>A[0][-1] : 3.037738116606903e-11
+>norm A[0] = sum(A^2) : 1.0
+>norm φ[0] = int(|φ|^2) : 1.0000000000000002
 >E[0]~2p : -0.252409815535524 a.u
 >E[1]~3p : -0.068686756344595 a.u
 >E[2]~4p : -0.041126895507584 a.u
 >E[3]~5p : -0.024855529617141 a.u
 >E[4]~6p : -0.016561274637765 a.u
 >E[5]~7p : -0.011828359154589 a.u
->u(r) dataset shape       : (6, 199)
->S(l=1)-matrix shape      : (199, 199) 
+>u(r) dataset shape : (6, 199)
+>S(l=1)-matrix shape: (199, 199) 
 >Execution Time (h, m, s) : (0, 0, 3)
 >```
 
@@ -208,9 +215,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
->   <img alt="Wave function norm conservation equation" src="https://latex.codecogs.com/svg.latex?%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
+> <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
+> <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
+> <img alt="Wave function norm conservation equation" src="https://latex.codecogs.com/svg.latex?%7Cg_%7B%5Cell%7D%28r_i%2C%5Cdelta%20t/2%29%7C%5E2%20%3D%20%5Cleft%7C%5Csum_%7Bj%3D1%7D%5E%7BN-1%7D%20S_%7Bij%7D%28%5Cell%29%20g_%7B%5Cell%7D%28r_j%29%5Cright%7C%5E2%20%3D%20%7Cg_%7B%5Cell%7D%28r_i%2C%200%29%7C%5E2">
 > </picture>
 > </div>
 > 
@@ -228,17 +235,17 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
->   <img alt="Time evolution operator equation" src="https://latex.codecogs.com/svg.latex?U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+> <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+> <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
+> <img alt="Time evolution operator equation" src="https://latex.codecogs.com/svg.latex?U%28%5Cdelta%20t%29%20%3D%20%5Cexp%28-iH%5Cdelta%20t%29%20%3D%20%5Cexp%5Cleft%5C%7B-i%5Cleft%28%5Chat%7Bh%7D_0%20%2B%20%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%5Cright%29%5Cdelta%20t%5Cright%5C%7D">
 > </picture>
 > </div>
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
->   <img alt="Trotter splitting approximation" src="https://latex.codecogs.com/svg.latex?%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+> <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+> <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
+> <img alt="Trotter splitting approximation" src="https://latex.codecogs.com/svg.latex?%5Capprox%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7BV%7D_%7B%5Ctext%7Bint%7D%7D%28r%2C%5Ctheta%2Ct%2B%5Cdelta%20t/2%29%5Cdelta%20t%5Cright%29%20%5Cexp%5Cleft%28-i%5Chat%7Bh%7D_0%28r%29%5Cdelta%20t/2%5Cright%29%20%2B%20%5Cmathcal%7BO%7D%28%5Cdelta%20t%5E3%29">
 > </picture>
 > </div>
 >
@@ -252,15 +259,15 @@ Whereas, this public repository is a streamlined version, providing the main use
 >Evo_data = 'Evo_steps=88036_He(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 >
 >+-------+-------------+-------------+-------------+-------------+
->| Row   | t (a.u.)    |    E(t)     |    d(t)     |   Ps(t)     |
+>| Row | t (a.u.)|E(t) |d(t) | Ps(t) |
 >+-------+-------------+-------------+-------------+-------------+
->|   1   | 0           | 0           | 5.69E-17    | 1.00        |
->|   2   | 0.1         | 2.06E-13    | 1.86E-15    | 1.00        |
->|   3   | 0.2         | 1.65E-12    | 1.31E-14    | 1.00        |
->|   4   | 0.3         | 5.56E-12    | 5.34E-14    | 1.00        |
->|   5   | 0.4         | 1.32E-11    | 1.60E-13    | 1.00        |
->|  ...  | ...         | ...         | ...         | ...         |
->| 88036 | 8803.5      | -8.50E-15   | -2.60E-05   | 0.965279    |
+>| 1 | 0 | 0 | 5.69E-17| 1.00|
+>| 2 | 0.1 | 2.06E-13| 1.86E-15| 1.00|
+>| 3 | 0.2 | 1.65E-12| 1.31E-14| 1.00|
+>| 4 | 0.3 | 5.56E-12| 5.34E-14| 1.00|
+>| 5 | 0.4 | 1.32E-11| 1.60E-13| 1.00|
+>|...| ... | ... | ... | ... |
+>| 88036 | 8803.5| -8.50E-15 | -2.60E-05 | 0.965279|
 >+-------+-------------+-------------+-------------+-------------+
 >```
 
@@ -273,9 +280,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
->   <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+> <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color{white}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+> <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color{black}P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
+> <img alt="Fourier transform probability formula" src="https://latex.codecogs.com/svg.latex?P%28\omega%29%20%3D%20%5Cleft%7C%5Cfrac%7B1%7D%7Bt_f-t_i%7D%5Cint_%7Bt_i%7D%5E%7Bt_f%7Dd%28t%29%5C%2Ce%5E%7B-i%5Comega%20t%7D%5C%2Cdt%5Cright%7C%5E2">
 > </picture>
 > </div>
 > 
@@ -283,9 +290,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > <div align="center">
 > <picture>
->   <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bwhite%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
->   <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
->   <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+> <source media="(prefers-color-scheme: dark)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bwhite%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+> <source media="(prefers-color-scheme: light)" srcset="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
+> <img alt="HHG efficiency equation" src="https://latex.codecogs.com/svg.latex?\color%7Bblack%7D%5Ceta%20%5Cequiv%20%5Cfrac%7B%5Ctext%7BEnergy%20radiated%20through%20high%20harmonics%7D%7D%7B%5Ctext%7BTotal%20electromagnetic%20energy%20delivered%20by%20the%20laser%20field%7D%7D%20%3D%20%5Cfrac%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20P%28%5Comega%29%5C%2Cd%5Comega%7D%7B%5Cint_%7B0%7D%5E%7B%5Cinfty%7D%20E%5E2%28t%29%5C%2Cdt%7D">
 > </picture>
 > </div>
 >
@@ -295,11 +302,11 @@ Whereas, this public repository is a streamlined version, providing the main use
 > Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
 > 
 > <p align="center">
->  <img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="750"/>
+><img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="750"/>
 > </p>
 >
 > <p align="center">
->  <img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="750"/>
+><img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="750"/>
 > </p>
 
 ---
@@ -372,7 +379,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 >```console
 >python .\Harmonic_generation_py\HHG_spectra_analysis\HHG_spectra.py
 >```
-
 
 
 ## License
