@@ -30,7 +30,7 @@ def pretty_title(text: str, width: int = 40, fill: str = "~") -> str:
     return f"{comment_symbol} " + line.center(width - 1, fill)
 
 
-comment_head_string = "check_Split_operator.f90"
+comment_head_string = "Gauss_Legendre.f90 :: Golub–Welsch Algorithm"
 print(center_comment(comment_head_string))
 
 # comment_title_string = "Conversion efficiency"

@@ -1,6 +1,7 @@
 ! fortran implementation for generating S-matrices.
 
 program S_matrix_generator
+    use timer_mod
     use parameters
     implicit none
 
@@ -13,6 +14,7 @@ program S_matrix_generator
     integer :: i, j, l_val, recl_size
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
+    real(kind=8) :: exec_time
 
     real(kind=8), dimension(N-1, N-1) :: H_matrix
     complex(kind=8), dimension(N-1, N-1) :: S_matrix
@@ -23,8 +25,6 @@ program S_matrix_generator
     real(kind=8), allocatable :: work_array(:)
 
     character(len=8) :: l_str
-    character(len=*), parameter :: green = char(27)//'[1;32m', &
-                                   reset = char(27)//'[0m'
 
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,6 +34,8 @@ program S_matrix_generator
             status='old', action='read')
         read(10, *) x
     close(10)
+
+    call tick()                     ! start measuring time
 
     f_arr  = Lmap * (1.0d0 + x) / (1.0d0 - x + alpha_map)
     fp_arr = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x + alpha_map)**2
@@ -113,14 +115,24 @@ program S_matrix_generator
                 print '(1x, A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
             end if
         else
-            print '(A, I0)', 'DSYEV failed. info = ', info
+            print '(A, I0)', ' DSYEV failed. info = ', info
         end if
     end do
-    print *
 
     if (.not. save_states) close(20)
     if (save_states) close(30)
     deallocate(work_array)
+
+    call tock(exec_time)                     ! stop measuring time
+    print *
+    print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
+
+    if (.not. save_states) then
+        print '(A)', ' S(l) matrices: ' // yellow // 'data_GPSM_states_S-matrix/S_matrices-DSYEV.bin' // reset
+    else
+        print '(A)', ' A(n, l) Eigenstates: ' // yellow // 'data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin' // reset
+    end if
+    print *
 
 end program S_matrix_generator
 

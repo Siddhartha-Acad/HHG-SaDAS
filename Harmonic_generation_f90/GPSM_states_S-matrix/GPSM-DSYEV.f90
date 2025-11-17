@@ -2,16 +2,19 @@
 ! time independent Schrodinger equation using GPSM
 
 program GPSM
+    use timer_mod
     use parameters
     implicit none
     integer :: i, j
     real(kind=8), dimension(N-1) :: x, f, f_p            ! x = collocation points
     real(kind=8), dimension(N-1, N-1) :: H_matrix
+    real(kind=8) :: exec_time
 
     character :: jobz, uplo
     integer :: lda, lwork, info
     real(kind=8), dimension(N-1) :: E_egval
     real(kind=8), allocatable :: work_array(:)
+
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                     reading collocation points                     |
@@ -21,6 +24,7 @@ program GPSM
         read(10, *) x
     close(10)
 
+    call tick()                     ! start measuring time
 
     f = Lmap * (1.0d0 + x) / (1.0d0 - x + alpha_map)
     f_p = Lmap * (alpha_map + 2.0d0) / (1.0d0 - x + alpha_map)**2
@@ -53,6 +57,7 @@ program GPSM
     call DSYEV('V', 'U', N-1, H_matrix, N-1, E_egval, work_array, lwork, info)
     deallocate(work_array)
 
+    call tock(exec_time)                     ! start measuring time
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !               Writing eigenvectors to an output file               |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,10 +70,13 @@ program GPSM
              form='unformatted', access='stream', status='replace')
             write(11) f, H_matrix(:, 1:total_states)
         close(11)
-        print '(A)', 'GPSM Eigenvctors: data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin'
+
+        print *
+        print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
+        print '(A)', ' GPSM Eigenvctors: ' // yellow // 'data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin' // reset
         print *
     else
-        print '(A, I0)', 'DSYEV failed. info = ', info
+        print '(1x, A, A, I0, A)', red, 'DSYEV failed. info = ', info, reset
     end if
 
 

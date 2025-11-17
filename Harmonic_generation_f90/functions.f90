@@ -7,7 +7,7 @@ module legendre_stuff
 contains
 
     pure real (kind=8) function legendre(n, x)
-        ! FORWARD RECURSION ALGORITHM
+        ! FORWARD RECURSION : Bonnet's recursion formula
         ! P_n(x) = \frac{1}{n}\left[ (2n-1)xP_{n-1}(x) - (n-1)P_{n-2}(x) \right]
         
         integer :: k
@@ -77,9 +77,9 @@ subroutine newton_raphson(N, x_i, root, debug)
     
     if (debug) then
         print '(A)'
-        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
-        print '(A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|   |'
-        print '(A)', '+-----+----------------------+----------------------+---------------------------+'
+        print '(1x, A)', '+-----+----------------------+----------------------+--------------------------+'
+        print '(1x, A)', '|  n  |         x_n          |       x_{n+1}        |   err = |x_{n+1} - x_n|  |'
+        print '(1x, A)', '+-----+----------------------+----------------------+--------------------------+'
     end if
     
     x_old = x_i
@@ -87,8 +87,8 @@ subroutine newton_raphson(N, x_i, root, debug)
         x_new = x_old - Lambda(N, x_old) / Lambda_p(N, x_old)
         
         if (debug) then
-            print '(A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
-                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), '  |'
+            print '(1x, A, I3, A, F20.16, A, F20.16, A, E24.16, A)', &
+                    '| ', iter, ' | ', x_old, ' | ', x_new, ' | ', abs(x_new - x_old), ' |'
         end if
         
         if (abs(x_new - x_old) .lt. (tol + rtol*abs(x_new))) then

@@ -1,4 +1,4 @@
-! File: Algo-3.f90
+! File: Algo-3_Gauss_Lobatto.f90
 ! Project: HHG-SaDAS
 ! 
 ! Author: Siddhartha Mithiya
@@ -19,14 +19,17 @@
 ! --------------------------------------------------------------------------------
 
 program main
+    use timer_mod
     use legendre_stuff
+    use parameters, only: green, yellow, reset
+#ifndef N_VAL
+    use parameters, only: N
+#endif
     implicit none
-
 #ifdef N_VAL
     integer, parameter :: N = N_VAL
     logical, parameter :: N_from_macro = .true.
 #else
-    integer, parameter :: N = 200        ! set as default. (manual)
     logical, parameter :: N_from_macro = .false.
 #endif
 
@@ -35,13 +38,15 @@ program main
 
     logical :: debug_newton = .false.
     logical :: print_colloc_pt = .false.
-    real (kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
-    real (kind=8), dimension(N-1) :: colloc_pt
-    real (kind=8), dimension(nop) :: x_map, y
-    real (kind=8), allocatable :: roots(:)
-    real (kind=8) :: xi, dx, guess
+    real(kind=8), parameter :: xi_i = -1.0d0, xi_f = 1.0d0
+    real(kind=8), dimension(N-1) :: colloc_pt
+    real(kind=8), dimension(nop) :: x_map, y
+    real(kind=8), allocatable :: roots(:)
+    real(kind=8) :: xi, dx, guess
+    real(kind=8) :: exec_time
     character(len=60) :: file_name
 
+    call tick()                     ! start measuring time
     if (N_from_macro) then
         write(file_name, '(A, I0, A)') 'Algo-3_N=', N, '_Gauss_Lobatto_collocation_points.dat'
     else
@@ -75,13 +80,14 @@ program main
 
     if (print_colloc_pt) then
         print '(A)', ' '
-        print '(A)', '   #        Initial Guess      Collocation point x(j)'
-        print '(A)', '  ---  ---------------------  -----------------------'
+        print '(A)', '  #        Initial Guess      Collocation point x(j)'
+        print '(A)', ' ---  ---------------------  -----------------------'
     end if
 
     if (.not. ((mod(N, 2) .eq. 0 .and. root_count .eq. (N/2 - 1)) .or. &
                (mod(N, 2) .ne. 0 .and. root_count .eq. (N-1)/2))) then
-        stop 'ERROR: Incorrect number of initial guess values'
+        write(0, '(A,I0)') "ERROR: Incorrect number of initial guess values : increase 'nop', currently nop = ", nop
+        stop 1
     end if
 
     do i = 1, root_count
@@ -94,8 +100,8 @@ program main
         end if
     end do
 
-    print '(A)', ' '
-    print '(A, I0)', '  No. of collocation point: ', N - 1
+    print '(1x, A, I0)', 'N = ', N
+    print '(1x, A, I0)', 'Gauss-Lobatto collocation point = ', N - 1
 
     if (mod(N, 2) .eq. 0) then
         colloc_pt(1:root_count) = -roots(root_count:1:-1)     ! First half: reversed negative roots
@@ -110,11 +116,16 @@ program main
         deallocate(roots)
     end if
 
+    call tock(exec_time)                     ! stop measuring time
+
     open(unit=10, file=file_name, status='replace', action='write')
     write(10, *) colloc_pt
     close(10)
 
-    print '(2A)', '  File created: ', file_name; print *
+    print *
+    print '(A, A, F0.5, A, A)', " Execution Wall-time: ", green, exec_time, reset, " sec"
+    print '(A)', ' File created: ' // yellow // file_name // reset
+    print *
 
 
 contains
