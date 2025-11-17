@@ -33,12 +33,12 @@ $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Al
 	@echo "$(YELLOW)cd $(COLLOC_dPATH) && ./Gauss_Lobatto.out$(RESET)"
 	@cd $(COLLOC_dPATH) && ./Gauss_Lobatto.out
 
-$(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat : $(COLLOC_dPATH)/Gauss_Legendre.f90 parameters.o
+$(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat : $(COLLOC_dPATH)/Gauss_Legendre.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|           Gauss_Legendre.f90 :: Golub–Welsch Algorithm           |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(YELLOW)gfortran $(COLLOC_dPATH)/Gauss_Legendre.f90 -llapack -o $(COLLOC_dPATH)/Gauss_Legendre.out$(RESET)"
-	@gfortran $(COLLOC_dPATH)/Gauss_Legendre.f90 -llapack -o $(COLLOC_dPATH)/Gauss_Legendre.out
+	@gfortran $(COLLOC_dPATH)/Gauss_Legendre.f90 measure_time.o -llapack -o $(COLLOC_dPATH)/Gauss_Legendre.out
 	@echo "$(YELLOW)cd $(COLLOC_dPATH) && ./Gauss_Legendre.out$(RESET)"
 	@cd $(COLLOC_dPATH) && ./Gauss_Legendre.out
 
@@ -46,8 +46,8 @@ $(INPUT_dPATH)/GPSM-DSYEV_states.bin : $(INPUT_PATH)/GPSM-DSYEV.f90 parameters.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                         GPSM-DSYEV.f90                           |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -lblas -o GPSM_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -lblas -o GPSM_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -o GPSM_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -o GPSM_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./GPSM_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./GPSM_gen.out
 
@@ -55,8 +55,8 @@ $(INPUT_dPATH)/S_matrices-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameter
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                       S-matrix-DSYEV.f90                         |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o S-matrix_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o S-matrix_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -o S-matrix_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -cpp -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -o S-matrix_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./S-matrix_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./S-matrix_gen.out
 
@@ -64,8 +64,8 @@ $(INPUT_dPATH)/Eigenstates-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 paramete
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                 S-matrix-DSYEV.f90 -DSAVE_STATES                 |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o A_states_gen.out$(RESET)"
-	@cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -lblas -o A_states_gen.out
+	@echo "$(YELLOW)cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -o A_states_gen.out$(RESET)"
+	@cd $(INPUT_PATH) && gfortran -cpp -DSAVE_STATES -I.. S-matrix-DSYEV.f90 ../measure_time.o -llapack -o A_states_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./A_states_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./A_states_gen.out
 

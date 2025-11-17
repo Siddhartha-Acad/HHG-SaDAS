@@ -1,11 +1,11 @@
 ! Gauss_Legendre.f90 :: golub–welsch algorithm
 
 program main
-    use parameters, only: green, yellow, reset
+    use parameters, only: L, green, yellow, reset
     implicit none
-    integer, parameter :: L = 5
     integer, parameter :: N = L + 1         ! to keep it simple.
     
+    logical, parameter :: print_colloc_pt = .false.
     real(kind=8), dimension(N) :: diag, weights     ! diag will hold the nodes.
     real(kind=8), dimension(N-1) :: off_diag
     real(kind=8), dimension(N, N) :: Egvects
@@ -39,11 +39,12 @@ program main
     end do
 
     print '(1x,A,I0)', "Gauss-Legendre collocation points for L+1 = ", N
-    print '(2A25)', "GL Node (x_i)", "Weight (w_i)"
-    do i = 1, N
-        print '(2(ES25.16))', diag(i), weights(i)
-    end do
-    
+    if (print_colloc_pt) then
+        print '(2A25)', "GL Node (x_i)", "Weight (w_i)"
+        do i = 1, N
+            print '(2(ES25.16))', diag(i), weights(i)
+        end do
+    end if
     deallocate(work)
     
     open(unit=10, file=file_name, status='replace', action='write')
