@@ -4,6 +4,9 @@
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-brightgreen)
 
+<p align="center">
+  <img src="z_doc_figures/Theory_flow.svg" alt="HHG-SaDAS Workflow" width="850"/>
+</p>
 ---
 
 ## What is HHG-SaDAS?
