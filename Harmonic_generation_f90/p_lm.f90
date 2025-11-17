@@ -6,7 +6,7 @@ program test_legendre
     integer :: l, m
     real(8) :: x, result
     
-    l = 3
+    l = 4
     m = 2
     x = 0.5d0
     

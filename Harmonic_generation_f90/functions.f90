@@ -64,11 +64,11 @@ contains
         integer, intent(in) :: l, m
         real(kind=8), intent(in) :: x
         real(kind=8) :: pmm, pmmp1, pll
-        real(kind=8) :: fact, somx2
-        integer :: i, ll
+        real(kind=8) :: fact
+        integer :: i
         
         ! Check validity
-        if (m < 0 .or. m > l .or. abs(x) > 1.0d0) then
+        if (m .lt. 0 .or. m .gt. l .or. abs(x) .gt. 1.0d0) then
             print *, "Error: Invalid parameters"
             a_legendre = 0.0d0
             return
@@ -76,36 +76,34 @@ contains
         
         ! Diagonal Terms :: P_m^m(x) = (-1)^m (2m-1)!! (1-x^2)^{m/2}
         pmm = 1.0d0
-        if (m > 0) then
-            somx2 = sqrt((1.0d0 - x) * (1.0d0 + x))
+        if (m .gt. 0) then
             fact = 1.0d0
             do i = 1, m
-                pmm = -pmm * fact * somx2
+                pmm = -pmm * fact * sqrt(1.0d0 - x**2)
                 fact = fact + 2.0d0
             end do
         end if
         
-        if (l == m) then
+        if (l .eq. m) then
             a_legendre = pmm
             return
         end if
         
         ! One Step Off-Diagonal :: P_{m+1}^m(x) = x(2m+1) P_m^m(x)
         pmmp1 = x * (2*m + 1) * pmm
-        
-        if (l == m + 1) then
+        if (l .eq. m+1) then
             a_legendre = pmmp1
             return
         end if
         
         ! General Three-Term Recurrence for l > m+1 :: P_l^m(x) = \frac{x(2l-1) P_{l-1}^m(x) - (l+m-1) P_{l-2}^m(x)}{l-m}
-        do ll = m + 2, l
-            pll = (x * (2*ll - 1) * pmmp1 - (ll + m - 1) * pmm) / (ll - m)
+        do i = m + 2, l
+            pll = (x * (2*i - 1) * pmmp1 - (i+ m - 1) * pmm) / (i - m)
             pmm = pmmp1
             pmmp1 = pll
         end do
         
-        a_legendre = pll
+        a_legendre = pmmp1
     end function a_legendre
 
 end module legendre_stuff
