@@ -5,19 +5,20 @@ program main
     implicit none
 
     integer :: S_recl_size
-    real(kind=8), dimension(N) :: diag, weights
-    real(kind=8), dimension(N-1) :: r
-    real(kind=8), dimension(N-1, total_states) :: A
+    integer(kind=8) :: A_pos_offset
+    real(kind=8), dimension(N) :: roots, weights
+    real(kind=8), dimension(N-1) :: r, A_r
 
     inquire(iolength=S_recl_size) S_matrix
 
     open(unit=20, file="Gauss_Legendre_collocation_points_and_weights.dat", status="old", action="read")
-        read(20, *) diag, weights
+        read(20, *) roots, weights
     close(20)
 
-    open(unit=12, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin', &
-            form='unformatted', access='stream', status='old')
-        read(12) r, A
+    open(unit=12, file='GPSM-DSYEV_states.bin', access='stream', form='unformatted')
+        read(12) r
+        A_pos_offset = 8_int64 * ( (N-1) + (n_qn-1)*(N-1) )       ! Compute byte offset for column n
+        read(12, pos=A_pos_offset) A_col                          ! Jump directly to column n
     close(12)
 
     open(unit=11, file='../GPSM_states_S-matrix/data_GPSM_states_S-matrix/S_matrices-DSYEV.bin', &
