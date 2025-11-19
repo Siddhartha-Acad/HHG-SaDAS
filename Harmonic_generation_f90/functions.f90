@@ -74,12 +74,12 @@ contains
             return
         end if
         
-        ! Diagonal Terms :: P_m^m(x) = (-1)^m (2m-1)!! (1-x^2)^{m/2}
+        ! Diagonal Terms (no CS phase) :: P_m^m(x) = (2m-1)!! (1-x^2)^{m/2}
         pmm = 1.0d0
         if (m .gt. 0) then
             fact = 1.0d0
             do i = 1, m
-                pmm = -pmm * fact * sqrt(1.0d0 - x**2)
+                pmm = pmm * fact * sqrt(1.0d0 - x**2)
                 fact = fact + 2.0d0
             end do
         end if
@@ -152,4 +152,47 @@ subroutine newton_raphson(N, x_i, root, debug)
     ! Reaching here is signature that convergence failed.
     root = 1.0d2
 end subroutine newton_raphson
+
+
+recursive function factorial(n) result(f)
+    integer, intent(in) :: n
+    integer(kind=8) :: f   ! 64-bit integer
+
+    if (n .le. 1) then
+        f = 1
+    else
+        f = n * factorial(n - 1)
+    end if
+end function factorial
+
+
+real(kind=8) function N_fact(l_val, m_val)
+    implicit none
+    integer, intent(in) :: l_val, m_val
+    real(kind=8), parameter :: pi = acos(-1.0d0)
+    real(kind=8) :: num, den
+    integer :: CS_phase
+
+    ! CS_phase = (-1)^m
+    if (mod(abs(m_val), 2) == 0) then
+     CS_phase = 1
+    else
+     CS_phase = -1
+    end if
+
+    num = factorial(l_val - m_val)
+    den = factorial(l_val + m_val)
+
+    N_fact = CS_phase * sqrt( ((2.0d0*l_val + 1.0d0) * num) / (4.0d0*pi * den) )
+end function N_fact
+
+
+real(kind=8) function Y_lm(l_val, m_val, x)
+    use legendre_stuff, only: a_legendre
+    implicit none
+    integer, intent(in) :: l_val, m_val
+    real(kind=8), intent(in) :: x
+
+    Y_lm = N_fact(l_val, m_val) * a_legendre(l_val, m_val, x)
+end function Y_lm
 
