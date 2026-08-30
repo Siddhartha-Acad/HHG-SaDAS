@@ -9,16 +9,18 @@ Code Description:
     the dipole acceleration spectrum.
 
     It also provides an interactive GUI (compact numeric textbox controls +
-    a zoom range-slider on the RHS) to:
+    coarse/fine zoom range-sliders on the RHS) to:
         - Tune the spectral selection gate (harmonic range + smoothness/order)
-        - Zoom into a region of the reconstructed attosecond pulse profile
+        - Zoom into a region of the reconstructed attosecond pulse profile,
+          coarsely first, then fine-tune within that coarse window
         - Fit N Gaussians to the distinct burst(s) inside the zoomed window
           (low-amplitude ringing is ignored via a peak-prominence filter),
-          and report each peak's position (t/T) and FWHM (attoseconds)
+          each drawn in its own color, and report each peak's position (t/T)
+          and FWHM (attoseconds)
 
     Callbacks are split by cost (gate recompute vs. zoom vs. Gaussian fit)
-    so that dragging the zoom slider stays responsive instead of re-running
-    the FFT/iFFT gating pipeline on every event.
+    so that dragging either zoom slider stays responsive instead of
+    re-running the FFT/iFFT gating pipeline on every event.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
@@ -44,6 +46,7 @@ from scipy.optimize import curve_fit
 from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.widgets import TextBox, Button, RangeSlider
+from matplotlib.patches import Rectangle
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters import (
     confined, time_step, evolving_atom, state_symb, m, SAE_model,
@@ -76,6 +79,8 @@ fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 plt.rc('font', **{'family': 'serif', 'size': 12})
 
 AU_TO_AS = 24.18884326              # 1 atomic unit of time, in attoseconds
+GAUSS_COLORS = ['#0072B2', '#009E73', '#F0A500', '#8E44AD',
+                 '#00BFC4', '#3D5A80', '#E69F00', '#5D3FD3']    # one per fitted peak, cycled if >8 (no red - pulse curve is already crimson)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -147,7 +152,7 @@ harmonic_orders_full = freq_w / w0          # Harmonic order axis (signed, +/- b
 t_over_T = t / T                            # precompute once, reused everywhere below
 
 # Initial gate / GUI default values
-harm_min_0, harm_max_0 = 15.0, 45.0
+harm_min_0, harm_max_0 = 11.0, 45.0
 gate_order_0 = 20
 t_min_T, t_max_T = float(t.min()/T), float(t.max()/T)
 zoom_min_0, zoom_max_0 = t_min_T, t_max_T
@@ -183,12 +188,29 @@ def gaussian_sum(x, *params):
     return y
 
 
+# Try to maximize the plot window regardless of backend (best-effort, never fatal)
+def _maximize_window(fig):
+    try:
+        mgr = fig.canvas.manager
+        backend = plt.get_backend().lower()
+        if 'qt' in backend:
+            mgr.window.showMaximized()
+        elif 'tk' in backend:
+            mgr.window.state('zoomed')
+        elif 'wx' in backend:
+            mgr.frame.Maximize(True)
+        else:
+            mgr.full_screen_toggle()
+    except Exception:
+        pass
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                         Interactive Plotting                       |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig1 = plt.figure(figsize=fig_size)
-gs = fig1.add_gridspec(2, 1, top=0.94, bottom=0.08, left=0.08, right=0.68, hspace=0.35)
+gs = fig1.add_gridspec(2, 1, top=0.94, bottom=0.08, left=0.07, right=0.70, hspace=0.20)
 
 ax2 = fig1.add_subplot(gs[0])         # HHG spectra
 ax2b = ax2.twinx()                    # Spectral selection gate (0-1, right axis)
@@ -199,7 +221,6 @@ da.decorate_2d(ax2b, visible_spine='none', grid=False)
 spec_line, = ax2.plot(harmonic_order, np.log10(dip_mom_power_spectra), color='#2CA02C', label=r'log$_{10}$[P($\omega$)]')
 gate_line,  = ax2b.plot(harmonic_order, gate_pos, color='dimgray', ls='--', lw=1.5)
 atto_line,  = ax7.plot(t_over_T, attosecond_intensity, color='crimson', lw=1.5, label='Pulse intensity')
-fit_line,   = ax7.plot([], [], color='dodgerblue', lw=2.0, label='N-Gaussian fit')
 component_lines = []       # dynamically re-created each fit (one per Gaussian component)
 
 ax2.set_yticks(np.arange(-20, -2, 4))                               # Some controls
@@ -214,7 +235,7 @@ ax2.set_ylabel(r'log$_{10}$[P($\omega$)]', fontsize=12)
 ax7.set_xlabel('optical cycles (t/T)', fontsize=12)
 ax7.set_ylabel('Attosecond pulse intensity (norm.)', fontsize=12)
 ax7.set_xlim(zoom_min_0, zoom_max_0)
-ax7.set_ylim(-0.05, 1.4)
+ax7.set_ylim(-0.05, 1.10)
 
 ax2.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
 ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
@@ -223,10 +244,16 @@ fig1.suptitle(evo_data_file, fontsize=12)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#              GUI controls (compact RHS textboxes + slider)         |
+#              GUI controls (compact RHS textboxes + sliders)        |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-panel_x0, panel_w = 0.78, 0.12          # box width
-box_h, box_gap = 0.024, 0.045           # taller vertical spacing so rows aren't cramped
+rect_panel_x0 = 0.775                   # fixed anchor for the background rectangle (kept in place)
+panel_x0, panel_w = 0.805, 0.117        # widgets/labels nudged right so they sit inside the rectangle
+box_h, box_gap = 0.024, 0.044           # box height / vertical spacing
+
+# Light background panel behind all controls, for visual grouping
+fig1.add_artist(Rectangle((rect_panel_x0 - 0.05, 0.03), 0.25, 0.90,
+                           transform=fig1.transFigure, facecolor='#f5f5f7',
+                           edgecolor='#cccccc', linewidth=1.0, zorder=-1))
 
 def pad(val):
     """Left-pad the displayed value so digits don't touch the textbox border."""
@@ -237,25 +264,32 @@ def add_labeled_box(y, label, initial):
     box_ax = fig1.add_axes([panel_x0, y, panel_w, box_h])
     return TextBox(box_ax, '', initial=pad(initial))
 
+def section_header(y, text):
+    fig1.text(panel_x0, y, text, fontsize=12, fontweight='bold')
+    fig1.add_artist(plt.Line2D([panel_x0, panel_x0 + panel_w], [y - 0.008, y - 0.008],
+                                transform=fig1.transFigure, color='#bbbbbb', lw=1.0))
+
 # Section: spectral gate
 y = 0.90
-fig1.text(panel_x0, y, 'Spectral gate', fontsize=12, fontweight='bold'); y -= box_gap
+section_header(y, 'Spectral gate'); y -= box_gap
 tb_harm_min = add_labeled_box(y, 'Harm. min',  harm_min_0);  y -= box_gap
 tb_harm_max = add_labeled_box(y, 'Harm. max',  harm_max_0);  y -= box_gap
-tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.5
+tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.6
 
-# Section: pulse zoom (textboxes + range-slider underneath)
-fig1.text(panel_x0, y, 'Pulse zoom (t/T)', fontsize=12, fontweight='bold'); y -= box_gap
+# Section: pulse zoom (textboxes + a single self-narrowing slider underneath)
+section_header(y, 'Pulse zoom (t/T)'); y -= box_gap
 tb_zoom_min = add_labeled_box(y, 'Zoom min', f'{zoom_min_0:.3f}'); y -= box_gap
 tb_zoom_max = add_labeled_box(y, 'Zoom max', f'{zoom_max_0:.3f}'); y -= box_gap*1.1
 
-ax_zoom_slider = fig1.add_axes([panel_x0, y, panel_w, 0.018])
+fig1.text(panel_x0, y + 0.014, 'Zoom', fontsize=8.5, color='#666666')
+zoom_slider_pos = [panel_x0, y, panel_w, 0.016]
+ax_zoom_slider = fig1.add_axes(zoom_slider_pos)
 zoom_slider = RangeSlider(ax_zoom_slider, '', t_min_T, t_max_T, valinit=(zoom_min_0, zoom_max_0))
-zoom_slider.valtext.set_visible(False)                          # keep it compact; textboxes show the numbers
+zoom_slider.valtext.set_visible(False)
 y -= box_gap*1.6
 
 # Section: Gaussian fitting
-fig1.text(panel_x0, y, 'Gaussian fit (zoom region)', fontsize=12, fontweight='bold'); y -= box_gap
+section_header(y, 'Gaussian fit (zoom)'); y -= box_gap
 tb_num_gauss = add_labeled_box(y, '# of peaks', num_gauss_0); y -= box_gap*1.3
 
 ax_fit = fig1.add_axes([panel_x0, y, panel_w, 0.032])
@@ -266,11 +300,11 @@ ax_apply = fig1.add_axes([panel_x0, y, panel_w*0.48, 0.032])
 ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, y, panel_w*0.48, 0.032])
 apply_button = Button(ax_apply, 'Apply')
 reset_button = Button(ax_reset, 'Reset')
-y -= box_gap*1.4
+y -= box_gap*1.5
 
 # Fit-results readout at the bottom of the panel
-info_text = fig1.text(panel_x0 - 0.02, y, '', ha='left', va='top', fontsize=9.5,
-                       family='monospace', linespacing=1.6)
+info_text = fig1.text(panel_x0 - 0.02, y, '', ha='left', va='top', fontsize=11,
+                       family=['Courier New', 'DejaVu Sans Mono', 'monospace'], linespacing=1.6)
 
 
 def _to_float(textbox, fallback):
@@ -307,6 +341,22 @@ def update_gate(_event=None):
     fig1.canvas.draw_idle()
 
 
+def rebuild_zoom_slider(lo, hi):
+    """Re-create the zoom slider's own range to span exactly its current selection window.
+    This makes the single slider self-narrowing: every drag becomes the new full range of
+    the handles, so repeated dragging lets you zoom in progressively finer without needing
+    a separate 'fine' slider."""
+    global zoom_slider, ax_zoom_slider
+    if hi <= lo:
+        hi = lo + 1e-6
+    ax_zoom_slider.remove()
+    ax_zoom_slider = fig1.add_axes(zoom_slider_pos)
+    zoom_slider = RangeSlider(ax_zoom_slider, '', lo, hi, valinit=(lo, hi))
+    zoom_slider.valtext.set_visible(False)
+    zoom_slider.on_changed(sync_zoom_from_slider)
+    fig1.canvas.draw_idle()
+
+
 def update_zoom(_event=None):
     """Cheap: only changes the pulse-axis x-limits."""
     zlo = _to_float(tb_zoom_min, zoom_min_0)
@@ -316,25 +366,24 @@ def update_zoom(_event=None):
 
 
 def sync_zoom_from_slider(val):
-    """Slider drag -> push values into the zoom textboxes (no float-parsing needed), then redraw xlim only."""
+    """Slider drag -> push values into textboxes, redraw xlim, and rebuild the slider's own
+    range to match the current window so the next drag zooms in even finer."""
     zlo, zhi = val
     tb_zoom_min.eventson, tb_zoom_max.eventson = False, False
     tb_zoom_min.set_val(pad(f'{zlo:.3f}'))
     tb_zoom_max.set_val(pad(f'{zhi:.3f}'))
     tb_zoom_min.eventson, tb_zoom_max.eventson = True, True
     ax7.set_xlim(zlo, zhi)
-    fig1.canvas.draw_idle()
+    rebuild_zoom_slider(zlo, zhi)
 
 
 def sync_zoom_from_textbox(_event=None):
-    """Textbox edit -> push values into the slider (without recursing), then redraw xlim only."""
+    """Textbox edit -> push values into the slider (without recursing), redraw xlim, and
+    rebuild the slider's own range to match."""
     zlo = _to_float(tb_zoom_min, zoom_min_0)
     zhi = _to_float(tb_zoom_max, zoom_max_0)
-    zoom_slider.eventson = False
-    zoom_slider.set_val((zlo, zhi))
-    zoom_slider.eventson = True
     ax7.set_xlim(zlo, zhi)
-    fig1.canvas.draw_idle()
+    rebuild_zoom_slider(zlo, zhi)
 
 
 def clear_component_lines():
@@ -365,9 +414,8 @@ def fit_gaussians(_event=None):
     peaks, props = find_peaks(y, prominence=0.15 * y.max(), height=0.2 * y.max())
 
     if peaks.size == 0:
-        info_text.set_text('No distinct peaks found in this window.\nTry widening the zoom or lowering "# of peaks".')
+        info_text.set_text('No distinct peaks found.\nTry widening the zoom, or\nlower "# of peaks".')
         clear_component_lines()
-        fit_line.set_data([], [])
         fig1.canvas.draw_idle()
         return
 
@@ -389,29 +437,30 @@ def fit_gaussians(_event=None):
     try:
         popt, _ = curve_fit(gaussian_sum, x, y, p0=p0, bounds=(lower, upper), maxfev=20000)
     except RuntimeError:
-        info_text.set_text('Fit did not converge — try adjusting the zoom range.')
+        info_text.set_text('Fit did not converge —\ntry adjusting the zoom.')
         fig1.canvas.draw_idle()
         return
 
-    # Plot the combined fit and the individual components over the zoomed window
     x_dense = np.linspace(zlo, zhi, 2000)
-    fit_line.set_data(x_dense, gaussian_sum(x_dense, *popt))
 
+    # Plot each Gaussian component in its own vibrant, high-contrast color (no sum curve)
     clear_component_lines()
     triplets = sorted(zip(popt[0::3], popt[1::3], popt[2::3]), key=lambda p: p[1])  # sort by position
-    for A, mu, sigma in triplets:
+    for i, (A, mu, sigma) in enumerate(triplets):
+        color = GAUSS_COLORS[i % len(GAUSS_COLORS)]
         ln, = ax7.plot(x_dense, A * np.exp(-0.5 * ((x_dense - mu) / sigma) ** 2),
-                        color='dodgerblue', ls=':', lw=1.2, alpha=0.6)
+                        color=color, lw=2.4, alpha=0.95, label=f'Peak {i+1}')
         component_lines.append(ln)
 
     # ~~~ Report position (t/T) and FWHM (attoseconds) for each fitted peak ~~~
     lines = [f'Fit results ({n_fit} peak{"s" if n_fit > 1 else ""}):']
     for i, (A, mu, sigma) in enumerate(triplets, start=1):
         fwhm_as = 2 * np.sqrt(2 * np.log(2)) * sigma * T * AU_TO_AS
-        lines.append(f'  #{i}: pos = {mu:.4f} (t/T)   FWHM = {fwhm_as:6.2f} as')
+        lines.append(f'  #{i}  pos  = {mu:8.4f} (t/T)')
+        lines.append(f'      FWHM = {fwhm_as:9.2f} as')
     info_text.set_text('\n'.join(lines))
 
-    ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
+    ax7.legend(loc='upper right', fontsize=9.5, framealpha=0.5, edgecolor='w', ncol=1)
     fig1.canvas.draw_idle()
 
 
@@ -426,13 +475,11 @@ def reset(_event=None):
     tb_order.set_val(pad(gate_order_0))
     tb_zoom_min.set_val(pad(f'{zoom_min_0:.3f}'))
     tb_zoom_max.set_val(pad(f'{zoom_max_0:.3f}'))
-    zoom_slider.eventson = False
-    zoom_slider.set_val((zoom_min_0, zoom_max_0))
-    zoom_slider.eventson = True
+    rebuild_zoom_slider(zoom_min_0, zoom_max_0)
     tb_num_gauss.set_val(pad(num_gauss_0))
     clear_component_lines()
-    fit_line.set_data([], [])
     info_text.set_text('')
+    ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
     apply_all()
 
 
@@ -450,5 +497,6 @@ apply_button.on_clicked(apply_all)
 reset_button.on_clicked(reset)
 
 apply_all()   # draw everything once at startup
+_maximize_window(fig1)
 
 plt.show()
