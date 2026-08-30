@@ -8,11 +8,16 @@ Code Description:
     data, and reconstructs the attosecond pulse (train) via spectral gating of
     the dipole acceleration spectrum.
 
-    It also provides an interactive GUI (numeric textbox controls on the RHS) to:
+    It also provides an interactive GUI (compact numeric textbox controls +
+    a zoom range-slider on the RHS) to:
         - Tune the spectral selection gate (harmonic range + smoothness/order)
         - Zoom into a region of the reconstructed attosecond pulse profile
         - Overlay a manually adjustable Gaussian (position, width, height)
           for visual pulse-duration comparison
+
+    Callbacks are split by cost (gate recompute vs. zoom vs. Gaussian overlay)
+    so that dragging the zoom slider or editing the Gaussian only redraws the
+    cheap parts of the figure instead of re-running the FFT/iFFT gating pipeline.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
@@ -35,7 +40,7 @@ import pandas as pd
 import scipy.fft as ft
 from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib.widgets import TextBox, Button
+from matplotlib.widgets import TextBox, Button, RangeSlider
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters import (
     confined, time_step, evolving_atom, state_symb, m, SAE_model,
@@ -134,6 +139,7 @@ print(f" Conversion efficiency (eta)      : {eta:.6e}")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 accel_FFT = -(freq_w**2) * dipole_mom_FFT   # Dipole acceleration spectrum (physically radiated quantity)
 harmonic_orders_full = freq_w / w0          # Harmonic order axis (signed, +/- branches)
+t_over_T = t / T                            # precompute once, reused by both the pulse and Gaussian overlay
 
 # Initial gate / GUI default values
 harm_min_0, harm_max_0 = 15.0, 45.0
@@ -181,7 +187,7 @@ da.decorate_2d(ax2b, visible_spine='none', grid=False)
 
 spec_line, = ax2.plot(harmonic_order, np.log10(dip_mom_power_spectra), color='#2CA02C', label=r'log$_{10}$[P($\omega$)]')
 gate_line,  = ax2b.plot(harmonic_order, gate_pos, color='dimgray', ls='--', lw=1.5)
-atto_line,  = ax7.plot(t/T, attosecond_intensity, color='crimson', lw=1.5)
+atto_line,  = ax7.plot(t_over_T, attosecond_intensity, color='crimson', lw=1.5)
 gauss_line, = ax7.plot([], [], color='dodgerblue', ls='--', lw=1.5, label='Gaussian fit')
 
 ax2.set_yticks(np.arange(-20, -2, 4))                               # Some controls
@@ -198,52 +204,71 @@ ax7.set_ylabel('Attosecond pulse intensity (norm.)', fontsize=12)
 ax7.set_xlim(zoom_min_0, zoom_max_0)
 ax7.set_ylim(-0.05, 1.4)
 
+# Legends created once (no dynamic label text) -> not rebuilt on every callback
+ax2.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
+ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
+
 fig1.suptitle(evo_data_file, fontsize=12)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#                     GUI controls (RHS textboxes)                   |
+#              GUI controls (compact RHS textboxes + slider)         |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-panel_x0, panel_w = 0.78, 0.15
-box_h, box_gap = 0.04, 0.062
+panel_x0, panel_w = 0.78, 0.12          # narrower boxes than before
+box_h, box_gap = 0.022, 0.032           # smaller box height, tighter vertical spacing
+
+def pad(val):
+    """Left-pad the displayed value so digits don't touch the textbox border."""
+    return f'   {val}'
 
 def add_labeled_box(y, label, initial):
-    fig1.text(panel_x0 - 0.02, y + box_h/2, label, ha='right', va='center', fontsize=11)
+    fig1.text(panel_x0 - 0.02, y + box_h/2, label, ha='right', va='center', fontsize=10)
     box_ax = fig1.add_axes([panel_x0, y, panel_w, box_h])
-    return TextBox(box_ax, '', initial=str(initial))
+    return TextBox(box_ax, '', initial=pad(initial))
 
 # Section: spectral gate
-fig1.text(panel_x0, 0.93, 'Spectral gate', fontsize=13, fontweight='bold')
-tb_harm_min = add_labeled_box(0.86, 'Harm. min',   harm_min_0)
-tb_harm_max = add_labeled_box(0.80, 'Harm. max',   harm_max_0)
-tb_order    = add_labeled_box(0.74, 'Smoothness',  gate_order_0)
+y = 0.90
+fig1.text(panel_x0, y, 'Spectral gate', fontsize=12, fontweight='bold'); y -= box_gap
+tb_harm_min = add_labeled_box(y, 'Harm. min',  harm_min_0);  y -= box_gap
+tb_harm_max = add_labeled_box(y, 'Harm. max',  harm_max_0);  y -= box_gap
+tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.4
 
-# Section: pulse zoom
-fig1.text(panel_x0, 0.665, 'Pulse zoom (t/T)', fontsize=13, fontweight='bold')
-tb_zoom_min = add_labeled_box(0.60, 'Zoom min', f'{zoom_min_0:.3f}')
-tb_zoom_max = add_labeled_box(0.54, 'Zoom max', f'{zoom_max_0:.3f}')
+# Section: pulse zoom (textboxes + range-slider underneath)
+fig1.text(panel_x0, y, 'Pulse zoom (t/T)', fontsize=12, fontweight='bold'); y -= box_gap
+tb_zoom_min = add_labeled_box(y, 'Zoom min', f'{zoom_min_0:.3f}'); y -= box_gap
+tb_zoom_max = add_labeled_box(y, 'Zoom max', f'{zoom_max_0:.3f}'); y -= box_gap*0.9
+
+ax_zoom_slider = fig1.add_axes([panel_x0, y, panel_w, 0.018])
+zoom_slider = RangeSlider(ax_zoom_slider, '', t_min_T, t_max_T, valinit=(zoom_min_0, zoom_max_0))
+zoom_slider.valtext.set_visible(False)                          # keep it compact; textboxes show the numbers
+y -= box_gap*1.5
 
 # Section: Gaussian overlay
-fig1.text(panel_x0, 0.475, 'Gaussian overlay', fontsize=13, fontweight='bold')
-tb_gauss_pos    = add_labeled_box(0.41, 'Position', f'{gauss_pos_0:.3f}')
-tb_gauss_width  = add_labeled_box(0.35, 'Width',    gauss_width_0)
-tb_gauss_height = add_labeled_box(0.29, 'Height',   gauss_height_0)
+fig1.text(panel_x0, y, 'Gaussian overlay', fontsize=12, fontweight='bold'); y -= box_gap
+tb_gauss_pos    = add_labeled_box(y, 'Position', f'{gauss_pos_0:.3f}'); y -= box_gap
+tb_gauss_width  = add_labeled_box(y, 'Width',    gauss_width_0);        y -= box_gap
+tb_gauss_height = add_labeled_box(y, 'Height',   gauss_height_0);       y -= box_gap*1.4
 
-ax_apply = fig1.add_axes([panel_x0, 0.20, panel_w*0.48, 0.045])
-ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, 0.20, panel_w*0.48, 0.045])
+ax_apply = fig1.add_axes([panel_x0, y, panel_w*0.48, 0.045])
+ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, y, panel_w*0.48, 0.045])
 apply_button = Button(ax_apply, 'Apply')
 reset_button = Button(ax_reset, 'Reset')
 
 
 def _to_float(textbox, fallback):
     try:
-        return float(textbox.text)
+        return float(textbox.text)         # float() tolerates the leading padding spaces
     except ValueError:
-        textbox.set_val(str(fallback))     # revert invalid entry
+        textbox.set_val(pad(fallback))     # revert invalid entry
         return fallback
 
 
-def update(_event=None):
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#     Split, cost-aware callbacks: only recompute what actually       |
+#     changed, so slider dragging / textbox edits stay responsive.    |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def update_gate(_event=None):
+    """Expensive: re-runs the FFT-based gating pipeline. Only call on gate-param changes."""
     lo    = _to_float(tb_harm_min, harm_min_0)
     hi    = _to_float(tb_harm_max, harm_max_0)
     order = _to_float(tb_order, gate_order_0)
@@ -251,43 +276,85 @@ def update(_event=None):
     gate, intensity = compute_pulse(lo, hi, order)
     gate_line.set_ydata(gate[positive_freq_mask])
     atto_line.set_ydata(intensity)
-
-    zlo = _to_float(tb_zoom_min, zoom_min_0)
-    zhi = _to_float(tb_zoom_max, zoom_max_0)
-    ax7.set_xlim(zlo, zhi)
-
-    pos    = _to_float(tb_gauss_pos, gauss_pos_0)
-    gwidth = _to_float(tb_gauss_width, gauss_width_0)
-    gheight = _to_float(tb_gauss_height, gauss_height_0)
-    gauss_y = gheight * np.exp(-0.5 * ((t / T - pos) / gwidth) ** 2)
-    gauss_line.set_data(t / T, gauss_y)
-
-    ax2.legend(loc='upper right', fontsize=12, framealpha=0.5, edgecolor='w')
-    ax7.legend(loc='upper right', fontsize=12, framealpha=0.5, edgecolor='w')
-
     fig1.canvas.draw_idle()
 
 
+def update_zoom(_event=None):
+    """Cheap: only changes the pulse-axis x-limits."""
+    zlo = _to_float(tb_zoom_min, zoom_min_0)
+    zhi = _to_float(tb_zoom_max, zoom_max_0)
+    ax7.set_xlim(zlo, zhi)
+    fig1.canvas.draw_idle()
+
+
+def update_gaussian(_event=None):
+    """Cheap: only recomputes the overlaid Gaussian curve."""
+    pos     = _to_float(tb_gauss_pos, gauss_pos_0)
+    gwidth  = _to_float(tb_gauss_width, gauss_width_0)
+    gheight = _to_float(tb_gauss_height, gauss_height_0)
+    gauss_line.set_data(t_over_T, gheight * np.exp(-0.5 * ((t_over_T - pos) / gwidth) ** 2))
+    fig1.canvas.draw_idle()
+
+
+def sync_zoom_from_slider(val):
+    """Slider drag -> push values into the zoom textboxes (no float-parsing needed), then redraw xlim only."""
+    zlo, zhi = val
+    tb_zoom_min.eventson, tb_zoom_max.eventson = False, False
+    tb_zoom_min.set_val(pad(f'{zlo:.3f}'))
+    tb_zoom_max.set_val(pad(f'{zhi:.3f}'))
+    tb_zoom_min.eventson, tb_zoom_max.eventson = True, True
+    ax7.set_xlim(zlo, zhi)
+    fig1.canvas.draw_idle()
+
+
+def sync_zoom_from_textbox(_event=None):
+    """Textbox edit -> push values into the slider (without recursing), then redraw xlim only."""
+    zlo = _to_float(tb_zoom_min, zoom_min_0)
+    zhi = _to_float(tb_zoom_max, zoom_max_0)
+    zoom_slider.eventson = False
+    zoom_slider.set_val((zlo, zhi))
+    zoom_slider.eventson = True
+    ax7.set_xlim(zlo, zhi)
+    fig1.canvas.draw_idle()
+
+
+def apply_all(_event=None):
+    update_gate()
+    update_zoom()
+    update_gaussian()
+
+
 def reset(_event=None):
-    tb_harm_min.set_val(str(harm_min_0))
-    tb_harm_max.set_val(str(harm_max_0))
-    tb_order.set_val(str(gate_order_0))
-    tb_zoom_min.set_val(f'{zoom_min_0:.3f}')
-    tb_zoom_max.set_val(f'{zoom_max_0:.3f}')
-    tb_gauss_pos.set_val(f'{gauss_pos_0:.3f}')
-    tb_gauss_width.set_val(str(gauss_width_0))
-    tb_gauss_height.set_val(str(gauss_height_0))
-    update()
+    tb_harm_min.set_val(pad(harm_min_0))
+    tb_harm_max.set_val(pad(harm_max_0))
+    tb_order.set_val(pad(gate_order_0))
+    tb_zoom_min.set_val(pad(f'{zoom_min_0:.3f}'))
+    tb_zoom_max.set_val(pad(f'{zoom_max_0:.3f}'))
+    zoom_slider.eventson = False
+    zoom_slider.set_val((zoom_min_0, zoom_max_0))
+    zoom_slider.eventson = True
+    tb_gauss_pos.set_val(pad(f'{gauss_pos_0:.3f}'))
+    tb_gauss_width.set_val(pad(gauss_width_0))
+    tb_gauss_height.set_val(pad(gauss_height_0))
+    apply_all()
 
 
-# Both Enter (per box) and the Apply button trigger a redraw
-for box in (tb_harm_min, tb_harm_max, tb_order, tb_zoom_min, tb_zoom_max,
-            tb_gauss_pos, tb_gauss_width, tb_gauss_height):
-    box.on_submit(update)
+# Each control only triggers the callback that actually needs to run
+tb_harm_min.on_submit(update_gate)
+tb_harm_max.on_submit(update_gate)
+tb_order.on_submit(update_gate)
 
-apply_button.on_clicked(update)
+tb_zoom_min.on_submit(sync_zoom_from_textbox)
+tb_zoom_max.on_submit(sync_zoom_from_textbox)
+zoom_slider.on_changed(sync_zoom_from_slider)
+
+tb_gauss_pos.on_submit(update_gaussian)
+tb_gauss_width.on_submit(update_gaussian)
+tb_gauss_height.on_submit(update_gaussian)
+
+apply_button.on_clicked(apply_all)
 reset_button.on_clicked(reset)
 
-update()   # draw everything once at startup
+apply_all()   # draw everything once at startup
 
 plt.show()
