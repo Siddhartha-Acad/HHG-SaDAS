@@ -113,11 +113,7 @@ for Eth in range(E_n):
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~: S matrix :~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 S_matrix = (A.T * np.exp(-1j * E * dt / 2)) @ A         # Vector computation of the S-matrix
 
-print(S_matrix[0][0])
-print(A[0][0])
-
 along_S_diag = sum(phi[k]**2 for k in range(E_n))
-
 
 print(f' {WHITE}~~~~~~~~~~~~~~: Spectra :~~~~~~~~~~~~~~{RESET}')
 print(f' Ip (a.u)              : {Ip:.3f}')
@@ -320,4 +316,4 @@ fig7.subplots_adjust(left=0.02, right=0.98, wspace=0.05)
 end_time = time.perf_counter()
 print(f' Execution Wall-Time : {GREEN}{end_time - start_time:.2f}{RESET} seconds')
 
-# plt.show()
+plt.show()

@@ -44,11 +44,11 @@ from functions import (
 )
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-v', action='store_true', help='verbose mode')
+parser.add_argument('-v', action='store_true', help='verbose mode print')
 parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input GPSM and S-matrix data')
-parser.add_argument('--plot', action='store_true', help='allows to plot electric field and computed results')
+parser.add_argument('--plot', action='store_true', help='allows to plot computed results')
 args = parser.parse_args()
-
+V_
 if args.v:
     print_laser_info()
 else:
@@ -176,11 +176,11 @@ if show_E_field and args.plot:
 #                   Arrays to hold evolution data                    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 r = f(colloc_pt)                                        # Nonlinear Radial collocation grid (a.u)
-A_r = state_data[1:][n - 1]                             # Selecting the initial state from state_data array and storing in A_r
+A_r = state_data[1:][n - 1].astype(np.complex128)       # Selecting the initial state from state_data array and storing in A_r
 absorber = np.array([Absorber_func(ri) for ri in r])    # The absorbing layer.
 
 init_glm = np.zeros((l_max + 1, N - 1), dtype=np.complex128)    # Empty zero array to hold all the time evolving partial waves.
-init_glm[l - m] = A_r.astype(np.complex128)     # The initial state is set as the only living partial wave. (be careful with the indexing here)
+init_glm[l - m] = A_r                           # The initial state is set as the only living partial wave. (be careful with the indexing here)
 #                                               # Instead of making full 3d initial state and calculating partial waves, I can directly
 #         [Initializing: partial waves]         # use the A_nl(r) as the initial partial wave.
 #                                               # Details in: Section~2.3.8 `Multiple-step time evolution', see Figure 2.23(a)
@@ -188,6 +188,7 @@ glm_empty = np.empty((l_max+1, N-1), dtype=np.complex128)   # Empty gl_array to 
 
 d_t_array = np.zeros(time_step, dtype=float)                # Dipole moment array: d(t). Doesn't include initial wavefunction's dipole moment
 population_den_array = np.zeros(time_step, dtype=float)     # Array to store Population density
+gs_correlation = np.zeros(time_step, dtype=float)           # Array to store the correlation function with the ground state (initial state --> A_r)
 zero_psi = np.zeros((L+1, N-1), dtype=np.complex128)        # To initiate the wavefunction A(ri, θj) before each loop.
 
 
@@ -217,8 +218,9 @@ for ti in range(time_step):
     if print_serial_prog and ti in checkpoints:
         print(f" Evolution step {YELLOW}{ti:<5}{RESET}: {GREEN}{checkpoints[ti]:6.1f}%{RESET}")          # It will show how much the process is completed.
 
-    d_t_array[ti] = dipole_moment(r, init_glm)         # calculating and storing the dipole moment of this instant.
-    population_den_array[ti] = Ps(init_glm)            # calculating and storing the population density
+    d_t_array[ti] = dipole_moment(r, init_glm)                # calculating and storing the dipole moment of this instant.
+    population_den_array[ti] = Ps(init_glm)                   # calculating and storing the population density.
+    gs_correlation[ti] = np.abs(np.sum(A_r * init_glm[0])**2) # calculating and storing the GS correlation function.
 
 end_time = time.perf_counter()             # ending time measurement.
 wall_time = end_time - start_time          # Wall time for computing the total time evolution.
@@ -235,8 +237,8 @@ else:
 
 d_file_path = this_dir / 'Time_evolution_data' / f'{Evo_data_file}'
 
-header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)"
-data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array])
+header = "t(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)       C_gs(t)"
+data = np.column_stack([t[:time_step], E_field(t[:time_step]), d_t_array, population_den_array, gs_correlation])
 np.savetxt(d_file_path, data, header=header, comments='', fmt='%.16e')
 
 
@@ -258,19 +260,22 @@ if args.plot:
     fig2 = plt.figure(figsize=(16, 9))
     ax2 = fig2.add_subplot(221)                         # Electric Field
     ax3 = fig2.add_subplot(223)                         # dipole moment
-    ax4 = fig2.add_subplot(122)                         # survival probability
-    da.decorate_2d([ax2, ax3, ax4])
+    ax4 = fig2.add_subplot(222)                         # survival probability
+    ax5 = fig2.add_subplot(224)                         # correlation function
+    da.decorate_2d([ax2, ax3, ax4, ax5])
 
     ax3.plot(d_t_array, lw=1.5, color='deeppink', label='d(t)')
     ax2.plot([E_field(ti) for ti in t[0:time_step]], lw=1.5, color='#58C4DD', label='E(t)')
     ax4.plot(population_den_array, lw=1.5, color='orangered', label=r'P$_s$(t)')
+    ax5.plot(gs_correlation, lw=1.5, color='crimson', label=r'C$_{gs}$(t)')
 
     ax3.set_xlabel('time steps', fontsize=15)
-    ax4.set_xlabel('time steps', fontsize=15)
+    ax5.set_xlabel('time steps', fontsize=15)
 
     ax3.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
     ax2.legend(loc='upper left', fontsize=15, framealpha=0.5, edgecolor='w')
     ax4.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
+    ax5.legend(loc='upper right', fontsize=15, framealpha=0.5, edgecolor='w')
     fig2.suptitle(Evo_data_file, fontsize=13)
 
     fig2.subplots_adjust(
