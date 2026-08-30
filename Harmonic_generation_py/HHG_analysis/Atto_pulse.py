@@ -12,12 +12,13 @@ Code Description:
     a zoom range-slider on the RHS) to:
         - Tune the spectral selection gate (harmonic range + smoothness/order)
         - Zoom into a region of the reconstructed attosecond pulse profile
-        - Overlay a manually adjustable Gaussian (position, width, height)
-          for visual pulse-duration comparison
+        - Fit N Gaussians to the distinct burst(s) inside the zoomed window
+          (low-amplitude ringing is ignored via a peak-prominence filter),
+          and report each peak's position (t/T) and FWHM (attoseconds)
 
-    Callbacks are split by cost (gate recompute vs. zoom vs. Gaussian overlay)
-    so that dragging the zoom slider or editing the Gaussian only redraws the
-    cheap parts of the figure instead of re-running the FFT/iFFT gating pipeline.
+    Callbacks are split by cost (gate recompute vs. zoom vs. Gaussian fit)
+    so that dragging the zoom slider stays responsive instead of re-running
+    the FFT/iFFT gating pipeline on every event.
 
 Author: Siddhartha Mithiya
 Affiliation: Indian Institute of Technology (IIT) Mandi
@@ -38,6 +39,8 @@ import argparse
 import numpy as np
 import pandas as pd
 import scipy.fft as ft
+from scipy.signal import find_peaks
+from scipy.optimize import curve_fit
 from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.widgets import TextBox, Button, RangeSlider
@@ -71,6 +74,8 @@ fig_scale_factor = 2                # big=2 ; medium=1.5; small=1
 fig_size = (fig_scale_factor*width, fig_scale_factor*height)
 
 plt.rc('font', **{'family': 'serif', 'size': 12})
+
+AU_TO_AS = 24.18884326              # 1 atomic unit of time, in attoseconds
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -139,16 +144,14 @@ print(f" Conversion efficiency (eta)      : {eta:.6e}")
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 accel_FFT = -(freq_w**2) * dipole_mom_FFT   # Dipole acceleration spectrum (physically radiated quantity)
 harmonic_orders_full = freq_w / w0          # Harmonic order axis (signed, +/- branches)
-t_over_T = t / T                            # precompute once, reused by both the pulse and Gaussian overlay
+t_over_T = t / T                            # precompute once, reused everywhere below
 
 # Initial gate / GUI default values
 harm_min_0, harm_max_0 = 15.0, 45.0
 gate_order_0 = 20
 t_min_T, t_max_T = float(t.min()/T), float(t.max()/T)
 zoom_min_0, zoom_max_0 = t_min_T, t_max_T
-gauss_pos_0    = (t_min_T + t_max_T) / 2
-gauss_width_0  = 0.05
-gauss_height_0 = 1.0
+num_gauss_0 = 3
 
 # Soft-edged window (super-Gaussian) instead of a hard cutoff,
 # to avoid ringing artifacts from an abrupt spectral edge.
@@ -172,6 +175,14 @@ gate, attosecond_intensity = compute_pulse(harm_min_0, harm_max_0, gate_order_0)
 gate_pos = gate[positive_freq_mask]         # Gate values on the positive-frequency axis (for overlay on HHG spectrum)
 
 
+def gaussian_sum(x, *params):
+    """Sum of N Gaussians: params = [A1, mu1, sigma1, A2, mu2, sigma2, ...]."""
+    y = np.zeros_like(x)
+    for A, mu, sigma in zip(params[0::3], params[1::3], params[2::3]):
+        y += A * np.exp(-0.5 * ((x - mu) / sigma) ** 2)
+    return y
+
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                         Interactive Plotting                       |
@@ -187,8 +198,9 @@ da.decorate_2d(ax2b, visible_spine='none', grid=False)
 
 spec_line, = ax2.plot(harmonic_order, np.log10(dip_mom_power_spectra), color='#2CA02C', label=r'log$_{10}$[P($\omega$)]')
 gate_line,  = ax2b.plot(harmonic_order, gate_pos, color='dimgray', ls='--', lw=1.5)
-atto_line,  = ax7.plot(t_over_T, attosecond_intensity, color='crimson', lw=1.5)
-gauss_line, = ax7.plot([], [], color='dodgerblue', ls='--', lw=1.5, label='Gaussian fit')
+atto_line,  = ax7.plot(t_over_T, attosecond_intensity, color='crimson', lw=1.5, label='Pulse intensity')
+fit_line,   = ax7.plot([], [], color='dodgerblue', lw=2.0, label='N-Gaussian fit')
+component_lines = []       # dynamically re-created each fit (one per Gaussian component)
 
 ax2.set_yticks(np.arange(-20, -2, 4))                               # Some controls
 ax2.set_xticks(np.arange(1, int(max(harmonic_order)), 4))           # over
@@ -204,7 +216,6 @@ ax7.set_ylabel('Attosecond pulse intensity (norm.)', fontsize=12)
 ax7.set_xlim(zoom_min_0, zoom_max_0)
 ax7.set_ylim(-0.05, 1.4)
 
-# Legends created once (no dynamic label text) -> not rebuilt on every callback
 ax2.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
 ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
 
@@ -214,8 +225,8 @@ fig1.suptitle(evo_data_file, fontsize=12)
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #              GUI controls (compact RHS textboxes + slider)         |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-panel_x0, panel_w = 0.78, 0.12          # narrower boxes than before
-box_h, box_gap = 0.022, 0.032           # smaller box height, tighter vertical spacing
+panel_x0, panel_w = 0.78, 0.12          # box width
+box_h, box_gap = 0.024, 0.045           # taller vertical spacing so rows aren't cramped
 
 def pad(val):
     """Left-pad the displayed value so digits don't touch the textbox border."""
@@ -231,28 +242,35 @@ y = 0.90
 fig1.text(panel_x0, y, 'Spectral gate', fontsize=12, fontweight='bold'); y -= box_gap
 tb_harm_min = add_labeled_box(y, 'Harm. min',  harm_min_0);  y -= box_gap
 tb_harm_max = add_labeled_box(y, 'Harm. max',  harm_max_0);  y -= box_gap
-tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.4
+tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.5
 
 # Section: pulse zoom (textboxes + range-slider underneath)
 fig1.text(panel_x0, y, 'Pulse zoom (t/T)', fontsize=12, fontweight='bold'); y -= box_gap
 tb_zoom_min = add_labeled_box(y, 'Zoom min', f'{zoom_min_0:.3f}'); y -= box_gap
-tb_zoom_max = add_labeled_box(y, 'Zoom max', f'{zoom_max_0:.3f}'); y -= box_gap*0.9
+tb_zoom_max = add_labeled_box(y, 'Zoom max', f'{zoom_max_0:.3f}'); y -= box_gap*1.1
 
 ax_zoom_slider = fig1.add_axes([panel_x0, y, panel_w, 0.018])
 zoom_slider = RangeSlider(ax_zoom_slider, '', t_min_T, t_max_T, valinit=(zoom_min_0, zoom_max_0))
 zoom_slider.valtext.set_visible(False)                          # keep it compact; textboxes show the numbers
-y -= box_gap*1.5
+y -= box_gap*1.6
 
-# Section: Gaussian overlay
-fig1.text(panel_x0, y, 'Gaussian overlay', fontsize=12, fontweight='bold'); y -= box_gap
-tb_gauss_pos    = add_labeled_box(y, 'Position', f'{gauss_pos_0:.3f}'); y -= box_gap
-tb_gauss_width  = add_labeled_box(y, 'Width',    gauss_width_0);        y -= box_gap
-tb_gauss_height = add_labeled_box(y, 'Height',   gauss_height_0);       y -= box_gap*1.4
+# Section: Gaussian fitting
+fig1.text(panel_x0, y, 'Gaussian fit (zoom region)', fontsize=12, fontweight='bold'); y -= box_gap
+tb_num_gauss = add_labeled_box(y, '# of peaks', num_gauss_0); y -= box_gap*1.3
 
-ax_apply = fig1.add_axes([panel_x0, y, panel_w*0.48, 0.045])
-ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, y, panel_w*0.48, 0.045])
+ax_fit = fig1.add_axes([panel_x0, y, panel_w, 0.032])
+fit_button = Button(ax_fit, 'Fit Gaussians')
+y -= box_gap*1.3
+
+ax_apply = fig1.add_axes([panel_x0, y, panel_w*0.48, 0.032])
+ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, y, panel_w*0.48, 0.032])
 apply_button = Button(ax_apply, 'Apply')
 reset_button = Button(ax_reset, 'Reset')
+y -= box_gap*1.4
+
+# Fit-results readout at the bottom of the panel
+info_text = fig1.text(panel_x0 - 0.02, y, '', ha='left', va='top', fontsize=9.5,
+                       family='monospace', linespacing=1.6)
 
 
 def _to_float(textbox, fallback):
@@ -263,19 +281,29 @@ def _to_float(textbox, fallback):
         return fallback
 
 
+def _to_int(textbox, fallback, lo=1, hi=8):
+    try:
+        val = int(round(float(textbox.text)))
+        return min(max(val, lo), hi)
+    except ValueError:
+        textbox.set_val(pad(fallback))
+        return fallback
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #     Split, cost-aware callbacks: only recompute what actually       |
 #     changed, so slider dragging / textbox edits stay responsive.    |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def update_gate(_event=None):
     """Expensive: re-runs the FFT-based gating pipeline. Only call on gate-param changes."""
+    global attosecond_intensity
     lo    = _to_float(tb_harm_min, harm_min_0)
     hi    = _to_float(tb_harm_max, harm_max_0)
     order = _to_float(tb_order, gate_order_0)
 
-    gate, intensity = compute_pulse(lo, hi, order)
+    gate, attosecond_intensity = compute_pulse(lo, hi, order)
     gate_line.set_ydata(gate[positive_freq_mask])
-    atto_line.set_ydata(intensity)
+    atto_line.set_ydata(attosecond_intensity)
     fig1.canvas.draw_idle()
 
 
@@ -284,15 +312,6 @@ def update_zoom(_event=None):
     zlo = _to_float(tb_zoom_min, zoom_min_0)
     zhi = _to_float(tb_zoom_max, zoom_max_0)
     ax7.set_xlim(zlo, zhi)
-    fig1.canvas.draw_idle()
-
-
-def update_gaussian(_event=None):
-    """Cheap: only recomputes the overlaid Gaussian curve."""
-    pos     = _to_float(tb_gauss_pos, gauss_pos_0)
-    gwidth  = _to_float(tb_gauss_width, gauss_width_0)
-    gheight = _to_float(tb_gauss_height, gauss_height_0)
-    gauss_line.set_data(t_over_T, gheight * np.exp(-0.5 * ((t_over_T - pos) / gwidth) ** 2))
     fig1.canvas.draw_idle()
 
 
@@ -318,10 +337,87 @@ def sync_zoom_from_textbox(_event=None):
     fig1.canvas.draw_idle()
 
 
+def clear_component_lines():
+    global component_lines
+    for ln in component_lines:
+        ln.remove()
+    component_lines = []
+
+
+def fit_gaussians(_event=None):
+    """Detect the n most prominent distinct peaks in the current zoom window
+    (ignoring low-amplitude ringing) and fit a sum of n Gaussians to them."""
+    global component_lines
+
+    n = _to_int(tb_num_gauss, num_gauss_0, lo=1, hi=8)
+    zlo, zhi = ax7.get_xlim()
+    mask = (t_over_T >= zlo) & (t_over_T <= zhi)
+    x = t_over_T[mask]
+    y = attosecond_intensity[mask]
+
+    if x.size < 5:
+        info_text.set_text('Zoom window too narrow to fit.')
+        fig1.canvas.draw_idle()
+        return
+
+    # Peak detection: prominence + height filters out low-amplitude ringing,
+    # keeping only the visually distinct bursts.
+    peaks, props = find_peaks(y, prominence=0.15 * y.max(), height=0.2 * y.max())
+
+    if peaks.size == 0:
+        info_text.set_text('No distinct peaks found in this window.\nTry widening the zoom or lowering "# of peaks".')
+        clear_component_lines()
+        fit_line.set_data([], [])
+        fig1.canvas.draw_idle()
+        return
+
+    # Keep the n most prominent peaks, then order them left-to-right for reporting
+    order_by_prom = np.argsort(props['prominences'])[::-1][:n]
+    chosen = np.sort(peaks[order_by_prom])
+    n_fit = len(chosen)
+
+    # Initial guesses: amplitude/position from the detected peak, width from local spacing
+    span = zhi - zlo
+    sigma_guess = max(span / (12 * n_fit), 3 * (x[1] - x[0]))
+    p0, lower, upper = [], [], []
+    for idx in chosen:
+        A0, mu0 = y[idx], x[idx]
+        p0 += [A0, mu0, sigma_guess]
+        lower += [0.0, zlo, (x[1] - x[0])]
+        upper += [1.5, zhi, span / 2]
+
+    try:
+        popt, _ = curve_fit(gaussian_sum, x, y, p0=p0, bounds=(lower, upper), maxfev=20000)
+    except RuntimeError:
+        info_text.set_text('Fit did not converge — try adjusting the zoom range.')
+        fig1.canvas.draw_idle()
+        return
+
+    # Plot the combined fit and the individual components over the zoomed window
+    x_dense = np.linspace(zlo, zhi, 2000)
+    fit_line.set_data(x_dense, gaussian_sum(x_dense, *popt))
+
+    clear_component_lines()
+    triplets = sorted(zip(popt[0::3], popt[1::3], popt[2::3]), key=lambda p: p[1])  # sort by position
+    for A, mu, sigma in triplets:
+        ln, = ax7.plot(x_dense, A * np.exp(-0.5 * ((x_dense - mu) / sigma) ** 2),
+                        color='dodgerblue', ls=':', lw=1.2, alpha=0.6)
+        component_lines.append(ln)
+
+    # ~~~ Report position (t/T) and FWHM (attoseconds) for each fitted peak ~~~
+    lines = [f'Fit results ({n_fit} peak{"s" if n_fit > 1 else ""}):']
+    for i, (A, mu, sigma) in enumerate(triplets, start=1):
+        fwhm_as = 2 * np.sqrt(2 * np.log(2)) * sigma * T * AU_TO_AS
+        lines.append(f'  #{i}: pos = {mu:.4f} (t/T)   FWHM = {fwhm_as:6.2f} as')
+    info_text.set_text('\n'.join(lines))
+
+    ax7.legend(loc='upper right', fontsize=11, framealpha=0.5, edgecolor='w')
+    fig1.canvas.draw_idle()
+
+
 def apply_all(_event=None):
     update_gate()
     update_zoom()
-    update_gaussian()
 
 
 def reset(_event=None):
@@ -333,9 +429,10 @@ def reset(_event=None):
     zoom_slider.eventson = False
     zoom_slider.set_val((zoom_min_0, zoom_max_0))
     zoom_slider.eventson = True
-    tb_gauss_pos.set_val(pad(f'{gauss_pos_0:.3f}'))
-    tb_gauss_width.set_val(pad(gauss_width_0))
-    tb_gauss_height.set_val(pad(gauss_height_0))
+    tb_num_gauss.set_val(pad(num_gauss_0))
+    clear_component_lines()
+    fit_line.set_data([], [])
+    info_text.set_text('')
     apply_all()
 
 
@@ -348,10 +445,7 @@ tb_zoom_min.on_submit(sync_zoom_from_textbox)
 tb_zoom_max.on_submit(sync_zoom_from_textbox)
 zoom_slider.on_changed(sync_zoom_from_slider)
 
-tb_gauss_pos.on_submit(update_gaussian)
-tb_gauss_width.on_submit(update_gaussian)
-tb_gauss_height.on_submit(update_gaussian)
-
+fit_button.on_clicked(fit_gaussians)
 apply_button.on_clicked(apply_all)
 reset_button.on_clicked(reset)
 
