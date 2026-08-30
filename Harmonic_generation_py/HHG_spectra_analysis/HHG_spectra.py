@@ -113,7 +113,6 @@ laser_energy = np.trapezoid(E_t**2, t)
 
 eta = harmonic_energy / laser_energy
 
-
 print(f" {WHITE}~~~~~~~~~~~: Harmonic Spectra Summary :~~~~~~~~~~{RESET}")
 print(f" Number of time points (len(t))   : {len(t)}")
 print(f" Time step (dt)                   : {dt} a.u.")
@@ -126,18 +125,51 @@ print(f" Total harmonic energy (∫P(ω) dω) : {harmonic_energy:.6e}")
 print(f" Conversion efficiency (eta)      : {eta:.6e}")
 
 
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#              Attosecond pulse via spectral gating                  |
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+accel_FFT = -(freq_w**2) * dipole_mom_FFT   # Dipole acceleration spectrum (physically radiated quantity)
+
+harm_min, harm_max = 15, 45                 # <-- tune this to your plateau/cutoff
+
+# Soft-edged window (super-Gaussian) instead of a hard cutoff,
+# to avoid ringing artifacts from an abrupt spectral edge.
+# Evaluated on |freq_w|/w0 so it's symmetric for +/- frequencies,
+# which keeps a_t_gated real after the inverse FFT.
+def soft_gate(mask_freqs, lo, hi, order=6):
+    center = (lo + hi) / 2
+    width  = (hi - lo) / 2
+    return np.exp(-((np.abs(mask_freqs) - center) / width)**order)
+
+harmonic_orders_full = freq_w / w0
+gate = soft_gate(harmonic_orders_full, harm_min, harm_max, order=6)
+
+accel_gated = accel_FFT * gate
+
+# 3. Back to time domain -> this is the attosecond pulse (train)
+a_t_gated = ft.ifft(accel_gated)
+attosecond_intensity = np.abs(a_t_gated)**2
+
+# Normalize for plotting
+attosecond_intensity /= attosecond_intensity.max()
+
+
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #                              Plotting                              |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 fig1 = plt.figure(figsize=fig_size)
 fig2 = plt.figure(figsize=fig_size)
+fig3 = plt.figure(figsize=fig_size)
+
 ax1 = fig1.add_subplot(211)         # dipole moment
 ax2 = fig1.add_subplot(212)         # HHG spectra
 ax3 = fig2.add_subplot(211)         # electric field E(t)
 ax4 = ax3.twinx()                   # Survival probability Ps(t)
 ax5 = fig2.add_subplot(223)         # Survival probability Ps(t)
 ax6 = fig2.add_subplot(224)         # Ionisation probability Pi(t)
-da.decorate_2d([ax1, ax2, ax3, ax5])
+ax7 = fig3.add_subplot(111)         # Attosecond pulse intensity
+da.decorate_2d([ax1, ax2, ax3, ax5, ax7])
 da.decorate_2d(ax4, visible_spine='right', grid=False)
 da.decorate_2d(ax6, visible_spine='right, bottom')
 
@@ -149,6 +181,8 @@ ax4.plot(t/T, survival_probability, color='m', label=r'P$_s$(t)')
 
 ax5.plot(t/T, survival_probability, color='limegreen', label=r'P$_s$(t)')
 ax6.plot(t/T, 1-survival_probability, color='crimson', label=r'P$_i$(t)')
+
+ax7.plot(t/T, attosecond_intensity, color='crimson', lw=1.5, label=f'Gated harmonics {harm_min}-{harm_max}')
 
 ax1.set_xticks(np.arange(0, 61, 5))                                 # Some controls
 ax2.set_yticks(np.arange(-20, -2, 4))                               # over
@@ -164,11 +198,13 @@ ax2.set_ylabel(r'log$_{10}$[P($\omega$)]', fontsize=15)
 ax3.set_xlabel('optical cycles (t/T)', fontsize=15)
 ax5.set_xlabel('optical cycles (t/T)', fontsize=15)
 ax6.set_xlabel('optical cycles (t/T)', fontsize=15)
+ax7.set_xlabel('optical cycles (t/T)', fontsize=15)
 
 ax3.set_ylabel('E(t) (a.u.)', fontsize=15)
 ax4.set_ylabel(r'P$_s$(t) (a.u.)', fontsize=15)
 ax5.set_ylabel(r'P$_s$(t) (a.u.)', fontsize=15)
 ax6.set_ylabel(r'P$_i$(t) (a.u.)', fontsize=15)
+ax7.set_ylabel('Attosecond pulse intensity (norm.)', fontsize=15)
 
 ax1.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
 ax2.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
@@ -176,12 +212,14 @@ ax3.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
 ax4.legend(loc='lower left', fontsize=14, framealpha=0.5, edgecolor='w')
 ax5.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
 ax6.legend(loc='lower right', fontsize=14, framealpha=0.5, edgecolor='w')
+ax7.legend(loc='upper right', fontsize=14, framealpha=0.5, edgecolor='w')
 
 ax6.yaxis.set_label_position('right')
 ax6.yaxis.tick_right()
 
 fig1.suptitle(evo_data_file, fontsize=12)
 fig2.suptitle(evo_data_file, fontsize=12)
+fig3.suptitle(evo_data_file, fontsize=12)
 fig1.subplots_adjust(top=0.94, bottom=0.084, left=0.079, right=0.98, hspace=0.195, wspace=0.2)
 fig2.subplots_adjust(top=0.94, bottom=0.084, right=0.92, left=0.08, hspace=0.195, wspace=0.074)
 

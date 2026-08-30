@@ -48,7 +48,7 @@ parser.add_argument('-v', action='store_true', help='verbose mode print')
 parser.add_argument('-A', '--auto', action='store_true', help='enable automatic input GPSM and S-matrix data')
 parser.add_argument('--plot', action='store_true', help='allows to plot computed results')
 args = parser.parse_args()
-V_
+
 if args.v:
     print_laser_info()
 else:
