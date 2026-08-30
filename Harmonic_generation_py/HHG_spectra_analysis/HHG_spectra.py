@@ -78,7 +78,7 @@ if args.auto:
     else:
         evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})@C60_m={m}_{SAE_model}_{conf_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    evo_data_file = 'VEvo_nopt=88036_H(1s)@C60_m=0_SAE-M1_P-Gau_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+    evo_data_file = 'Evo_nopt=88036_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 
 evo_data_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file}'
 evo_data = np.loadtxt(evo_data_path, skiprows=1)
@@ -182,7 +182,7 @@ ax6.yaxis.tick_right()
 
 fig1.suptitle(evo_data_file, fontsize=12)
 fig2.suptitle(evo_data_file, fontsize=12)
-fig1.subplots_adjust(top=0.94, bottom=0.069, right=0.98, left=0.079, hspace=0.195)
-fig2.subplots_adjust(top=0.94, bottom=0.069, right=0.92, left=0.08, hspace=0.195, wspace=0.074)
+fig1.subplots_adjust(top=0.94, bottom=0.084, left=0.079, right=0.98, hspace=0.195, wspace=0.2)
+fig2.subplots_adjust(top=0.94, bottom=0.084, right=0.92, left=0.08, hspace=0.195, wspace=0.074)
 
 plt.show()
