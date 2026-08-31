@@ -223,6 +223,23 @@ gate_line,  = ax2b.plot(harmonic_order, gate_pos, color='dimgray', ls='--', lw=1
 atto_line,  = ax7.plot(t_over_T, attosecond_intensity, color='crimson', lw=1.5, label='Pulse intensity')
 component_lines = []       # dynamically re-created each fit (one per Gaussian component)
 
+# # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# #     Reference-phase markers: expected recombination times          |
+# #     phi0 = omega0 * t0  ->  t0/T = phi0 / (2*pi), offset from a    |
+# #     chosen reference optical cycle (here: 30.0)                    |
+# # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# t_ref_cycle = 30.0                                  # the cycle you're calling t=0
+# phi0_values = np.array([0.101, 1.1]) * np.pi        # given recombination phases
+# t0_over_T   = t_ref_cycle + phi0_values / (2 * np.pi)
+
+# marker_lines = []
+# for phi0, tT in zip(phi0_values, t0_over_T):
+#     ln = ax7.axvline(tT, color='black', ls=':', lw=1.3, alpha=0.85, zorder=5)
+#     ax7.annotate(rf'$\phi_0={phi0/np.pi:.3f}\pi$', xy=(tT, 1.02), xycoords=('data', 'axes fraction'),
+#                  ha='center', va='bottom', fontsize=8.5, rotation=90, clip_on=False)
+#     marker_lines.append(ln)
+
+
 ax2.set_yticks(np.arange(-20, -2, 4))                               # Some controls
 ax2.set_xticks(np.arange(1, int(max(harmonic_order)), 4))           # over
 ax2.set_xlim(-1, 102)                                                # HHG spectra plot.
