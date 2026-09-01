@@ -226,6 +226,8 @@ clean :
 	@rm -f $(CHECK_PATH)/check_GPSM.out
 	@echo "$(RED)rm -f $(CHECK_PATH)/check_Split_operator.out$(RESET)"
 	@rm -f $(CHECK_PATH)/check_Split_operator.out
+	@echo "$(RED)rm -f vector_time_evolution.out$(RESET)"
+	@rm -f vector_time_evolution.out
 
 clobber : clean
 	@echo "$(RED)rm -f *.o *.mod$(RESET)"
@@ -234,3 +236,5 @@ clobber : clean
 	@rm -f $(COLLOC_dPATH)/*.dat
 	@echo "$(RED)rm -f $(INPUT_dPATH)/*.bin$(RESET)"
 	@rm -f $(INPUT_dPATH)/*.bin
+	@echo "$(RED)rm -f Time_evolution_data/*$(RESET)"
+	@rm -f Time_evolution_data/*
