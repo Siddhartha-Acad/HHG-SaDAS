@@ -94,12 +94,12 @@ module parameters
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                  ANSI colors                   |
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    character(len=*), parameter :: green  = char(27)//'[1;32m', &
-                                   red    = char(27)//'[1;31m', &
-                                   yellow = char(27)//'[1;33m', &
-                                   white  = char(27)//'[1;37m', &
-                                   reset  = char(27)//'[0m'
-
+ character(len=*), parameter :: green  = char(27)//'[1;32m', &
+                               red    = char(27)//'[1;31m', &
+                               yellow = char(27)//'[1;33m', &
+                               orange = char(27)//'[38;5;208m', &
+                               white  = char(27)//'[1;37m', &
+                               reset  = char(27)//'[0m'
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     !                  SAE dataset                   |

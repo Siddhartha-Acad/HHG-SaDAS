@@ -21,7 +21,7 @@
 program main
     use timer_mod
     use legendre_stuff
-    use parameters, only: green, yellow, reset
+    use parameters, only: green, orange, reset
 #ifndef N_VAL
     use parameters, only: N
 #endif
@@ -124,7 +124,7 @@ program main
 
     print *
     print '(A, A, F0.5, A, A)', " Execution Wall-time: ", green, exec_time, reset, " sec"
-    print '(A)', ' File created: ' // yellow // file_name // reset
+    print '(A)', ' File created: ' // orange // file_name // reset
     print *
 
 
