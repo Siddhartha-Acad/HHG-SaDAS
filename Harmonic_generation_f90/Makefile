@@ -24,8 +24,7 @@ RESET := \033[0m
 #
 # -fopenmp enables the "!$omp parallel do" directives around the per-l
 # S-matrix apply loops in vector_time_evolution.f90 (each l is independent,
-# so this scales with core count). Control thread count at run time with:
-#   OMP_NUM_THREADS=8 ./vector_time_evolution.out
+# so this scales with core count).
 # --------------------------------------------------------------------
 FFLAGS := -O3 -march=native -funroll-loops -fopenmp
 
@@ -34,10 +33,24 @@ FFLAGS := -O3 -march=native -funroll-loops -fopenmp
 BLAS_FFLAGS :=
 BLAS_LIBS   :=
 
+# --------------------------------------------------------------------
+# [OPENMP THREADS] Default thread count used when running
+# vector_time_evolution.out through `make run_vector_time_evolution`.
+# `?=` means: use 4 unless OMP_NUM_THREADS is already set in the
+# environment or passed on the command line, e.g.:
+#   make run_vector_time_evolution OMP_NUM_THREADS=8
+# `export` makes it visible to the ./vector_time_evolution.out child
+# process. Running the binary directly (not via `make run_...`) is
+# unaffected by this default -- set OMP_NUM_THREADS yourself in that
+# case, e.g. OMP_NUM_THREADS=8 ./vector_time_evolution.out
+# --------------------------------------------------------------------
+OMP_NUM_THREADS ?= 2
+export OMP_NUM_THREADS
+
 COLLOC_dPATH := collocation_points/generator
 INPUT_dPATH  := GPSM_states_S-matrix/data_GPSM_states_S-matrix
 INPUT_PATH   := GPSM_states_S-matrix
-CHECK_PATH   := correctness_ckeck
+CHECK_PATH   := correctness_check
 
 .PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis
 
@@ -60,7 +73,7 @@ $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat : $(COLLOC_dPATH)/Al
 
 $(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat : $(COLLOC_dPATH)/Gauss_Legendre.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(CYAN)|           Gauss_Legendre.f90 :: Golub–Welsch Algorithm           |$(RESET)"
+	@echo "$(CYAN)|           Gauss_Legendre.f90 :: Golub-Welsch Algorithm           |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(YELLOW)gfortran $(FFLAGS) $(COLLOC_dPATH)/Gauss_Legendre.f90 -llapack -o $(COLLOC_dPATH)/Gauss_Legendre.out$(RESET)"
 	@gfortran $(FFLAGS) $(COLLOC_dPATH)/Gauss_Legendre.f90 measure_time.o -llapack -o $(COLLOC_dPATH)/Gauss_Legendre.out
@@ -86,6 +99,7 @@ vector_time_evolution.out : vector_time_evolution.f90 parameters.o functions.o m
 	@gfortran $(FFLAGS) $(BLAS_FFLAGS) -I. vector_time_evolution.f90 parameters.o functions.o measure_time.o $(BLAS_LIBS) -o vector_time_evolution.out
 
 run_vector_time_evolution : vector_time_evolution
+	@echo "$(YELLOW)OMP_NUM_THREADS=$(OMP_NUM_THREADS) ./vector_time_evolution.out$(RESET)"
 	@./vector_time_evolution.out
 
 HHG_analysis : HHG_analysis/HHG_spectra.py

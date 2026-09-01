@@ -6,32 +6,45 @@
 ! phase, project back to g_lm(r), and absorb the outer region.
 !
 ! --------------------------------------------------------------------------
-! [PERFORMANCE FIXES]
-!   1) a_legendre(l,0,roots(j)) is evaluated ONCE per (j,l) pair, before the
-!      time loop, into two precomputed real tables (YN, WPT) that already
-!      fold in the N_fact / weights factors -- instead of being re-evaluated
-!      (N-1)*l_max*(L+1) times PER STEP as in the naive version.
-!   2) norm_factor = N_fact(l-1,0)*C_fact(l-1,0) is precomputed once per l,
-!      instead of being recomputed N-1 times per l per step.
-!   3) S_matrix_all, init_glm and glm_tilde are dimensioned with the l-index
-!      as the TRAILING (last) Fortran dimension, so S_matrix_all(:,:,l_idx) /
-!      init_glm(:,l_idx) / glm_tilde(:,l_idx) are contiguous and matmul()
-!      never has to copy a non-contiguous argument into a temporary.
-!   4) The angular reconstruction and radial projection steps are each a
-!      single matmul() (GEMM) call -- psi_1 = matmul(YN, A_mat) and
-!      tmp_glm = matmul(WPT, psi_2) -- instead of hand-written triple loops.
-!      This lets the compiler (or a linked BLAS, see Makefile) use a real
-!      blocked/vectorized matrix-multiply instead of a naive reduction.
-!   5) The two S(l)-matrix apply loops (steps 1 and 4 in the ti-loop) are
-!      parallelized with OpenMP: each l is fully independent (distinct rows
-!      read/written), so this scales with core count for free. Compile with
-!      -fopenmp (see Makefile) for this to actually run in parallel; without
-!      it the !$omp directives are simply ignored as comments.
+! [PERFORMANCE FIXES vs. the original version]
+!   1) a_legendre(l,0,roots(j)) was being re-evaluated inside the ti-loop,
+!      (N-1)*l_max*(L+1) times PER STEP, even though the exact same values
+!      were already computed once into Y_T before the loop. Now both Y_T
+!      and a new P_table are built ONCE before the time loop from a single
+!      pass over a_legendre, and the loop only ever reads P_table.
+!   2) norm_factor = N_fact(l-1,0)*C_fact(l-1,0) was recomputed N-1 times
+!      per l per step even though it does not depend on i. Now precomputed
+!      once into norm_factor(l_max) before the loop.
+!   3) S_matrix_all, init_glm and glm_tilde were declared with the l-index
+!      as the LEADING (fastest-varying) Fortran dimension, so slices like
+!      S_matrix_all(l_idx,:,:) and init_glm(l_idx,:) used in matmul() were
+!      non-contiguous. gfortran must copy non-contiguous arguments into a
+!      temporary before calling the (intrinsic) matmul, on every call. These
+!      three arrays are now dimensioned with l as the TRAILING dimension so
+!      S_matrix_all(:,:,l_idx) / init_glm(:,l_idx) / glm_tilde(:,l_idx) are
+!      contiguous columns/blocks and matmul() gets them with no hidden copy.
+!   4) Y_T is now stored with l as the leading dimension (matches how it is
+!      walked in the innermost loop of the psi_1 reconstruction), and the
+!      new P_table is stored with j leading (matches how it is walked in the
+!      innermost loop of the glm_tilde projection) -- both for cache-friendly,
+!      unit-stride access in the manual reduction loops.
+!   5) [NEW] OpenMP added on top of the above. All four per-step hot spots
+!      inside the ti-loop are embarrassingly parallel over their OUTER index
+!      (l_idx for steps 1/3/4, j for step 2) because each outer-index
+!      iteration reads its own slice of the inputs and writes to a disjoint
+!      slice of the outputs -- no cross-iteration dependency, so no reduction
+!      clause or critical section is needed anywhere. Compile with -fopenmp
+!      (already set in the Makefile's FFLAGS) for this to actually run in
+!      parallel; without it the !$omp directives are simply ignored as
+!      comments. Control thread count at run time with:
+!        OMP_NUM_THREADS=<N> ./vector_time_evolution.out
+!      Don't set N above l_max (or, for step 2, above L+1) -- extra threads
+!      beyond the number of independent outer-loop iterations just add
+!      scheduling overhead for no benefit.
 !
 !   Also recommended (see updated Makefile): compile with -O3 -march=native
-!   -funroll-loops, and optionally link OpenBLAS (BLAS_FFLAGS/BLAS_LIBS) so
-!   every matmul() above -- including the per-l S-matrix matvecs -- runs
-!   through a real, multi-threaded BLAS implementation.
+!   -funroll-loops. The previous Makefile compiled with no optimization
+!   flags at all, which alone can cost an order of magnitude.
 ! --------------------------------------------------------------------------
 
 program main
@@ -58,14 +71,10 @@ program main
     real(kind=8), dimension(N-1) :: x_glob, r, absorber, A_r
     real(kind=8), dimension(N-1, total_states) :: state_block
 
-    ! --- Precomputed tables (built once, before the time loop). Both fold in
-    !     the N_fact / weights factors so the hot loop becomes two plain
-    !     matmul() (GEMM) calls instead of hand-written triple loops:
-    !       psi_1              = matmul(YN,  A_mat)   -- (L+1,l_max)x(l_max,N-1)
-    !       tmp_glm(1:l_max,:) = matmul(WPT, psi_2)   -- (l_max,L+1)x(L+1,N-1)
-    real(kind=8), dimension(L+1, l_max) :: YN     ! YN(j,l)  = N_fact(l-1,0)  * a_legendre(l-1,0,roots(j))
-    real(kind=8), dimension(l_max, L+1) :: WPT    ! WPT(l,j) = weights(j)    * a_legendre(l-1,0,roots(j))
-    real(kind=8), dimension(l_max) :: norm_factor  ! norm_factor(l) = N_fact(l-1,0)*C_fact(l-1,0)
+    ! --- Precomputed tables (built once, before the time loop) ---
+    real(kind=8), dimension(l_max, L+1) :: Y_T          ! Y_T(l_idx, j)   -- l leading
+    real(kind=8), dimension(L+1, l_max) :: P_table      ! P_table(j, l_idx) -- j leading
+    real(kind=8), dimension(l_max) :: norm_factor        ! norm_factor(l_idx)
 
     ! --- matmul-facing arrays: l-index is the TRAILING dimension so slices
     !     taken at fixed l_idx are contiguous, cache-friendly matmul args ---
@@ -73,12 +82,13 @@ program main
     complex(kind=8), dimension(N-1, N-1, l_max+1) :: S_matrix_all
     complex(kind=8), dimension(N-1, l_max+1) :: init_glm, glm_tilde
 
-    ! A_mat/tmp_glm now used directly as GEMM operands (l leading, contiguous)
-    complex(kind=8), dimension(l_max, N-1) :: tmp_glm, A_mat
+    ! --- manual-reduction-loop-facing arrays: kept with l_idx leading,
+    !     matching the innermost loop variable in those loops ---
+    complex(kind=8), dimension(l_max+1, N-1) :: tmp_glm, A_mat
 
     complex(kind=8), dimension(L+1, N-1) :: psi_1, psi_2
 
-    real(kind=8) :: exec_time, t_mid, E_val, P_val
+    real(kind=8) :: exec_time, t_mid, E_val
     real(kind=8), allocatable :: dipole_vals(:), population_vals(:)
     real(kind=8), allocatable :: t_vals(:), E_vals(:)
 
@@ -178,19 +188,21 @@ program main
 
     ! ---------------------------------------------------------------
     ! Precompute EVERYTHING that does not change with ti, ONCE:
-    !   - YN(j,l)        : feeds psi_1 = matmul(YN, A_mat) directly
-    !   - WPT(l,j)       : feeds tmp_glm = matmul(WPT, psi_2) directly
-    !     (both already include the N_fact / weights factors, and both
-    !      reuse the SAME a_legendre() evaluation -- called once per
-    !      (j,l) pair total, not once per (j,l) PER TIME STEP)
-    !   - norm_factor(l) : normalization used after the projection matmul,
-    !                      independent of i, computed once per l.
+    !   - Y_T(l_idx, j)      : normalized Legendre values for the
+    !                          angular reconstruction step (psi_1)
+    !   - P_table(j, l_idx)  : raw Legendre values for the projection
+    !                          step (glm_tilde) -- same underlying
+    !                          a_legendre() values as Y_T, just without
+    !                          the N_fact factor, so we call a_legendre
+    !                          only ONCE per (j,l_idx) pair total, not
+    !                          once per (j,l_idx) PER TIME STEP.
+    !   - norm_factor(l_idx) : normalization used in the projection step,
+    !                          independent of i, computed once per l.
     ! ---------------------------------------------------------------
     do l_idx = 1, l_max
         do j = 1, L+1
-            P_val = a_legendre(l_idx-1, 0, roots(j))
-            YN(j, l_idx)  = N_fact(l_idx-1, 0) * P_val
-            WPT(l_idx, j) = weights(j) * P_val
+            P_table(j, l_idx) = a_legendre(l_idx-1, 0, roots(j))
+            Y_T(l_idx, j) = N_fact(l_idx-1, 0) * P_table(j, l_idx)
         end do
         norm_factor(l_idx) = N_fact(l_idx-1, 0) * C_fact(l_idx-1, 0)
     end do
@@ -200,7 +212,7 @@ program main
 
     print '(A)', '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~'
     print '(A,A)', 'Evolving atom                   : ', trim(evolving_atom)
-    print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m) : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
+    print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m)  : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
     print '(A,F10.2,A)', 'Wavelength (lambda_nm)          : ', lambda_nm, ' nm'
     print '(A,ES10.3,A)', 'Intensity (I0)                  : ', I0, ' W/cm^2'
     print '(A,I0)', 'Total time steps                : ', time_step
@@ -210,19 +222,32 @@ program main
 
     do ti = 1, time_step
 
-        ! 1) A_mat(l,:) = S(l) @ init_glm(:,l). Each l is fully independent
-        !    (distinct rows written, distinct S-matrix slice read) so this
-        !    is parallelized across cores with OpenMP. Both matmul args are
-        !    contiguous (trailing l-index), so no hidden temp copies either.
+        ! 1) A_mat(l,:) = S(l) @ init_glm(:,l)  -- both matmul args are
+        !    contiguous (trailing l-index), so no hidden temp copies.
+        !    Each l_idx reads its own S_matrix_all/init_glm slice and
+        !    writes its own A_mat row -- fully independent across l_idx,
+        !    so this is parallelized directly (no shared temp variable).
         !$omp parallel do default(shared) private(l_idx)
         do l_idx = 1, l_max
             A_mat(l_idx, :) = matmul(S_matrix_all(:, :, l_idx), init_glm(:, l_idx))
         end do
         !$omp end parallel do
 
-        ! 2) Angular reconstruction as a single dense matmul (GEMM) instead
-        !    of a hand-written triple loop: psi_1(j,i) = sum_l YN(j,l)*A_mat(l,i)
-        psi_1 = matmul(YN, A_mat)
+        ! 2) Angular reconstruction: psi_1(j,i) = sum_l Y_T(l,j)*A_mat(l,i)
+        !    l_idx is the innermost (reduction) index; both Y_T and A_mat
+        !    are laid out with l as the leading dimension for unit-stride
+        !    access here. Parallelized over the outer index j: each j
+        !    writes only psi_1(j,:), so iterations are independent.
+        !$omp parallel do default(shared) private(j, i, l_idx)
+        do j = 1, L+1
+            do i = 1, N-1
+                psi_1(j, i) = (0.0d0, 0.0d0)
+                do l_idx = 1, l_max
+                    psi_1(j, i) = psi_1(j, i) + cmplx(Y_T(l_idx, j), 0.0d0, kind=8) * A_mat(l_idx, i)
+                end do
+            end do
+        end do
+        !$omp end parallel do
 
         ! t_vals(ti) is the time AT the start of this step (matches Python's t[:time_step]);
         ! t_mid is used only for the interaction propagator, same as before.
@@ -235,22 +260,32 @@ program main
         ! Python's saved column `E_field(t[:time_step])` (not the mid-point field).
         E_vals(ti) = E0_au * sin(w0 * t_vals(ti)) * sin(w0 * t_vals(ti) / (2.0d0 * cpp))**2
 
+        !$omp parallel do default(shared) private(j, i) collapse(2)
         do j = 1, L+1
             do i = 1, N-1
                 psi_2(j, i) = exp(cmplx(0.0d0, -E_val * cos_theta(j) * r(i) * dt, kind=8)) * psi_1(j, i)
             end do
         end do
+        !$omp end parallel do
 
-        ! 3) Projection as a single dense matmul (GEMM) instead of a
-        !    hand-written triple loop: tmp_glm(l,i) = sum_j WPT(l,j)*psi_2(j,i)
-        !    (weights already folded into WPT). No calls to a_legendre or
-        !    N_fact/C_fact happen inside this loop anymore.
-        tmp_glm = matmul(WPT, psi_2)
+        ! 3) Projection: glm_tilde(:,l) = ( sum_j weights(j)*P_table(j,l)*psi_2(j,:) ) / norm_factor(l)
+        !    j is the innermost (reduction) index; P_table and psi_2 are both
+        !    laid out with j leading for unit-stride access here. No calls to
+        !    a_legendre or N_fact/C_fact happen inside this loop anymore.
+        !    Parallelized over the outer index l_idx: each l_idx writes only
+        !    tmp_glm(l_idx,:) / glm_tilde(:,l_idx), so iterations are independent.
+        !$omp parallel do default(shared) private(l_idx, i, j)
         do l_idx = 1, l_max
             do i = 1, N-1
+                tmp_glm(l_idx, i) = (0.0d0, 0.0d0)
+                do j = 1, L+1
+                    tmp_glm(l_idx, i) = tmp_glm(l_idx, i) + &
+                        cmplx(weights(j) * P_table(j, l_idx), 0.0d0, kind=8) * psi_2(j, i)
+                end do
                 glm_tilde(i, l_idx) = tmp_glm(l_idx, i) / cmplx(norm_factor(l_idx), 0.0d0, kind=8)
             end do
         end do
+        !$omp end parallel do
 
         ! 4) init_glm(:,l) = S(l) @ glm_tilde(:,l) * absorber -- again both
         !    matmul args are contiguous trailing-l slices, parallel over l.

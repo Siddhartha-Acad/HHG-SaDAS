@@ -78,7 +78,7 @@ module parameters
 
     ! Maximum number of time steps available on the grid t = 0, dt, 2dt, ..., tf
     ! (Fortran analogue of Python's `time_step = len(t) - 1`).
-    integer, parameter :: time_step_max = nint(tf / dt)
+    integer, parameter :: time_step_max = ceiling(tf / dt)
 
 
     ! ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
