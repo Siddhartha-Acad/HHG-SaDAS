@@ -12,18 +12,18 @@ program main
     implicit none
 
     integer :: i, j, l_idx, ti, rec
-    integer :: S_recl_size, time_step
+    integer :: S_recl_size
     integer(kind=8), external :: factorial
     real(kind=8), external :: N_fact, C_fact
     character(len=256) :: colloc_file, state_file, smat_file, gl_file
     character(len=256) :: evo_data_file, evo_data_path
     character(len=8)   :: state_symb
 
-    real(kind=8), parameter :: pi = acos(-1.0d0)
-    real(kind=8), parameter :: E0_au = 0.1d0
-    real(kind=8), parameter :: w0 = 0.057d0
-    real(kind=8), parameter :: cpp = 60.0d0
-    real(kind=8), parameter :: laser_dt = 0.1d0
+    ! [NOTE] E0_au, w0, cpp, dt, time_step, print_serial_prog, p_step, pi_au,
+    ! evolving_atom, ... all now come from `use parameters` (parameters.f90) --
+    ! nothing laser/system-related is hard-coded locally in this file anymore.
+    ! Change the system in ONE place (parameters.f90: lambda_nm, I0, evolving_atom,
+    ! confined, ...) and this program picks it up automatically on the next build.
 
     real(kind=8), dimension(L+1) :: roots, weights, cos_theta
     real(kind=8), dimension(N-1) :: x_glob, r, absorber, A_r
@@ -39,14 +39,13 @@ program main
     real(kind=8), allocatable :: dipole_vals(:), population_vals(:)
     real(kind=8), allocatable :: t_vals(:), E_vals(:)
 
-    ! --- progress reporting controls (mirrors parameters.py: print_serial_prog, p_step) ---
-    logical, parameter :: print_serial_prog = .true.
-    integer, parameter :: p_step = 10          ! print every p_step (%) completion
     integer :: pct, next_pct
     integer :: out_unit, io_stat
 
-    ! Short validation run, matching the Python script's fixed 10-step check.
-    time_step = 88000
+    ! time_step (how many steps to actually run) and time_step_max (the grid's
+    ! full length) both come from parameters.f90 now -- see [Time evolution
+    ! controls] there. Change `time_step` in parameters.f90 to run a shorter
+    ! validation pass instead of the full pulse.
     allocate(dipole_vals(time_step), population_vals(time_step))
     allocate(t_vals(time_step), E_vals(time_step))
 
@@ -128,7 +127,7 @@ program main
         if (0.0d0 < r(i) .and. r(i) <= r0) then
             absorber(i) = 1.0d0
         else if (r(i) > r0 .and. r(i) < r_max) then
-            absorber(i) = cos(pi * (r(i) - r0) / (2.0d0 * (r_max - r0)))**0.25d0
+            absorber(i) = cos(pi_au * (r(i) - r0) / (2.0d0 * (r_max - r0)))**0.25d0
         else
             absorber(i) = 0.0d0
         end if
@@ -140,11 +139,14 @@ program main
         end do
     end do
 
-    ! Human-readable state label (n+l, l) -> e.g. "1s", matching parameters.py::state_name
-    call state_name(n_qn + l_qn, l_qn, state_symb)
+    ! Human-readable state label (n+l, l) -> e.g. "1s"; fetched from parameters.f90::state_symbol
+    state_symb = state_symbol(n_qn + l_qn, l_qn)
 
     print '(A)', '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~'
+    print '(A,A)', 'Evolving atom                   : ', trim(evolving_atom)
     print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m) : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
+    print '(A,F10.2,A)', 'Wavelength (lambda_nm)          : ', lambda_nm, ' nm'
+    print '(A,ES10.3,A)', 'Intensity (I0)                  : ', I0, ' W/cm^2'
     print '(A,I0)', 'Total time steps                : ', time_step
 
     next_pct = 0
@@ -167,8 +169,9 @@ program main
 
         ! t_vals(ti) is the time AT the start of this step (matches Python's t[:time_step]);
         ! t_mid is used only for the interaction propagator, same as before.
-        t_vals(ti) = dble(ti - 1) * laser_dt
-        t_mid = t_vals(ti) + 0.5d0 * laser_dt
+        ! dt, E0_au, w0, cpp all come from parameters.f90 now.
+        t_vals(ti) = dble(ti - 1) * dt
+        t_mid = t_vals(ti) + 0.5d0 * dt
         E_val = E0_au * sin(w0 * t_mid) * sin(w0 * t_mid / (2.0d0 * cpp))**2
 
         ! Field value saved to file is E(t) at the step's start time, exactly like
@@ -177,7 +180,7 @@ program main
 
         do j = 1, L+1
             do i = 1, N-1
-                psi_2(j, i) = exp(cmplx(0.0d0, -E_val * cos_theta(j) * r(i) * laser_dt, kind=8)) * psi_1(j, i)
+                psi_2(j, i) = exp(cmplx(0.0d0, -E_val * cos_theta(j) * r(i) * dt, kind=8)) * psi_1(j, i)
             end do
         end do
 
@@ -221,8 +224,8 @@ program main
     ! Save t, E(t), d(t), Ps(t) -- same 4-column layout & header as
     ! vector_time_evolution.py (np.savetxt, fmt='%.16e').
     ! ---------------------------------------------------------------
-    evo_data_file = 'VEvo_nopt='//trim(itoa(time_step))//'_H('//trim(state_symb)//')_m='// &
-                    trim(itoa(m_qn))//'_L='//trim(itoa(L))//'_kmax='//trim(itoa(kmax))// &
+    evo_data_file = 'VEvo_nopt='//trim(itoa(time_step))//'_'//trim(evolving_atom)//'('//trim(state_symb)//')_m='// &
+                    trim(itoa(m_qn))//'_'//trim(SAE_model)//'_L='//trim(itoa(L))//'_kmax='//trim(itoa(kmax))// &
                     '_N='//trim(itoa(N))//'_rmax='//trim(itoa(int(r_max)))//'_Lmap='// &
                     trim(itoa(int(Lmap)))//'_dt='//trim(rtoa(dt))//'.dat'
 
@@ -247,22 +250,6 @@ program main
 
 
 contains
-
-    ! Mirrors parameters.py::state_name(n_val, l_val) -> e.g. (1,0) -> "1s"
-    subroutine state_name(n_val, l_val, out_str)
-        integer, intent(in) :: n_val, l_val
-        character(len=*), intent(out) :: out_str
-        character(len=1) :: orb
-        character(len=1), dimension(0:6), parameter :: letters = &
-            (/ 's', 'p', 'd', 'f', 'g', 'h', 'i' /)
-
-        if (l_val >= 0 .and. l_val <= 6) then
-            orb = letters(l_val)
-        else
-            orb = '?'
-        end if
-        write(out_str, '(I0,A1)') n_val, orb
-    end subroutine state_name
 
     ! Small integer/real -> string helpers used for building the output filename.
     function itoa(i_val) result(s)
