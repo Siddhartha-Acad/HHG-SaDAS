@@ -4,6 +4,35 @@
 ! This version reproduces the short validation loop used in the Python
 ! reference: apply S(l), reconstruct psi(theta,r), multiply by the interaction
 ! phase, project back to g_lm(r), and absorb the outer region.
+!
+! --------------------------------------------------------------------------
+! [PERFORMANCE FIXES vs. the original version]
+!   1) a_legendre(l,0,roots(j)) was being re-evaluated inside the ti-loop,
+!      (N-1)*l_max*(L+1) times PER STEP, even though the exact same values
+!      were already computed once into Y_T before the loop. Now both Y_T
+!      and a new P_table are built ONCE before the time loop from a single
+!      pass over a_legendre, and the loop only ever reads P_table.
+!   2) norm_factor = N_fact(l-1,0)*C_fact(l-1,0) was recomputed N-1 times
+!      per l per step even though it does not depend on i. Now precomputed
+!      once into norm_factor(l_max) before the loop.
+!   3) S_matrix_all, init_glm and glm_tilde were declared with the l-index
+!      as the LEADING (fastest-varying) Fortran dimension, so slices like
+!      S_matrix_all(l_idx,:,:) and init_glm(l_idx,:) used in matmul() were
+!      non-contiguous. gfortran must copy non-contiguous arguments into a
+!      temporary before calling the (intrinsic) matmul, on every call. These
+!      three arrays are now dimensioned with l as the TRAILING dimension so
+!      S_matrix_all(:,:,l_idx) / init_glm(:,l_idx) / glm_tilde(:,l_idx) are
+!      contiguous columns/blocks and matmul() gets them with no hidden copy.
+!   4) Y_T is now stored with l as the leading dimension (matches how it is
+!      walked in the innermost loop of the psi_1 reconstruction), and the
+!      new P_table is stored with j leading (matches how it is walked in the
+!      innermost loop of the glm_tilde projection) -- both for cache-friendly,
+!      unit-stride access in the manual reduction loops.
+!
+!   Also recommended (see updated Makefile): compile with -O3 -march=native
+!   -funroll-loops. The previous Makefile compiled with no optimization
+!   flags at all, which alone can cost an order of magnitude.
+! --------------------------------------------------------------------------
 
 program main
     use parameters
@@ -27,15 +56,27 @@ program main
 
     real(kind=8), dimension(L+1) :: roots, weights, cos_theta
     real(kind=8), dimension(N-1) :: x_glob, r, absorber, A_r
-    real(kind=8), dimension(L+1, l_max) :: Y_T
     real(kind=8), dimension(N-1, total_states) :: state_block
+
+    ! --- Precomputed tables (built once, before the time loop) ---
+    real(kind=8), dimension(l_max, L+1) :: Y_T          ! Y_T(l_idx, j)   -- l leading
+    real(kind=8), dimension(L+1, l_max) :: P_table      ! P_table(j, l_idx) -- j leading
+    real(kind=8), dimension(l_max) :: norm_factor        ! norm_factor(l_idx)
+
+    ! --- matmul-facing arrays: l-index is the TRAILING dimension so slices
+    !     taken at fixed l_idx are contiguous, cache-friendly matmul args ---
     complex(kind=8), dimension(N-1, N-1) :: S_l_matrix_c
-    complex(kind=8), dimension(l_max+1, N-1) :: init_glm, glm_tilde, tmp_glm, A_mat
+    complex(kind=8), dimension(N-1, N-1, l_max+1) :: S_matrix_all
+    complex(kind=8), dimension(N-1, l_max+1) :: init_glm, glm_tilde
+
+    ! --- manual-reduction-loop-facing arrays: kept with l_idx leading,
+    !     matching the innermost loop variable in those loops ---
+    complex(kind=8), dimension(l_max+1, N-1) :: tmp_glm, A_mat
+
     complex(kind=8), dimension(L+1, N-1) :: psi_1, psi_2
-    complex(kind=8), dimension(l_max+1, N-1, N-1) :: S_matrix_all
     complex(kind=8), dimension(N-1) :: matvec
 
-    real(kind=8) :: exec_time, t_mid, E_val, norm_factor
+    real(kind=8) :: exec_time, t_mid, E_val
     real(kind=8), allocatable :: dipole_vals(:), population_vals(:)
     real(kind=8), allocatable :: t_vals(:), E_vals(:)
 
@@ -103,7 +144,7 @@ program main
 
     A_r = state_block(:, 1)
     init_glm = (0.0d0, 0.0d0)
-    init_glm(1, :) = cmplx(A_r, 0.0d0, kind=8)
+    init_glm(:, 1) = cmplx(A_r, 0.0d0, kind=8)      ! l=0 partial wave -> first trailing index
 
     inquire(iolength=S_recl_size) S_l_matrix_c
     smat_file = 'GPSM_states_S-matrix/data_GPSM_states_S-matrix/S_matrices-DSYEV.bin'
@@ -119,7 +160,7 @@ program main
     open(unit=23, file=trim(smat_file), form='unformatted', access='direct', recl=S_recl_size, status='old')
     do rec = 1, l_max + 1
         read(23, rec=rec) S_l_matrix_c
-        S_matrix_all(rec, :, :) = S_l_matrix_c
+        S_matrix_all(:, :, rec) = S_l_matrix_c            ! trailing l-index -> contiguous block per l
     end do
     close(23)
 
@@ -133,10 +174,25 @@ program main
         end if
     end do
 
-    do j = 1, L+1
-        do l_idx = 1, l_max
-            Y_T(j, l_idx) = N_fact(l_idx-1, 0) * a_legendre(l_idx-1, 0, roots(j))
+    ! ---------------------------------------------------------------
+    ! Precompute EVERYTHING that does not change with ti, ONCE:
+    !   - Y_T(l_idx, j)      : normalized Legendre values for the
+    !                          angular reconstruction step (psi_1)
+    !   - P_table(j, l_idx)  : raw Legendre values for the projection
+    !                          step (glm_tilde) -- same underlying
+    !                          a_legendre() values as Y_T, just without
+    !                          the N_fact factor, so we call a_legendre
+    !                          only ONCE per (j,l_idx) pair total, not
+    !                          once per (j,l_idx) PER TIME STEP.
+    !   - norm_factor(l_idx) : normalization used in the projection step,
+    !                          independent of i, computed once per l.
+    ! ---------------------------------------------------------------
+    do l_idx = 1, l_max
+        do j = 1, L+1
+            P_table(j, l_idx) = a_legendre(l_idx-1, 0, roots(j))
+            Y_T(l_idx, j) = N_fact(l_idx-1, 0) * P_table(j, l_idx)
         end do
+        norm_factor(l_idx) = N_fact(l_idx-1, 0) * C_fact(l_idx-1, 0)
     end do
 
     ! Human-readable state label (n+l, l) -> e.g. "1s"; fetched from parameters.f90::state_symbol
@@ -144,7 +200,7 @@ program main
 
     print '(A)', '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~'
     print '(A,A)', 'Evolving atom                   : ', trim(evolving_atom)
-    print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m) : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
+    print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m)  : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
     print '(A,F10.2,A)', 'Wavelength (lambda_nm)          : ', lambda_nm, ' nm'
     print '(A,ES10.3,A)', 'Intensity (I0)                  : ', I0, ' W/cm^2'
     print '(A,I0)', 'Total time steps                : ', time_step
@@ -153,16 +209,23 @@ program main
     call tick()
 
     do ti = 1, time_step
+
+        ! 1) A_mat(l,:) = S(l) @ init_glm(:,l)  -- both matmul args are
+        !    now contiguous (trailing l-index), so no hidden temp copies.
         do l_idx = 1, l_max
-            matvec = matmul(S_matrix_all(l_idx, :, :), init_glm(l_idx, :))
+            matvec = matmul(S_matrix_all(:, :, l_idx), init_glm(:, l_idx))
             A_mat(l_idx, :) = matvec
         end do
 
+        ! 2) Angular reconstruction: psi_1(j,i) = sum_l Y_T(l,j)*A_mat(l,i)
+        !    l_idx is the innermost (reduction) index; both Y_T and A_mat
+        !    are laid out with l as the leading dimension for unit-stride
+        !    access here.
         psi_1 = (0.0d0, 0.0d0)
         do j = 1, L+1
             do i = 1, N-1
                 do l_idx = 1, l_max
-                    psi_1(j, i) = psi_1(j, i) + cmplx(Y_T(j, l_idx), 0.0d0, kind=8) * A_mat(l_idx, i)
+                    psi_1(j, i) = psi_1(j, i) + cmplx(Y_T(l_idx, j), 0.0d0, kind=8) * A_mat(l_idx, i)
                 end do
             end do
         end do
@@ -184,22 +247,26 @@ program main
             end do
         end do
 
-        glm_tilde = (0.0d0, 0.0d0)
+        ! 3) Projection: glm_tilde(:,l) = ( sum_j weights(j)*P_table(j,l)*psi_2(j,:) ) / norm_factor(l)
+        !    j is the innermost (reduction) index; P_table and psi_2 are both
+        !    laid out with j leading for unit-stride access here. No calls to
+        !    a_legendre or N_fact/C_fact happen inside this loop anymore.
         do l_idx = 1, l_max
             do i = 1, N-1
                 tmp_glm(l_idx, i) = (0.0d0, 0.0d0)
                 do j = 1, L+1
                     tmp_glm(l_idx, i) = tmp_glm(l_idx, i) + &
-                        cmplx(weights(j) * a_legendre(l_idx-1, 0, roots(j)), 0.0d0, kind=8) * psi_2(j, i)
+                        cmplx(weights(j) * P_table(j, l_idx), 0.0d0, kind=8) * psi_2(j, i)
                 end do
-                norm_factor = N_fact(l_idx-1, 0) * C_fact(l_idx-1, 0)
-                glm_tilde(l_idx, i) = tmp_glm(l_idx, i) / cmplx(norm_factor, 0.0d0, kind=8)
+                glm_tilde(i, l_idx) = tmp_glm(l_idx, i) / cmplx(norm_factor(l_idx), 0.0d0, kind=8)
             end do
         end do
 
+        ! 4) init_glm(:,l) = S(l) @ glm_tilde(:,l) * absorber -- again both
+        !    matmul args are contiguous trailing-l slices.
         do l_idx = 1, l_max
-            matvec = matmul(S_matrix_all(l_idx, :, :), glm_tilde(l_idx, :))
-            init_glm(l_idx, :) = matvec * absorber
+            matvec = matmul(S_matrix_all(:, :, l_idx), glm_tilde(:, l_idx))
+            init_glm(:, l_idx) = matvec * absorber
         end do
 
         dipole_vals(ti) = dipole_scalar(r, init_glm)
@@ -217,7 +284,10 @@ program main
 
     call tock(exec_time)
 
-    print '(A,F12.6,A)', 'Wall time : ', exec_time, ' s'
+    print '(A)', ''
+    print '(A,F12.5,A)', 'Average wall-time per step (eta_t) : ', exec_time / dble(time_step), ' seconds'
+    print '(A,I0,A,F6.3,A)', 'Total wall-time for all steps      : ', int(exec_time / 60.0d0), ' min ', &
+        mod(exec_time, 60.0d0), ' sec'
     print '(A,I0)', 'Time steps used : ', time_step
 
     ! ---------------------------------------------------------------
@@ -269,28 +339,24 @@ contains
         inquire(file=trim(path), exist=file_exists)
     end function file_exists
 
+    ! NOTE: glm_arr is now (N-1, l_max+1) -- radial index leading, l trailing --
+    ! matching the reordered init_glm/glm_tilde used everywhere above.
     real(kind=8) function dipole_scalar(rp, glm_arr)
         real(kind=8), intent(in) :: rp(N-1)
-        complex(kind=8), intent(in) :: glm_arr(l_max+1, N-1)
+        complex(kind=8), intent(in) :: glm_arr(N-1, l_max+1)
         integer :: l
         real(kind=8) :: sum_r, alpha_l
         sum_r = 0.0d0
         do l = 1, l_max
             alpha_l = sqrt(((dble(l))**2) / ((2.0d0 * dble(l) - 1.0d0) * (2.0d0 * dble(l) + 1.0d0)))
-            sum_r = sum_r + alpha_l * sum(rp * real(conjg(glm_arr(l, :)) * glm_arr(l+1, :)))
+            sum_r = sum_r + alpha_l * sum(rp * real(conjg(glm_arr(:, l)) * glm_arr(:, l+1)))
         end do
         dipole_scalar = 2.0d0 * sum_r
     end function dipole_scalar
 
     real(kind=8) function population_scalar(glm_arr)
-        complex(kind=8), intent(in) :: glm_arr(l_max+1, N-1)
-        integer :: i, l
-        population_scalar = 0.0d0
-        do l = 1, l_max + 1
-            do i = 1, N-1
-                population_scalar = population_scalar + abs(glm_arr(l, i))**2
-            end do
-        end do
+        complex(kind=8), intent(in) :: glm_arr(N-1, l_max+1)
+        population_scalar = sum(abs(glm_arr)**2)
     end function population_scalar
 
 end program main
