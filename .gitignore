@@ -21,5 +21,5 @@ code_message.txt
 *.out
 *.dat
 *.bin
-
+.vscode/
 venv_HHG
