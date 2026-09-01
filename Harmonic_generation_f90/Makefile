@@ -16,7 +16,7 @@ CHECK_PATH   := correctness_ckeck
 
 .PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis
 
-all : glo_nodes GPSM_states S_matrices vector_time_evolution
+all : gl_nodes glo_nodes GPSM_states S_matrices vector_time_evolution
 
 gl_nodes    : $(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat
 glo_nodes   : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat

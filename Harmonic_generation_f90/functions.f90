@@ -175,19 +175,28 @@ real(kind=8) function N_fact(l_val, m_val)
     real(kind=8) :: num, den
     integer :: CS_phase
 
-    ! CS_phase = (-1)^m
     if (mod(abs(m_val), 2) == 0) then
-     CS_phase = 1
+        CS_phase = 1
     else
-     CS_phase = -1
+        CS_phase = -1
     end if
 
-    num = factorial(l_val - m_val)
-    den = factorial(l_val + m_val)
+    num = dble(factorial(l_val - m_val))
+    den = dble(factorial(l_val + m_val))
 
-    N_fact = CS_phase * sqrt( ((2.0d0*l_val + 1.0d0) * num) / (4.0d0*pi * den) )
+    N_fact = dble(CS_phase) * sqrt((2.0d0 * dble(l_val) + 1.0d0) * num / (4.0d0 * pi * den))
 end function N_fact
 
+real(kind=8) function C_fact(l_val, m_val)
+    implicit none
+    integer, intent(in) :: l_val, m_val
+    integer(kind=8), external :: factorial
+    if (l_val < 0 .or. m_val < 0 .or. m_val > l_val) then
+        C_fact = 0.0d0
+        return
+    end if
+    C_fact = 2.0d0 * dble(factorial(l_val + m_val)) / ((2.0d0 * dble(l_val) + 1.0d0) * dble(factorial(l_val - m_val)))
+end function C_fact
 
 real(kind=8) function Y_lm(l_val, m_val, x)
     use legendre_stuff, only: a_legendre

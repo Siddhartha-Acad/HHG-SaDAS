@@ -42,8 +42,8 @@ from parameters import (
     evolving_atom, eta_t, SAE_model, conf_model, total_states, state_symb    # parameters
 )
 from functions import (
-    roots, colloc_pt, theta_k,                                                            # collocation arrays
-    f, g_lm_vect, conf_selector, Absorber_func, E_field, dipole_moment, Ps, Y_lm_array    # functions
+    roots, colloc_pt, theta_k,                                                                        # collocation arrays
+    f, g_lm_vect, conf_selector, Absorber_func, E_field, dipole_moment, Ps, Y_lm_array, print_info    # functions
 )
 
 parser = argparse.ArgumentParser()
