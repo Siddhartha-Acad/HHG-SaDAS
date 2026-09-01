@@ -21,8 +21,13 @@ RESET := \033[0m
 # gfortran route its intrinsic MATMUL through a real BLAS implementation
 # instead of its own naive internal loop. To enable that, uncomment the
 # two BLAS_* lines below (requires e.g. `sudo apt install libopenblas-dev`).
+#
+# -fopenmp enables the "!$omp parallel do" directives around the per-l
+# S-matrix apply loops in vector_time_evolution.f90 (each l is independent,
+# so this scales with core count). Control thread count at run time with:
+#   OMP_NUM_THREADS=8 ./vector_time_evolution.out
 # --------------------------------------------------------------------
-FFLAGS := -O3 -march=native -funroll-loops
+FFLAGS := -O3 -march=native -funroll-loops -fopenmp
 
 # BLAS_FFLAGS := -fexternal-blas -fblas-matmul-limit=0
 # BLAS_LIBS   := -lopenblas
