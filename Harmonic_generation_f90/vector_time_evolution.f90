@@ -16,6 +16,8 @@ program main
     integer(kind=8), external :: factorial
     real(kind=8), external :: N_fact, C_fact
     character(len=256) :: colloc_file, state_file, smat_file, gl_file
+    character(len=256) :: evo_data_file, evo_data_path
+    character(len=8)   :: state_symb
 
     real(kind=8), parameter :: pi = acos(-1.0d0)
     real(kind=8), parameter :: E0_au = 0.1d0
@@ -35,10 +37,18 @@ program main
 
     real(kind=8) :: exec_time, t_mid, E_val, norm_factor
     real(kind=8), allocatable :: dipole_vals(:), population_vals(:)
+    real(kind=8), allocatable :: t_vals(:), E_vals(:)
+
+    ! --- progress reporting controls (mirrors parameters.py: print_serial_prog, p_step) ---
+    logical, parameter :: print_serial_prog = .true.
+    integer, parameter :: p_step = 10          ! print every p_step (%) completion
+    integer :: pct, next_pct
+    integer :: out_unit, io_stat
 
     ! Short validation run, matching the Python script's fixed 10-step check.
-    time_step = 10
+    time_step = 88000
     allocate(dipole_vals(time_step), population_vals(time_step))
+    allocate(t_vals(time_step), E_vals(time_step))
 
     ! ---------------------------------------------------------------
     ! 1) Radial grid: N-1 Gauss-Lobatto collocation points
@@ -130,6 +140,14 @@ program main
         end do
     end do
 
+    ! Human-readable state label (n+l, l) -> e.g. "1s", matching parameters.py::state_name
+    call state_name(n_qn + l_qn, l_qn, state_symb)
+
+    print '(A)', '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~'
+    print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m) : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
+    print '(A,I0)', 'Total time steps                : ', time_step
+
+    next_pct = 0
     call tick()
 
     do ti = 1, time_step
@@ -147,8 +165,15 @@ program main
             end do
         end do
 
-        t_mid = (dble(ti) - 0.5d0) * laser_dt
+        ! t_vals(ti) is the time AT the start of this step (matches Python's t[:time_step]);
+        ! t_mid is used only for the interaction propagator, same as before.
+        t_vals(ti) = dble(ti - 1) * laser_dt
+        t_mid = t_vals(ti) + 0.5d0 * laser_dt
         E_val = E0_au * sin(w0 * t_mid) * sin(w0 * t_mid / (2.0d0 * cpp))**2
+
+        ! Field value saved to file is E(t) at the step's start time, exactly like
+        ! Python's saved column `E_field(t[:time_step])` (not the mid-point field).
+        E_vals(ti) = E0_au * sin(w0 * t_vals(ti)) * sin(w0 * t_vals(ti) / (2.0d0 * cpp))**2
 
         do j = 1, L+1
             do i = 1, N-1
@@ -177,18 +202,80 @@ program main
         dipole_vals(ti) = dipole_scalar(r, init_glm)
         population_vals(ti) = population_scalar(init_glm)
 
-        print '(A,I3,A,ES16.8)', 'step ', ti, ' | d(t) = ', dipole_vals(ti)
+        ! --- progress printing, mirrors parameters.py::print_serial_prog / p_step ---
+        if (print_serial_prog) then
+            pct = int(100.0d0 * dble(ti) / dble(time_step))
+            if (pct >= next_pct) then
+                print '(A,I8,A,I4,A)', 'Evolution step ', ti, ' : ', next_pct, '%'
+                next_pct = next_pct + p_step
+            end if
+        end if
     end do
 
     call tock(exec_time)
 
-    print *, 'Vector time-evolution finished.'
     print '(A,F12.6,A)', 'Wall time : ', exec_time, ' s'
     print '(A,I0)', 'Time steps used : ', time_step
-    print '(A,F12.6)', 'Final dipole moment : ', dipole_vals(time_step)
-    print '(A,F12.6)', 'Final population    : ', population_vals(time_step)
+
+    ! ---------------------------------------------------------------
+    ! Save t, E(t), d(t), Ps(t) -- same 4-column layout & header as
+    ! vector_time_evolution.py (np.savetxt, fmt='%.16e').
+    ! ---------------------------------------------------------------
+    evo_data_file = 'VEvo_nopt='//trim(itoa(time_step))//'_H('//trim(state_symb)//')_m='// &
+                    trim(itoa(m_qn))//'_L='//trim(itoa(L))//'_kmax='//trim(itoa(kmax))// &
+                    '_N='//trim(itoa(N))//'_rmax='//trim(itoa(int(r_max)))//'_Lmap='// &
+                    trim(itoa(int(Lmap)))//'_dt='//trim(rtoa(dt))//'.dat'
+
+    evo_data_path = 'Time_evolution_data/'//trim(evo_data_file)
+    open(newunit=out_unit, file=trim(evo_data_path), status='replace', action='write', iostat=io_stat)
+    if (io_stat /= 0) then
+        ! Fall back to the current directory if 'Time_evolution_data/' doesn't exist here.
+        evo_data_path = trim(evo_data_file)
+        open(newunit=out_unit, file=trim(evo_data_path), status='replace', action='write', iostat=io_stat)
+    end if
+
+    if (io_stat /= 0) then
+        print *, 'WARNING: could not open output file for writing: ', trim(evo_data_path)
+    else
+        write(out_unit, '(A)') 't(a.u.)       E(t)(a.u.)      d(t)(a.u.)      Ps(t)'
+        do ti = 1, time_step
+            write(out_unit, '(4(ES23.16E2,2X))') t_vals(ti), E_vals(ti), dipole_vals(ti), population_vals(ti)
+        end do
+        close(out_unit)
+        print '(A,A)', "evo_data_file = ", trim(evo_data_path)
+    end if
+
 
 contains
+
+    ! Mirrors parameters.py::state_name(n_val, l_val) -> e.g. (1,0) -> "1s"
+    subroutine state_name(n_val, l_val, out_str)
+        integer, intent(in) :: n_val, l_val
+        character(len=*), intent(out) :: out_str
+        character(len=1) :: orb
+        character(len=1), dimension(0:6), parameter :: letters = &
+            (/ 's', 'p', 'd', 'f', 'g', 'h', 'i' /)
+
+        if (l_val >= 0 .and. l_val <= 6) then
+            orb = letters(l_val)
+        else
+            orb = '?'
+        end if
+        write(out_str, '(I0,A1)') n_val, orb
+    end subroutine state_name
+
+    ! Small integer/real -> string helpers used for building the output filename.
+    function itoa(i_val) result(s)
+        integer, intent(in) :: i_val
+        character(len=12) :: s
+        write(s, '(I0)') i_val
+    end function itoa
+
+    function rtoa(r_val) result(s)
+        real(kind=8), intent(in) :: r_val
+        character(len=12) :: s
+        write(s, '(F0.2)') r_val
+    end function rtoa
 
     logical function file_exists(path)
         character(len=*), intent(in) :: path
