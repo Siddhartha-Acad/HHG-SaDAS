@@ -1,7 +1,7 @@
 ! Gauss_Legendre.f90 :: golub–welsch algorithm
 
 program main
-    use parameters, only: L, green, yellow, reset
+    use parameters, only: L, green, orange, reset
     implicit none
     integer, parameter :: N = L + 1         ! to keep it simple.
     
@@ -52,7 +52,7 @@ program main
     close(10)
     
     print *
-    print '(1x,A)', 'File created: ' // yellow // file_name // reset
+    print '(1x,A)', 'File created: ' // orange // file_name // reset
     print *
 
 end program main

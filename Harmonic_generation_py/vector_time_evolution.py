@@ -11,7 +11,7 @@ Code Description:
     | With the -A (--auto) flag, the program automatically detects the input GPSM and S-matrix files 
     | based on the parameters defined in parameters.py and builds upon them.
 
-Author: Siddhartha Mithiya & ChatGPT :)
+Author: Siddhartha Mithiya
 Affiliation (1): Indian Institute of Technology (IIT) Mandi
 License: MIT License
 Repository: https://github.com/Siddhartha-Acad/HHG-SaDAS.git

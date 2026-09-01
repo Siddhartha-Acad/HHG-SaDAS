@@ -73,7 +73,7 @@ program GPSM
 
         print *
         print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
-        print '(A)', ' GPSM Eigenvctors: ' // yellow // 'data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin' // reset
+        print '(A)', ' GPSM Eigenvctors: ' // orange // 'data_GPSM_states_S-matrix/GPSM-DSYEV_states.bin' // reset
         print *
     else
         print '(1x, A, A, I0, A)', red, 'DSYEV failed. info = ', info, reset

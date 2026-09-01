@@ -27,7 +27,7 @@ program check_Split_operator
             form='unformatted', access='direct', recl=S_recl_size, status='old')
 
 
-    write(fmtA, '(A,I0,A)') '(A', CW, ')'                       ! format string dynamically based on CW
+    write(fmtA, '(A,I0,A)') '(A', CW, ')'                           ! format string dynamically based on CW
     print '(1x, A)', repeat('-', (1 + check_n_states) * (CW + 1))   ! Horizontal rule
 
     write(*, fmtA, advance='no') 'S @ A'

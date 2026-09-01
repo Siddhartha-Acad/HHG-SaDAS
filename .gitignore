@@ -22,4 +22,5 @@ code_message.txt
 *.dat
 *.bin
 
+.vscode
 venv_HHG

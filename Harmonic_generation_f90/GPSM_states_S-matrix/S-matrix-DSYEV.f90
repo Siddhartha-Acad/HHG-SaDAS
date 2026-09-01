@@ -128,11 +128,10 @@ program S_matrix_generator
     print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
 
     if (.not. save_states) then
-        print '(A)', ' S(l) matrices: ' // yellow // 'data_GPSM_states_S-matrix/S_matrices-DSYEV.bin' // reset
+        print '(A)', ' S(l) matrices: ' // orange // 'data_GPSM_states_S-matrix/S_matrices-DSYEV.bin' // reset
     else
-        print '(A)', ' A(n, l) Eigenstates: ' // yellow // 'data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin' // reset
+        print '(A)', ' A(n, l) Eigenstates: ' // orange // 'data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin' // reset
     end if
     print *
 
 end program S_matrix_generator
-
