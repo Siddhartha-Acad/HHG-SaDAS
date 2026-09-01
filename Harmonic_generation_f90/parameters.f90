@@ -16,7 +16,7 @@ module parameters
     integer, parameter :: l_max = 20         ! Number of partial waves = number of S-matrices = l_max+1
     integer, parameter :: kmax = 50          ! number of GPSM states (maximum k index) in S matrix
     integer, parameter :: total_states = 5   ! how many states you want to keep in the GPSM_state file (.dat)
-    real(kind=8), parameter :: Lmap = 80.0d0, r_max = 200.0d0    ! radial mapping parameters
+    real(kind=8), parameter :: Lmap = 80.0d0, r_max = 200.0d0, r0 = 150.0d0    ! radial mapping parameters and absorber radius
     real(kind=8), parameter :: alpha_map = 2.0d0 * Lmap / r_max
 
 

@@ -154,21 +154,23 @@ subroutine newton_raphson(N, x_i, root, debug)
 end subroutine newton_raphson
 
 
-recursive function factorial(n) result(f)
+integer(kind=8) function factorial(n)
     integer, intent(in) :: n
-    integer(kind=8) :: f   ! 64-bit integer
+    integer(kind=8) :: f
+    integer :: i
 
-    if (n .le. 1) then
-        f = 1
-    else
-        f = n * factorial(n - 1)
-    end if
+    f = 1_8
+    do i = 2, n
+        f = f * int(i, kind=8)
+    end do
+    factorial = f
 end function factorial
 
 
 real(kind=8) function N_fact(l_val, m_val)
     implicit none
     integer, intent(in) :: l_val, m_val
+    integer(kind=8), external :: factorial
     real(kind=8), parameter :: pi = acos(-1.0d0)
     real(kind=8) :: num, den
     integer :: CS_phase
@@ -192,6 +194,7 @@ real(kind=8) function Y_lm(l_val, m_val, x)
     implicit none
     integer, intent(in) :: l_val, m_val
     real(kind=8), intent(in) :: x
+    real(kind=8), external :: N_fact
 
     Y_lm = N_fact(l_val, m_val) * a_legendre(l_val, m_val, x)
 end function Y_lm

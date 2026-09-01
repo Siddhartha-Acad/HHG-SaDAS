@@ -14,9 +14,9 @@ INPUT_dPATH  := GPSM_states_S-matrix/data_GPSM_states_S-matrix
 INPUT_PATH   := GPSM_states_S-matrix
 CHECK_PATH   := correctness_ckeck
 
-.PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices
+.PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis
 
-all : glo_nodes GPSM_states S_matrices
+all : glo_nodes GPSM_states S_matrices vector_time_evolution
 
 gl_nodes    : $(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat
 glo_nodes   : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat
@@ -50,6 +50,25 @@ $(INPUT_dPATH)/GPSM-DSYEV_states.bin : $(INPUT_PATH)/GPSM-DSYEV.f90 parameters.o
 	@cd $(INPUT_PATH) && gfortran -I.. GPSM-DSYEV.f90 ../measure_time.o -llapack -o GPSM_gen.out
 	@echo "$(YELLOW)cd $(INPUT_PATH) && ./GPSM_gen.out$(RESET)"
 	@cd $(INPUT_PATH) && ./GPSM_gen.out
+
+vector_time_evolution : vector_time_evolution.out
+
+vector_time_evolution.out : vector_time_evolution.f90 parameters.o functions.o measure_time.o
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                 vector_time_evolution.f90                         |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)gfortran -I. vector_time_evolution.f90 parameters.o functions.o measure_time.o -o vector_time_evolution.out$(RESET)"
+	@gfortran -I. vector_time_evolution.f90 parameters.o functions.o measure_time.o -o vector_time_evolution.out
+
+run_vector_time_evolution : vector_time_evolution
+	@./vector_time_evolution.out
+
+HHG_analysis : HHG_analysis/HHG_spectra.py
+	@echo "$(YELLOW)HHG analysis script is ready in HHG_analysis/$(RESET)"
+
+HHG_analysis/HHG_spectra.py :
+	@mkdir -p HHG_analysis
+	@touch HHG_analysis/HHG_spectra.py
 
 $(INPUT_dPATH)/S_matrices-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
