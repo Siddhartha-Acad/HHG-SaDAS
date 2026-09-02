@@ -12,6 +12,8 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-brightgreen)
+![Fortran](https://img.shields.io/badge/Fortran-90%2B-734f96)
+---
 
 ## What is HHG-SaDAS?
 
@@ -30,7 +32,6 @@ These codes form an integral part of my MS(R) thesis and are released to ensure 
 The original Git repository, maintained throughout the research period, is kept private.
 Whereas, this public repository is a streamlined version, providing the main useful codes in a straightforward manner.
 
-
 ---
 
 ### Thesis Information
@@ -42,40 +43,29 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 ---
 
-
-
 # Installation
 
 ### Prerequisites
 - Git installed on your system (optional)
 - Python 3.11 or higher
-- PowerShell (for Windows users)
-
 
 ### 1. Clone the repository
->```bash
->git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
->cd HHG-SaDAS
->```
+```bash
+git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
+cd HHG-SaDAS
+```
 
 ### 2. Create and activate a virtual environment
 
->- Linux/macOS (terminal):
->```bash
->python3 -m venv venv_HHG
->source venv_HHG/bin/activate
->```
->
->- For Windows (PowerShell):
->```powershell
->python -m venv venv_HHG
->.\venv_HHG\Scripts\Activate.ps1
->```
+```bash
+python3 -m venv venv_HHG
+source venv_HHG/bin/activate
+```
 
 ### 3. Install dependencies
->```bash
->pip install -r requirements.txt
->```
+```bash
+pip install -r requirements.txt
+```
 
 ---
 
@@ -84,7 +74,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 <p align="center">
 <img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
 </p>
-
 
 ## A brief description of the workflow diagram:
 
@@ -97,7 +86,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
 > With `--plot` flag it will show the computed collocation points.
 
-
 **Step 2: `parameters_and_functions.py`**
 > The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.
 > As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.
@@ -106,11 +94,9 @@ Whereas, this public repository is a streamlined version, providing the main use
 >
 > As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.
 
-
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 
-> Inside the directory `/HHG-SaDAS/Harmonic_generation_py
-/GPSM_states_S-matrix/`
+> Inside the directory `/HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/`
 > 
 > **`GPSM_states_generator.py`** solves the time independent Schrödinger equation for atomic system (free or confined) defined inside the `parameters_and_functions.py` script.
 > 
@@ -159,7 +145,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 >| data_S_matrix[l_max, :, :]  |  S(l = l_max)            |
 >+-----------------------------+--------------------------+
 >```
-
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 
@@ -227,7 +212,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 > 
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
-
 **Step 5: `vector_time_evolution.py`**
 > This script imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
 > 
@@ -270,7 +254,6 @@ Whereas, this public repository is a streamlined version, providing the main use
 > | 88036 |   8803.5    | -8.50E-15   | -2.60E-05   |  0.965279   |
 > +-------+-------------+-------------+-------------+-------------+
 >```
-
 
 **Step 6: `HHG_spectra.py`**
 > Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_spectra_analysis/`,
@@ -315,62 +298,33 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
 > `--plot` flag to display the collocation points.
->- Linux/macOS (terminal):
->```console
->python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
->```
->- Windows (powershell)
->```console
->python .\Harmonic_generation_py\collocation_points\generator\Algo-3_Gauss_Lobatto_colloc_pt.py --plot
->```
+```bash
+python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
+```
 
 **Step 2: `parameters_and_functions.py`**
 > Do not need to run this script. Instead, set required system parameters and save changes.
 > Other scripts will fetch parameters and functions from this script.
 
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
->- Linux/macOS (terminal):
->```console
->python3 ./Harmonic_generation_py/GPSM_states_S-matrix/GPSM_states_generator.py
->```
->```console
->python3 ./Harmonic_generation_py/GPSM_states_S-matrix/S_matrix_generator.py
->```
->- Windows (powershell)
->```console
->python .\Harmonic_generation_py\GPSM_states_S-matrix\GPSM_states_generator.py
->```
->```console
->python .\Harmonic_generation_py\GPSM_states_S-matrix\S_matrix_generator.py
->```
+```bash
+python3 ./Harmonic_generation_py/GPSM_states_S-matrix/GPSM_states_generator.py
+python3 ./Harmonic_generation_py/GPSM_states_S-matrix/S_matrix_generator.py
+```
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
->- Linux/macOS (terminal):
->```console
->python3 ./Harmonic_generation_py/correctness_check/check_GPSM.py
->```
->```console
->python3 ./Harmonic_generation_py/correctness_check/check_Split_operator.py
->```
->- Windows (powershell)
->```console
->python .\Harmonic_generation_py\correctness_check\check_GPSM.py
->```
->```console
->python .\Harmonic_generation_py\correctness_check\check_Split_operator.py
->```
+```bash
+python3 ./Harmonic_generation_py/correctness_check/check_GPSM.py
+python3 ./Harmonic_generation_py/correctness_check/check_Split_operator.py
+```
 
 **Step 5: `vector_time_evolution.py`**
->- Linux/macOS (terminal):
->```console
->python3 ./Harmonic_generation_py/vector_time_evolution.py
->```
->- Windows (powershell)
->```console
->python .\Harmonic_generation_py\vector_time_evolution.py
->```
+```bash
+python3 ./Harmonic_generation_py/vector_time_evolution.py
+```
 
 **Step 6: `HHG_spectra.py`**
+<<<<<<< Updated upstream
 >- Linux/macOS (terminal):
 >```console
 >python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
@@ -380,8 +334,12 @@ Whereas, this public repository is a streamlined version, providing the main use
 >python .\Harmonic_generation_py\HHG_spectra_analysis\HHG_spectra.py
 >```
 
+=======
+```bash
+python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
+```
+>>>>>>> Stashed changes
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
-
