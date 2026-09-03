@@ -9,26 +9,15 @@ RED := \033[1;31m
 RESET := \033[0m
 
 # --------------------------------------------------------------------
-# [PERFORMANCE] The previous version of this Makefile compiled every
-# target with plain `gfortran` and no optimization flags at all, which
-# is equivalent to -O0. That alone can be a 5-20x slowdown vs -O3 for
-# numerically heavy code like this. FFLAGS below is now applied to every
-# compile/link step.
+# [PERFORMANCE] Previously plain `gfortran` (~-O0), a 5-20x slowdown
+# vs -O3 for numerically heavy code. Applied to every compile/link step.
 #
-# -O3              : aggressive optimization
-# -march=native    : use the instruction set of the current CPU
-# -funroll-loops   : unroll suitable hot loops
-# -fopenmp         : enable OpenMP (drives the "!$omp parallel"/"!$omp do"
-#                    directives around the per-l S-matrix apply loops and
-#                    the fused reconstruction/projection loops in
-#                    vector_time_evolution.f90 -- each l/j/i slice is
-#                    independent, so this scales with core count)
+# -O3/-march=native/-funroll-loops : aggressive optimization for this CPU
+# -fopenmp : drives the !$omp parallel/do directives in
+#            vector_time_evolution.f90 (independent per-l/j/i slices)
 #
-# Keep -ffast-math OFF here because this is a physics calculation and
-# -ffast-math can change results (it relaxes IEEE rounding/NaN/Inf
-# handling). A separate FAST_FFLAGS below lets you benchmark that
-# variant explicitly, on its own binary, without touching production
-# builds.
+# -ffast-math kept OFF (changes results via relaxed IEEE rounding) --
+# see FAST_FFLAGS below for a separate benchmarking-only variant.
 # --------------------------------------------------------------------
 FFLAGS := -O3 -march=native -funroll-loops -fopenmp
 
@@ -40,47 +29,29 @@ FAST_FFLAGS := $(FFLAGS) -ffast-math
 # --------------------------------------------------------------------
 # BLAS
 #
-# vector_time_evolution.f90 contains large MATMUL operations (the S(l)
-# applies in steps 1 and 4). With gfortran, -fexternal-blas routes
-# suitable MATMUL expressions through a real BLAS implementation instead
-# of gfortran's own naive internal loop, which can be a large speed-up.
-# -fblas-matmul-limit=0 removes the small-matrix cutoff so this kicks in
-# even for the (N-1)x(N-1) sizes used here.
+# -fexternal-blas routes vector_time_evolution.f90's large MATMUL calls
+# (the S(l) applies) through real BLAS instead of gfortran's naive loop.
+# -fblas-matmul-limit=0 removes the small-matrix cutoff so it applies
+# even at the (N-1)x(N-1) sizes used here.
 #
-# These flags/libs are scoped to ONLY the vector_time_evolution.out link
-# step below (VEC_BLAS_FFLAGS / VEC_BLAS_LIBS), rather than added to the
-# global FFLAGS -- this avoids pulling the OpenBLAS dependency into the
-# smaller generator programs (Gauss_Lobatto, Gauss_Legendre, GPSM_gen,
-# S-matrix_gen, ...) that don't need it.
+# Scoped to only vector_time_evolution.out's link step, not global
+# FFLAGS, so the OpenBLAS dependency isn't pulled into the smaller
+# generator programs that don't need it.
 #
-# Requires:
-#     sudo apt install libopenblas-dev
+# Requires: sudo apt install libopenblas-dev
 # --------------------------------------------------------------------
 VEC_BLAS_FFLAGS := -fexternal-blas -fblas-matmul-limit=0
 VEC_BLAS_LIBS   := -lopenblas
 
 # --------------------------------------------------------------------
-# [OPENMP THREADS] Default thread count used when running
-# vector_time_evolution.out through `make run_vector_time_evolution`.
-# `?=` means: use 2 unless OMP_NUM_THREADS is already set in the
-# environment or passed on the command line, e.g.:
-#   make run_vector_time_evolution OMP_NUM_THREADS=8
-# `export` makes it visible to the ./vector_time_evolution.out child
-# process. Running the binary directly (not via `make run_...`) is
-# unaffected by this default -- set OMP_NUM_THREADS yourself in that
-# case, e.g. OMP_NUM_THREADS=8 ./vector_time_evolution.out
+# [OPENMP THREADS] Default OMP_NUM_THREADS=2 for `make run_...`
+# (override: `make run_vector_time_evolution OMP_NUM_THREADS=8`, or
+# set it yourself when running the binary directly).
 #
-# [AVOIDING THREAD OVERSUBSCRIPTION] vector_time_evolution.f90 already
-# parallelizes over l (and over j,i) with OpenMP. If MATMUL is also
-# routed through a threaded BLAS (see VEC_BLAS_LIBS above), that BLAS
-# would by default try to spawn its OWN thread team INSIDE the already-
-# parallel OpenMP region, oversubscribing the machine (N_omp x N_blas
-# threads competing for N_cpu cores) and making things slower, not
-# faster. OPENBLAS_NUM_THREADS=1 / MKL_NUM_THREADS=1 pin the BLAS calls
-# made from inside the OpenMP region to a single thread each, so all
-# parallelism comes from the outer OpenMP loops as intended.
-# OMP_DYNAMIC=FALSE stops the OpenMP runtime from silently shrinking the
-# team size, so OMP_NUM_THREADS is respected exactly for benchmarking.
+# OPENBLAS_NUM_THREADS=1 / MKL_NUM_THREADS=1 pin BLAS to 1 thread so
+# it doesn't spawn its own team inside the already-parallel OpenMP
+# region (oversubscription). OMP_DYNAMIC=FALSE stops the runtime from
+# silently shrinking the team size.
 # --------------------------------------------------------------------
 OMP_NUM_THREADS ?= 2
 export OMP_NUM_THREADS
@@ -101,7 +72,7 @@ CHECK_PATH   := correctness_check
 
 .PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis \
 
-all : gl_nodes glo_nodes GPSM_states S_matrices vector_time_evolution
+all : gl_nodes glo_nodes GPSM_states S_matrices run_vector_time_evolution
 
 gl_nodes    : $(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat
 glo_nodes   : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat
@@ -142,17 +113,35 @@ vector_time_evolution : vector_time_evolution.out
 # vector_time_evolution.out is the only target linked against BLAS
 # (VEC_BLAS_FFLAGS / VEC_BLAS_LIBS), since it's the only program with
 # MATMUL calls large enough to benefit -- see the BLAS comment above.
+#
+# It also reads GPSM-DSYEV_states.bin and S_matrices-DSYEV.bin at
+# runtime, so both are now listed as prerequisites. This means a bare
+# `make run_vector_time_evolution` on a fresh clone will transitively
+# build glo_nodes -> GPSM_states -> S_matrices -> vector_time_evolution
+# in the right order, instead of segfaulting on missing/garbage input.
 # --------------------------------------------------------------------
-vector_time_evolution.out : vector_time_evolution.f90 parameters.o functions.o measure_time.o
+vector_time_evolution.out : vector_time_evolution.f90 parameters.o functions.o measure_time.o \
+                            $(INPUT_dPATH)/GPSM-DSYEV_states.bin $(INPUT_dPATH)/S_matrices-DSYEV.bin
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                 vector_time_evolution.f90                         |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(YELLOW)gfortran $(FFLAGS) $(VEC_BLAS_FFLAGS) -I. vector_time_evolution.f90 parameters.o functions.o measure_time.o $(VEC_BLAS_LIBS) -o vector_time_evolution.out$(RESET)"
 	@gfortran $(FFLAGS) $(VEC_BLAS_FFLAGS) -I. vector_time_evolution.f90 parameters.o functions.o measure_time.o $(VEC_BLAS_LIBS) -o vector_time_evolution.out
 
+
+# --------------------------------------------------------------------
+# [STACK SIZE] Large automatic arrays / MATMUL temporaries (sized off
+# the (N-1)x(N-1) S-matrices) live on the stack, and the default 8MB
+# limit is too small, causing a silent SIGSEGV. `ulimit -s unlimited`
+# fixes this for the main thread; run via `bash -c` since ulimit is a
+# shell builtin, not an external command.
+#
+# Workaround, not a permanent fix -- durable fix is making those
+# arrays ALLOCATABLE (heap) in vector_time_evolution.f90.
+# --------------------------------------------------------------------
 run_vector_time_evolution : vector_time_evolution
-	@echo "$(YELLOW)OMP_NUM_THREADS=$(OMP_NUM_THREADS) ./vector_time_evolution.out$(RESET)"
-	@./vector_time_evolution.out
+	@echo "$(YELLOW)OMP_NUM_THREADS=$(OMP_NUM_THREADS) ulimit -s unlimited ./vector_time_evolution.out$(RESET)"
+	@bash -c "ulimit -s unlimited && ./vector_time_evolution.out"
 
 HHG_analysis : HHG_analysis/HHG_spectra.py
 	@echo "$(YELLOW)HHG analysis script is ready in HHG_analysis/$(RESET)"
