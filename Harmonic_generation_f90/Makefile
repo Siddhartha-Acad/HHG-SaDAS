@@ -70,9 +70,21 @@ INPUT_dPATH  := GPSM_states_S-matrix/data_GPSM_states_S-matrix
 INPUT_PATH   := GPSM_states_S-matrix
 CHECK_PATH   := correctness_check
 
-.PHONY : all clear clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis \
+# --------------------------------------------------------------------
+# Stamp file marking a successful vector_time_evolution.out run.
+# vector_time_evolution.f90 writes many Time_evolution_data/*.dat
+# files rather than one fixed name, so a glob can't be used directly
+# as a Make target with reliable timestamps. Touching this stamp
+# after a successful run gives Make one file whose mtime it can
+# compare against vector_time_evolution.out, so HHG_analysis (and
+# run_vector_time_evolution itself) only reruns the simulation when
+# the binary is actually newer than the last completed run.
+# --------------------------------------------------------------------
+TIME_EVOL_STAMP := Time_evolution_data/.stamp
 
-all : gl_nodes glo_nodes GPSM_states S_matrices run_vector_time_evolution
+.PHONY : all clean clobber glo_nodes gl_nodes GPSM_states S_matrices vector_time_evolution run_vector_time_evolution HHG_analysis check_GPSM check_Split_operator
+
+all : gl_nodes glo_nodes GPSM_states S_matrices run_vector_time_evolution HHG_analysis
 
 gl_nodes    : $(COLLOC_dPATH)/Gauss_Legendre_collocation_points_and_weights.dat
 glo_nodes   : $(COLLOC_dPATH)/Algo-3_Gauss_Lobatto_collocation_points.dat
@@ -138,17 +150,39 @@ vector_time_evolution.out : vector_time_evolution.f90 parameters.o functions.o m
 #
 # Workaround, not a permanent fix -- durable fix is making those
 # arrays ALLOCATABLE (heap) in vector_time_evolution.f90.
+#
 # --------------------------------------------------------------------
-run_vector_time_evolution : vector_time_evolution
+# [UP-TO-DATE CHECK] The real target here is the stamp file, not the
+# .out binary itself, so Make can tell whether the *last completed
+# run* is newer than the current binary. If vector_time_evolution.out
+# hasn't changed since the last run, this recipe is skipped entirely
+# -- `make run_vector_time_evolution` becomes a no-op, and downstream
+# `make HHG_analysis` goes straight to plotting.
+# --------------------------------------------------------------------
+run_vector_time_evolution : $(TIME_EVOL_STAMP)
+
+$(TIME_EVOL_STAMP) : vector_time_evolution.out
+	@mkdir -p Time_evolution_data
 	@echo "$(YELLOW)OMP_NUM_THREADS=$(OMP_NUM_THREADS) ulimit -s unlimited ./vector_time_evolution.out$(RESET)"
 	@bash -c "ulimit -s unlimited && ./vector_time_evolution.out"
+	@touch $(TIME_EVOL_STAMP)
 
-HHG_analysis : HHG_analysis/HHG_spectra.py
-	@echo "$(YELLOW)HHG analysis script is ready in HHG_analysis/$(RESET)"
 
-HHG_analysis/HHG_spectra.py :
-	@mkdir -p HHG_analysis
-	@touch HHG_analysis/HHG_spectra.py
+# --------------------------------------------------------------------
+# Depends on the stamp file (real timestamp), not the phony
+# run_vector_time_evolution alias, so `make HHG_analysis` only
+# reruns the simulation when vector_time_evolution.out is newer than
+# the last completed run -- otherwise it goes straight to plotting
+# the existing Time_evolution_data/*.dat files.
+# --------------------------------------------------------------------
+HHG_analysis : HHG_analysis/HHG_spectra.py $(TIME_EVOL_STAMP)
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(CYAN)|                        HHG_spectra.py                            |$(RESET)"
+	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
+	@echo "$(YELLOW)python3 HHG_analysis/HHG_spectra.py$(RESET)"
+	@python3 HHG_analysis/HHG_spectra.py
+
+
 
 $(INPUT_dPATH)/S_matrices-DSYEV.bin : $(INPUT_PATH)/S-matrix-DSYEV.f90 parameters.o measure_time.o
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"

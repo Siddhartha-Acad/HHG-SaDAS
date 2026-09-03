@@ -24,3 +24,5 @@ code_message.txt
 
 .vscode
 venv_HHG
+
+*.stamp

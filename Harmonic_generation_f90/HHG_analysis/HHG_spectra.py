@@ -1,15 +1,6 @@
 """
 HHG spectra analysis for Fortran time-evolution data.
 
-Reads:
-    t, E(t), d(t), Ps(t)
-
-and plots:
-    1. Dipole moment d(t)
-    2. HHG spectrum
-    3. Electric field E(t) and survival probability Ps(t)
-    4. Survival probability Ps(t)
-    5. Ionisation probability Pi(t)
 """
 
 import numpy as np
