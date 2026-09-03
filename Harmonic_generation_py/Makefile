@@ -71,8 +71,8 @@ HHG_spectra :
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
 	@echo "$(CYAN)|                          HHG_spectra.py                          |$(RESET)"
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"
-	@echo "$(YELLOW)python3 HHG_spectra_analysis/HHG_spectra.py -A -v$(RESET)"
-	@python3 HHG_spectra_analysis/HHG_spectra.py -A -v
+	@echo "$(YELLOW)python3 HHG_analysis/HHG_spectra.py -A -v$(RESET)"
+	@python3 HHG_analysis/HHG_spectra.py -A -v
 
 check_GPSM : colloc_pt
 	@echo "$(CYAN)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(RESET)"

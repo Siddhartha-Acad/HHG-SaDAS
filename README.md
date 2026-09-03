@@ -29,9 +29,6 @@ The overall tenure of my MS(R) program was **August 2022 – August 2025**.
 
 These codes form an integral part of my MS(R) thesis and are released to ensure academic transparency and reproducibility of the research.
 
-The original Git repository, maintained throughout the research period, is kept private.
-Whereas, this public repository is a streamlined version, providing the main useful codes in a straightforward manner.
-
 ---
 
 ### Thesis Information
@@ -45,9 +42,7 @@ Whereas, this public repository is a streamlined version, providing the main use
 
 # Installation
 
-### Prerequisites
-- Git installed on your system (optional)
-- Python 3.11 or higher
+#### Prerequisites : Git | Python 3.11 | Fortran
 
 ### 1. Clone the repository
 ```bash
@@ -55,16 +50,21 @@ git clone git@github.com:Siddhartha-Acad/HHG-SaDAS.git
 cd HHG-SaDAS
 ```
 
-### 2. Create and activate a virtual environment
+### 2. Create a virtual environment & Install dependencies
 
 ```bash
 python3 -m venv venv_HHG
 source venv_HHG/bin/activate
+
+pip install -r requirements.txt
 ```
 
-### 3. Install dependencies
+### 3. RUN simulation (python or Fortran)
 ```bash
-pip install -r requirements.txt
+cd Harmonic_generation_py/ && make
+or,
+cd Harmonic_generation_f90/ && make
+make run_vector_time_evolution OMP_NUM_THREADS=2
 ```
 
 ---
