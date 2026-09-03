@@ -59,12 +59,13 @@ source venv_HHG/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. RUN simulation (python or Fortran)
+### 3. Run simulation (Python or Fortran)
 ```bash
+# Python version
 cd Harmonic_generation_py/ && make
-or,
+
+# Fortran version
 cd Harmonic_generation_f90/ && make
-make run_vector_time_evolution OMP_NUM_THREADS=2
 ```
 
 ---
