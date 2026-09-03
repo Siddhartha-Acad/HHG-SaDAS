@@ -294,7 +294,6 @@ program main
     ! Human-readable state label (n+l, l) -> e.g. "1s"; fetched from parameters.f90::state_symbol
     state_symb = state_symbol(n_qn + l_qn, l_qn)
 
-    print *
     print '(A,A,A)', white, '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~', reset
     print '(A,A)', 'Evolving atom                   : ', trim(evolving_atom)
     print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m)  : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
