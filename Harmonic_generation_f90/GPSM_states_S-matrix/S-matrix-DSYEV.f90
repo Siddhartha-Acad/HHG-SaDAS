@@ -108,11 +108,13 @@ program S_matrix_generator
                       transpose(H_matrix(:, 1:kmax)))
 
                 write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-                print '(1x, A, I2, A)', 'S(l=', l_val, ') matrix : ' // green // 'DONE' // reset
+                ! Use `l_str` (character) instead of concatenating integer `l_val`
+                print '(1x, A)', 'S(l=' // yellow // trim(adjustl(l_str)) // reset // ') matrix : ' // green // 'DONE' // reset
 
             else
                 write(30, rec = l_val-m_qn+1) H_matrix(:, 1:check_n_states)
-                print '(1x, A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
+                ! Use `l_str` (character) instead of concatenating integer `l_val`
+                print '(1x, A)', 'A(l=' // yellow // trim(adjustl(l_str)) // reset // ') states : ' // green // 'DONE' // reset
             end if
         else
             print '(A, I0)', ' DSYEV failed. info = ', info

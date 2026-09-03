@@ -294,10 +294,11 @@ program main
     ! Human-readable state label (n+l, l) -> e.g. "1s"; fetched from parameters.f90::state_symbol
     state_symb = state_symbol(n_qn + l_qn, l_qn)
 
-    print '(A)', '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~'
+    print *
+    print '(A,A,A)', white, '~~~~~~~~~~~: Time Evolution :~~~~~~~~~~', reset
     print '(A,A)', 'Evolving atom                   : ', trim(evolving_atom)
     print '(A,I0,A,I0,A,I0,A,A)', 'Evolving initial state (n,l,m)  : (', n_qn+l_qn, ', ', l_qn, ', ', m_qn, ') ~ ', trim(state_symb)
-    print '(A,F10.2,A)', 'Wavelength (lambda_nm)          : ', lambda_nm, ' nm'
+    print '(A,F7.2,A)', 'Wavelength (lambda_nm)          : ', lambda_nm, ' nm'
     print '(A,ES10.3,A)', 'Intensity (I0)                  : ', I0, ' W/cm^2'
     print '(A,I0)', 'Total time steps                : ', time_step
     print '(A)', 'Optimized OpenMP evolution enabled.'
@@ -483,7 +484,7 @@ program main
         if (print_serial_prog) then
             pct = int(100.0d0 * dble(ti) / dble(time_step))
             if (pct >= next_pct) then
-                print '(A,I8,A,A,I4,A,A)', 'Evolution step ', ti, ' : ', green, next_pct, '%', reset
+                print '(A,A,I6,A,A,A,I3,A,A)', 'Evolution step ', yellow, ti, reset, ' : ', green, next_pct, '%', reset
                 next_pct = next_pct + p_step
             end if
         end if
