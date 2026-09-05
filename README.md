@@ -325,22 +325,9 @@ python3 ./Harmonic_generation_py/vector_time_evolution.py
 ```
 
 **Step 6: `HHG_spectra.py`**
-<<<<<<< Updated upstream
->- Linux/macOS (terminal):
->```console
->python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
->```
->- Windows (powershell)
->```console
->python .\Harmonic_generation_py\HHG_spectra_analysis\HHG_spectra.py
->```
-
-=======
 ```bash
 python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
 ```
->>>>>>> Stashed changes
-
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
