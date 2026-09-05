@@ -63,14 +63,14 @@ cd Harmonic_generation_f90/ && make
 ```
 ### 4. Results (single atomic response: HHG spectra + Attosecond Pulse Train)
 
-> <p align="center">
-><img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="390"/>
-><img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="390"/>
-> </p>
->
-> <p align="center">
-><img src="z_doc_figures/Atto_pulse_train.svg" alt="HHG-SaDAS Workflow" width="900"/>
-> </p>
+<p align="center">
+<img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="390"/>
+<img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="390"/>
+</p>
+
+<p align="center">
+<img src="z_doc_figures/Atto_pulse_train.svg" alt="HHG-SaDAS Workflow" width="900"/>
+</p>
 ---
 
 # Workflow - HHG-SaDAS
