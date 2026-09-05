@@ -46,7 +46,7 @@ from scipy.optimize import curve_fit
 from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.widgets import TextBox, Button, RangeSlider
-from matplotlib.patches import Rectangle
+from matplotlib.patches import FancyBboxPatch
 from Assistant.Decorate_axes import decorate_axes_L as da
 from Harmonic_generation_py.parameters import (
     confined, time_step, evolving_atom, state_symb, m, SAE_model,
@@ -81,6 +81,8 @@ plt.rc('font', **{'family': 'serif', 'size': 12})
 AU_TO_AS = 24.18884326              # 1 atomic unit of time, in attoseconds
 GAUSS_COLORS = ['#0072B2', '#009E73', '#F0A500', '#8E44AD',
                  '#00BFC4', '#3D5A80', '#E69F00', '#5D3FD3']    # one per fitted peak, cycled if >8 (no red - pulse curve is already crimson)
+MONO_FONT = ['Courier New', 'DejaVu Sans Mono', 'monospace']   # used for every text element in the RHS control panel
+PANEL_ACCENT = '#B22222'            # firebrick accent - ties panel headers to the crimson pulse curve
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -96,7 +98,7 @@ if args.auto:
     else:
         evo_data_file = f'VEvo_nopt={time_step}_{evolving_atom}({state_symb})@C60_m={m}_{SAE_model}_{conf_model}_L={L}_kmax={k_max}_N={N}_rmax={r_max}_Lmap={L_map}_dt={dt}.dat'
 else:
-    evo_data_file = 'Evo_nopt=88036_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+    evo_data_file = 'VEvo_nopt=88036_He(1s)_m=0_SAE-M2_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 
 evo_data_path = this_dir.parent / 'Time_evolution_data' / f'{evo_data_file}'
 evo_data = np.loadtxt(evo_data_path, skiprows=1)
@@ -264,64 +266,85 @@ fig1.suptitle(evo_data_file, fontsize=12)
 #              GUI controls (compact RHS textboxes + sliders)        |
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 rect_panel_x0 = 0.775                   # fixed anchor for the background rectangle (kept in place)
-panel_x0, panel_w = 0.805, 0.117        # widgets/labels nudged right so they sit inside the rectangle
+panel_x0, panel_w = 0.805, 0.122        # widgets/labels nudged right so they sit inside the rectangle
 box_h, box_gap = 0.024, 0.044           # box height / vertical spacing
+header_pad = 0.012                      # extra breathing room right under a section header
 
-# Light background panel behind all controls, for visual grouping
-fig1.add_artist(Rectangle((rect_panel_x0 - 0.05, 0.03), 0.25, 0.90,
-                           transform=fig1.transFigure, facecolor='#f5f5f7',
-                           edgecolor='#cccccc', linewidth=1.0, zorder=-1))
+# Light background panel behind all controls, for visual grouping (rounded corners read softer
+# than a hard-edged Rectangle and match the rounded look of the buttons/textboxes on top of it)
+fig1.add_artist(FancyBboxPatch((rect_panel_x0 - 0.05, 0.03), 0.25, 0.90,
+                                boxstyle="round,pad=0.006,rounding_size=0.014",
+                                transform=fig1.transFigure, facecolor='#f5f5f7',
+                                edgecolor='#cccccc', linewidth=1.0, zorder=-1))
 
 def pad(val):
     """Left-pad the displayed value so digits don't touch the textbox border."""
     return f'   {val}'
 
 def add_labeled_box(y, label, initial):
-    fig1.text(panel_x0 - 0.02, y + box_h/2, label, ha='right', va='center', fontsize=10)
+    fig1.text(panel_x0 - 0.02, y + box_h/2, label, ha='right', va='center',
+              fontsize=10, fontfamily=MONO_FONT)
     box_ax = fig1.add_axes([panel_x0, y, panel_w, box_h])
-    return TextBox(box_ax, '', initial=pad(initial))
+    box = TextBox(box_ax, '', initial=pad(initial))
+    box.text_disp.set_fontfamily(MONO_FONT)      # value typed into the box, in Courier
+    box.text_disp.set_fontsize(10)
+    return box
 
 def section_header(y, text):
-    fig1.text(panel_x0, y, text, fontsize=12, fontweight='bold')
+    fig1.text(panel_x0, y, text, fontsize=12, fontweight='bold',
+              fontfamily=MONO_FONT, color=PANEL_ACCENT)
     fig1.add_artist(plt.Line2D([panel_x0, panel_x0 + panel_w], [y - 0.008, y - 0.008],
-                                transform=fig1.transFigure, color='#bbbbbb', lw=1.0))
+                                transform=fig1.transFigure, color=PANEL_ACCENT, lw=1.2, alpha=0.5))
 
 # Section: spectral gate
 y = 0.90
-section_header(y, 'Spectral gate'); y -= box_gap
+section_header(y, 'Spectral gate'); y -= box_gap + header_pad
 tb_harm_min = add_labeled_box(y, 'Harm. min',  harm_min_0);  y -= box_gap
 tb_harm_max = add_labeled_box(y, 'Harm. max',  harm_max_0);  y -= box_gap
 tb_order    = add_labeled_box(y, 'Smoothness', gate_order_0); y -= box_gap*1.6
 
 # Section: pulse zoom (textboxes + a single self-narrowing slider underneath)
-section_header(y, 'Pulse zoom (t/T)'); y -= box_gap
+section_header(y, 'Pulse zoom (t/T)'); y -= box_gap + header_pad
 tb_zoom_min = add_labeled_box(y, 'Zoom min', f'{zoom_min_0:.3f}'); y -= box_gap
 tb_zoom_max = add_labeled_box(y, 'Zoom max', f'{zoom_max_0:.3f}'); y -= box_gap*1.1
 
-fig1.text(panel_x0, y + 0.014, 'Zoom', fontsize=8.5, color='#666666')
+fig1.text(panel_x0, y + 0.014, 'Zoom', fontsize=8.5, color='#666666', fontfamily=MONO_FONT)
 zoom_slider_pos = [panel_x0, y, panel_w, 0.016]
 ax_zoom_slider = fig1.add_axes(zoom_slider_pos)
 zoom_slider = RangeSlider(ax_zoom_slider, '', t_min_T, t_max_T, valinit=(zoom_min_0, zoom_max_0))
 zoom_slider.valtext.set_visible(False)
+
+# Live numeric readout flanking the slider, so the current zoom window is visible
+# at a glance without having to read the textboxes above.
+zoom_min_label = fig1.text(zoom_slider_pos[0] - 0.006, zoom_slider_pos[1] + zoom_slider_pos[3]/2,
+                            f'{zoom_min_0:.2f}', ha='right', va='center',
+                            fontsize=8, fontfamily=MONO_FONT, color='#444444')
+zoom_max_label = fig1.text(zoom_slider_pos[0] + zoom_slider_pos[2] + 0.006, zoom_slider_pos[1] + zoom_slider_pos[3]/2,
+                            f'{zoom_max_0:.2f}', ha='left', va='center',
+                            fontsize=8, fontfamily=MONO_FONT, color='#444444')
 y -= box_gap*1.6
 
 # Section: Gaussian fitting
-section_header(y, 'Gaussian fit (zoom)'); y -= box_gap
+section_header(y, 'Gaussian fit (zoom)'); y -= box_gap + header_pad
 tb_num_gauss = add_labeled_box(y, '# of peaks', num_gauss_0); y -= box_gap*1.3
 
 ax_fit = fig1.add_axes([panel_x0, y, panel_w, 0.032])
-fit_button = Button(ax_fit, 'Fit Gaussians')
+fit_button = Button(ax_fit, 'Fit Gaussians', color='#eef2f7', hovercolor='#dbe6f3')
+fit_button.label.set_fontfamily(MONO_FONT)
+fit_button.label.set_fontsize(10)
 y -= box_gap*1.3
 
 ax_apply = fig1.add_axes([panel_x0, y, panel_w*0.48, 0.032])
 ax_reset = fig1.add_axes([panel_x0 + panel_w*0.52, y, panel_w*0.48, 0.032])
-apply_button = Button(ax_apply, 'Apply')
-reset_button = Button(ax_reset, 'Reset')
+apply_button = Button(ax_apply, 'Apply', color='#eaf5ea', hovercolor='#d3ecd3')
+reset_button = Button(ax_reset, 'Reset', color='#fbeaea', hovercolor='#f5d6d6')
+apply_button.label.set_fontfamily(MONO_FONT); apply_button.label.set_fontsize(10)
+reset_button.label.set_fontfamily(MONO_FONT); reset_button.label.set_fontsize(10)
 y -= box_gap*1.5
 
 # Fit-results readout at the bottom of the panel
 info_text = fig1.text(panel_x0 - 0.02, y, '', ha='left', va='top', fontsize=11,
-                       family=['Courier New', 'DejaVu Sans Mono', 'monospace'], linespacing=1.6)
+                       family=MONO_FONT, linespacing=1.6)
 
 
 def _to_float(textbox, fallback):
@@ -371,6 +394,8 @@ def rebuild_zoom_slider(lo, hi):
     zoom_slider = RangeSlider(ax_zoom_slider, '', lo, hi, valinit=(lo, hi))
     zoom_slider.valtext.set_visible(False)
     zoom_slider.on_changed(sync_zoom_from_slider)
+    zoom_min_label.set_text(f'{lo:.2f}')
+    zoom_max_label.set_text(f'{hi:.2f}')
     fig1.canvas.draw_idle()
 
 

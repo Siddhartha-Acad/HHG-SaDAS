@@ -4,7 +4,7 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="z_doc_figures/Theory_flow_dark.svg">
     <source media="(prefers-color-scheme: light)" srcset="z_doc_figures/Theory_flow_light.svg">
-    <img src="z_doc_figures/Theory_flow_light.svg" alt="HHG-SaDAS Workflow" width="850"/>
+    <img src="z_doc_figures/Theory_flow_light.svg" alt="HHG-SaDAS Workflow" width="680"/>
   </picture>
 </p>
 
@@ -22,27 +22,31 @@
 - **Generalized Pseudospectral Method (GPSM)**
 - **Split-Operator Method**
 
----
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree at the **Indian Institute of Technology (IIT) Mandi, India**.
-The overall tenure of my MS(R) program was **August 2022 – August 2025**.
-
-These codes form an integral part of my MS(R) thesis and are released to ensure academic transparency and reproducibility of the research.
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree *(August 2022 – August 2025)* at the **Indian Institute of Technology (IIT) Mandi, India** .
 
 ---
 
-### Thesis Information
+### MS(R) Thesis Information
 
-- **MS(R) Thesis Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
+- **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
 - **Thesis Supervisor:** Prof. Hari R. Varma
 - **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
 - **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
 
 ---
 
-# Installation
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<td valign="middle">
 
-#### Prerequisites : Git | Python 3.11 | Fortran
+# Install and Run HHG-SaDAS
+</td>
+<td align="right" valign="middle">
+<img src="https://skillicons.dev/icons?i=git,py,fortran" height="40"/>
+</td>
+</tr>
+</table>
 
 ### 1. Clone the repository
 ```bash
@@ -67,13 +71,22 @@ cd Harmonic_generation_py/ && make
 # Fortran version
 cd Harmonic_generation_f90/ && make
 ```
+### 4. Results (single atomic response: HHG spectra + Attosecond Pulse Train)
 
+> <p align="center">
+><img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="370"/>
+><img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="370"/>
+> </p>
+>
+> <p align="center">
+><img src="z_doc_figures/Atto_pulse_train.svg" alt="HHG-SaDAS Workflow" width="750"/>
+> </p>
 ---
 
-# Workflow
+# Workflow - HHG-SaDAS
 
 <p align="center">
-<img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="850"/>
+<img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="700"/>
 </p>
 
 ## A brief description of the workflow diagram:
@@ -87,21 +100,21 @@ cd Harmonic_generation_f90/ && make
 > After computation, the collocation points are automatically written to a `.txt` file for later use.
 > With `--plot` flag it will show the computed collocation points.
 
-**Step 2: `parameters_and_functions.py`**
-> The generated collocation point data (`.txt` file) is passed into `parameters_and_functions.py`.
-> As the name suggests, this script centralizes all the required **parameters** and **Python functions** in one place.
+**Step 2: `parameters.py`**
+> The generated collocation point data (`.txt` file) is passed into `parameters.py`.
+> This file centralizes the required **parameters** and numerical setup used throughout the package.
 >
-> Users only need to modify a given parameter once inside this file. All other scripts will then read the updated values and functions directly from it.
+> Users only need to adjust the relevant values once in this file. All downstream scripts then import the updated definitions directly from it.
 >
-> As indicated by the outgoing solid arrow in the workflow diagram, `parameters_and_functions.py` distributes these parameters to all subsequent scripts.
+> As indicated by the outgoing solid arrow in the workflow diagram, `parameters.py` distributes these parameters to all subsequent scripts.
 
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 
 > Inside the directory `/HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/`
 > 
-> **`GPSM_states_generator.py`** solves the time independent Schrödinger equation for atomic system (free or confined) defined inside the `parameters_and_functions.py` script.
+> **`GPSM_states_generator.py`** solves the time-independent Schrödinger equation for the atomic system (free or confined) defined inside the `parameters.py` script.
 > 
-> Thereafter, it saves the solutions, for a particular `l` value inside the self-generated path: `/GPSM_states_S-matrix/GPSM_states_and_Smatrix_data/` as an `.dat` file with the given format:
+> Thereafter, it saves the solutions, for a particular `l` value inside the self-generated path: `/GPSM_states_S-matrix/data_GPSM_states_S-matrix/` as an `.dat` file with the given format:
 >```
 >state_file = He_States_SAE-M1_l=0_nos=10_N=200_rmax=200_Lmap=20.dat
 >
@@ -149,9 +162,9 @@ cd Harmonic_generation_f90/ && make
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 
-> Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/Correctness_check/`
+> Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/correctness_check/`
 > 
-> **`check_GPSM.py`** script takes information about the atom (free or confined) of interest and other parameters from `parameters_and_functions.py`, and independently solves the **time-independent Schrödinger equation** using GPSM and visualizes the results through various plots, including different sets of eigenvectors (both collectively and individually).
+> **`check_GPSM.py`** takes information about the atom (free or confined) and other settings from `parameters.py`, and independently solves the **time-independent Schrödinger equation** using GPSM while visualizing the results through various plots, including different sets of eigenvectors (both collectively and individually).nbsp
 >
 > Using the GPSM solutions (eigenvalues and eigenvectors for a particular `l`), it also calculates the **S-matrix** and displays it as a 2D color-mapped matrix.
 >
@@ -193,9 +206,9 @@ cd Harmonic_generation_f90/ && make
 >Execution Time (h, m, s) : (0, 0, 3)
 >```
 
-> **`check_Split_operator.py`** script takes necessary information from `parameters_and_functions.py`, and importantly, reads GPSM_states data and S-matrix data that were previously generated by `GPSM_states_generator.py` & `S_matrix_generator.py`.
+> **`check_Split_operator.py`** takes the necessary information from `parameters.py`, and importantly, reads the GPSM states and S-matrix data generated previously by `GPSM_states_generator.py` & `S_matrix_generator.py`.
 > 
-> Thereafter, it calculates a single-step time evolution of the initial wavefunction and shows detailed numerous plots to verify that each intermediate step (details in Appendix C) are computed correctly.
+> Thereafter, it calculates a single-step time evolution of the initial wavefunction and shows numerous detailed plots to verify that each intermediate step (details in Appendix C) is computed correctly.
 > 
 > To check the computed S-matrices are correctly computed, following the method to check their correctness as described in `Section C.2: A way to ensure the correctness of S-matrix`, it checks the condition:
 > 
@@ -214,7 +227,7 @@ cd Harmonic_generation_f90/ && make
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 
 **Step 5: `vector_time_evolution.py`**
-> This script imports all necessary parameter values from `parameters_and_functions.py` (indicated by solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by dashed arrow), which are precomputed and saved in data files.
+> This script imports all necessary parameter values from `parameters.py` (indicated by the solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by the dashed arrow), which are precomputed and saved in data files.
 > 
 > With these compatible input parameters and data, it evolves the initial wavefunction iteratively using the **Split-Operator method**:
 > 
@@ -241,7 +254,7 @@ cd Harmonic_generation_f90/ && make
 > Thereafter, these data are written (column wise) to an `.dat` file for further analysis. The format is given by:
 >
 >```
->Evo_data = 'Evo_steps=88036_He(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
+>Evo_data = 'VEvo_nopt=88036_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'
 >
 > +-------+-------------+-------------+-------------+-------------+
 > |  Row  |  t (a.u.)   |    E(t)     |    d(t)     |   Ps(t)     |
@@ -257,9 +270,9 @@ cd Harmonic_generation_f90/ && make
 >```
 
 **Step 6: `HHG_spectra.py`**
-> Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_spectra_analysis/`,
+> Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_analysis/`,
 >
-> the script `HHG_spectra.py` first imports the required parameters from `parameters_and_functions.py`.
+> the script `HHG_spectra.py` first imports the required parameters from `parameters.py`.
 > It then reads the time-evolution data generated by `vector_time_evolution.py` and computes the power spectrum `P(ω)` using:
 > 
 > <div align="center">
@@ -283,50 +296,41 @@ cd Harmonic_generation_f90/ && make
 >> References:  Section 2.4.2: “The HHG spectra”
 >> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section 3.4.2: “The conversion efficiency”
 > 
-> Finally, the results are plotted in the figures shown below, as illustrated by the example for: `evo_data_file_name = 'Evo_steps=88036_He(1s)_m=0_SAE-M1__L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.xlsx'`
-> 
-> <p align="center">
-><img src="z_doc_figures/HHG_Spectra.svg" alt="HHG-SaDAS Workflow" width="750"/>
-> </p>
->
-> <p align="center">
-><img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="HHG-SaDAS Workflow" width="750"/>
-> </p>
+> Finally, the results are plotted in the figures shown above, as illustrated by the example for: `evo_data = 'VEvo_nopt=88036_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'`
 
----
 
 ## Run commands
 
 **Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
-> `--plot` flag to display the collocation points.
 ```bash
-python3 ./Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
+cd Harmonic_generation_py
+python3 collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py --plot
 ```
 
-**Step 2: `parameters_and_functions.py`**
-> Do not need to run this script. Instead, set required system parameters and save changes.
-> Other scripts will fetch parameters and functions from this script.
+**Step 2: `parameters.py`**
+> Do not need to run this file directly. Instead, set the required system parameters and save the changes.
+> Other scripts will import the parameters from this file.
 
 **Step 3: `GPSM_states_generator.py` & `S_matrix_generator.py`**
 ```bash
-python3 ./Harmonic_generation_py/GPSM_states_S-matrix/GPSM_states_generator.py
-python3 ./Harmonic_generation_py/GPSM_states_S-matrix/S_matrix_generator.py
+python3 GPSM_states_S-matrix/GPSM_states_generator.py
+python3 GPSM_states_S-matrix/S_matrix_generator.py
 ```
 
 **Step 4: `check_GPSM.py` & `check_Split_operator.py` (optional)**
 ```bash
-python3 ./Harmonic_generation_py/correctness_check/check_GPSM.py
-python3 ./Harmonic_generation_py/correctness_check/check_Split_operator.py
+python3 correctness_check/check_GPSM.py
+python3 correctness_check/check_Split_operator.py
 ```
 
 **Step 5: `vector_time_evolution.py`**
 ```bash
-python3 ./Harmonic_generation_py/vector_time_evolution.py
+python3 vector_time_evolution.py
 ```
 
 **Step 6: `HHG_spectra.py`**
 ```bash
-python3 ./Harmonic_generation_py/HHG_spectra_analysis/HHG_spectra.py
+python3 HHG_analysis/HHG_spectra.py
 ```
 ## License
 
