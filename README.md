@@ -36,7 +36,7 @@ This repository contains the core codes developed during **June–December 2024*
 
 ---
 
-## Install and Run HHG-SaDAS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="https://skillicons.dev/icons?i=git,py,fortran" height="40"/>
+## Install and Run HHG-SaDAS
 
 ### 1. Clone the repository
 ```bash
