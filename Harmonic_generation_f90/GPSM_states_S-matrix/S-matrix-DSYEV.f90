@@ -11,7 +11,7 @@ program S_matrix_generator
     logical, parameter :: save_states = .false.
 #endif
 
-    integer :: i, j, l_val, recl_size
+    integer :: j, l_val, recl_size
     real(kind=8), dimension(N-1) :: x, f_arr, fp_arr, d2_diag
     real(kind=8), dimension(N-1, N-1) :: fp_outer, d2_off_diag
     real(kind=8) :: exec_time
@@ -104,15 +104,17 @@ program S_matrix_generator
             write(l_str, '(I0)') l_val
             if (.not. save_states) then
                 S_matrix = matmul(H_matrix(:, 1:kmax) * &
-                      spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0)), dim=1, ncopies=N-1), &
+                      spread(exp(cmplx(0.0d0, -E_egval(1:kmax) * dt / 2.0d0, kind=8)), dim=1, ncopies=N-1), &
                       transpose(H_matrix(:, 1:kmax)))
 
                 write(20, rec = l_val-m_qn+1) S_matrix                      ! rec = 1, 2, 3, ..., l_max
-                print '(1x, A, I2, A)', 'S(l=', l_val, ') matrix : ' // green // 'DONE' // reset
+                ! Use `l_str` (character) instead of concatenating integer `l_val`
+                print '(1x, A)', 'S(l=' // yellow // trim(adjustl(l_str)) // reset // ') matrix : ' // green // 'DONE' // reset
 
             else
                 write(30, rec = l_val-m_qn+1) H_matrix(:, 1:check_n_states)
-                print '(1x, A, I2, A)', 'A(l=', l_val, ') states : ' // green // 'DONE' // reset
+                ! Use `l_str` (character) instead of concatenating integer `l_val`
+                print '(1x, A)', 'A(l=' // yellow // trim(adjustl(l_str)) // reset // ') states : ' // green // 'DONE' // reset
             end if
         else
             print '(A, I0)', ' DSYEV failed. info = ', info
@@ -128,11 +130,10 @@ program S_matrix_generator
     print '(1x, A, A, F0.5, A, A)', "Execution Wall-time: ", green, exec_time, reset, " sec"
 
     if (.not. save_states) then
-        print '(A)', ' S(l) matrices: ' // yellow // 'data_GPSM_states_S-matrix/S_matrices-DSYEV.bin' // reset
+        print '(A)', ' S(l) matrices: ' // orange // 'data_GPSM_states_S-matrix/S_matrices-DSYEV.bin' // reset
     else
-        print '(A)', ' A(n, l) Eigenstates: ' // yellow // 'data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin' // reset
+        print '(A)', ' A(n, l) Eigenstates: ' // orange // 'data_GPSM_states_S-matrix/Eigenstates-DSYEV.bin' // reset
     end if
     print *
 
 end program S_matrix_generator
-
