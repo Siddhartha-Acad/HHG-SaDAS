@@ -69,7 +69,7 @@ cd Harmonic_generation_f90/ && make
 > </p>
 >
 > <p align="center">
-><img src="z_doc_figures/Atto_pulse_train.svg" alt="HHG-SaDAS Workflow" width="850"/>
+><img src="z_doc_figures/Atto_pulse_train.svg" alt="HHG-SaDAS Workflow" width="900"/>
 > </p>
 ---
 
