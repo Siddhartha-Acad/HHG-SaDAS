@@ -57,7 +57,8 @@ pip install -r requirements.txt
 ```bash
 # Python version
 cd Harmonic_generation_py/ && make
-
+```
+```bash
 # Fortran version
 cd Harmonic_generation_f90/ && make
 ```
