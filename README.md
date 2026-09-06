@@ -21,7 +21,7 @@
 - **Split-Operator Method**
 
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science (Research)* degree *(August 2022 – August 2025)* at the **Indian Institute of Technology (IIT) Mandi, India** .
+This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science* degree *(August 2022 – August 2025)* at the **Indian Institute of Technology (IIT) Mandi, India** .
 
 ---
 
