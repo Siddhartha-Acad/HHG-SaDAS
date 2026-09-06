@@ -65,8 +65,8 @@ cd Harmonic_generation_f90/ && make
 ### 4. Results (SAE: HHG spectra + Attosecond Pulse Train + Evolution Movie)
 
 <p align="center">
-<img src="z_doc_figures/HHG_Spectra.svg" alt="HHG Spectra" width="450"/>
-<img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="Survival and Ionisation Probability" width="450"/>
+<img src="z_doc_figures/HHG_Spectra.svg" alt="HHG Spectra" width="445"/>
+<img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="Survival and Ionisation Probability" width="445"/>
 </p>
 <p align="center" style="margin-top:-2mm;">
 Figure 1: HHG spectrum and time-dependent survival/ionisation probabilities for the single-atom response.
