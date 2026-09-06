@@ -8,8 +8,6 @@
   </picture>
 </p>
 
-> For simulating Higher-order Harmonic Generation (HHG) using the Generalized Pseudospectral Method (GPSM) and the Split-Operator Method.
-
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-brightgreen)
 ![Fortran](https://img.shields.io/badge/Fortran-90%2B-734f96)
