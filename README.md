@@ -61,21 +61,21 @@ cd Harmonic_generation_py/ && make
 # Fortran version
 cd Harmonic_generation_f90/ && make
 ```
-### 4. Results (single atomic response: HHG spectra + Attosecond Pulse Train + Evolution Movie)
+### 4. Results (SAE: HHG spectra + Attosecond Pulse Train + Evolution Movie)
 
 <p align="center">
 <img src="z_doc_figures/HHG_Spectra.svg" alt="HHG Spectra" width="390"/>
 <img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="Survival and Ionisation Probability" width="390"/>
 </p>
 <p align="center" style="margin-top:-2mm;">
-Figure 1: HHG spectrum (log<sub>10</sub>|P(ω)|) and time-dependent survival/ionisation probabilities for the single-atom response.
+Figure 1: HHG spectrum and time-dependent survival/ionisation probabilities for the single-atom response.
 </p>
 
 <p align="center">
 <img src="z_doc_figures/Atto_pulse_train.svg" alt="Attosecond Pulse Train" width="900"/>
 </p>
 <p align="center" style="margin-top:-2mm;">
-Figure 2: Attosecond pulse train obtained from spectral gating and inverse Fourier transform of the harmonic spectrum.
+Figure 2: Attosecond pulse train obtained from spectral gating and iFFT of the harmonic spectrum.
 </p>
 
 <p align="center">
