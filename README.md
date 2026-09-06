@@ -15,13 +15,13 @@
 
 ## What is HHG-SaDAS?
 
-**HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the **3D time-dependent Schrödinger equation** using:
+**HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
 
-- **Generalized Pseudospectral Method (GPSM)**
-- **Split-Operator Method**
+- Generalized Pseudospectral Method (GPSM)
+- Split-Operator Method
 
 
-This repository contains the core codes developed during **June–December 2024** as part of my *Master of Science* degree *(August 2022 – August 2025)* at the **Indian Institute of Technology (IIT) Mandi, India** .
+This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India** .
 
 ---
 
