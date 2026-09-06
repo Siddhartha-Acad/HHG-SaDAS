@@ -84,7 +84,7 @@ Figure 2: Attosecond pulse train obtained from spectral gating and iFFT of the h
 Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (Full animation: <a href="https://youtu.be/-iOrwTjOPM0" target="_blank">YouTube</a>).
 </p>
 
-# Workflow - HHG-SaDAS
+## Workflow - HHG-SaDAS
 
 <p align="center">
 <img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="700"/>
