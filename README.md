@@ -111,14 +111,11 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 
 <details><summary><h4> Step 1: <code>Algo-3_Gauss_Lobatto_colloc_pt.py</code></h4></summary>
 
-Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`
-
-`Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
-
-> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
-
-After computation, the collocation points are automatically written to a `.txt` file for later use.
-With `--plot` flag it will show the computed collocation points.
+> Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
+>> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
+> 
+> After computation, the collocation points are automatically written to a `.txt` file for later use.
+> With `--plot` flag it will show the computed collocation points.
 </details>
 
 **Step 2: `parameters.py`**
