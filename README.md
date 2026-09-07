@@ -18,7 +18,7 @@
      consistently across GitHub, PyPI, VS Code preview, etc. -->
 <table>
   <tr>
-    <td width="50%" valign="top">
+    <td width="60%" valign="top">
       <p><b>HHG-SaDAS</b> is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:</p>
       <ul>
         <li>Generalized Pseudospectral Method (GPSM)</li>
@@ -26,7 +26,7 @@
       </ul>
       <p>This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the <b>Indian Institute of Technology (IIT) Mandi, India</b>.</p>
     </td>
-    <td width="50%" valign="top" align="center">
+    <td width="40%" valign="top" align="center">
       <!-- GIF sits in the right column -->
       <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" width="100%" />
       <div style="font-size:0.9rem; color:#666; margin-top:6px;">Evolution animation</div>
