@@ -18,7 +18,7 @@
 
 <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" align="right" width="320" />
 
-**HHG-SaDAS** is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
+**HHG-SaDAS** is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems (under SAE) by solving the 3D time-dependent Schrödinger equation using:
 
 - Generalized Pseudospectral Method (GPSM)
 - Split-Operator Method
