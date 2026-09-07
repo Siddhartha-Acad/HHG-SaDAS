@@ -13,25 +13,50 @@
 ![Fortran](https://img.shields.io/badge/Fortran-90%2B-734f96)
 ---
 
+
 ## What is HHG-SaDAS?
 
-**HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
+<img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" align="right" width="320" />
+
+**HHG-SaDAS** is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems (under SAE) by solving the 3D time-dependent Schrödinger equation using:
 
 - Generalized Pseudospectral Method (GPSM)
 - Split-Operator Method
 
+This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India**.
 
-This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India** .
+These codes form an integral part of my master's thesis and are public to ensure academic transparency and reproducibility of the results.
 
----
+<br clear="right"/>
 
-### MS(R) Thesis Information
+#### MS(R) Thesis Information
 
 - **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
 - **Thesis Supervisor:** Prof. Hari R. Varma
 - **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
 - **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
 
+
+- Generalized Pseudospectral Method (GPSM)
+- Split-Operator Method
+
+
+### MS(R) Thesis Information
+
+
+This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India**.
+
+These codes form an integral part of my master's thesis and are public to ensure academic transparency and reproducibility of the results.
+<br clear="right"/>
+
+
+#### MS(R) Thesis Information
+
+
+- **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
+- **Thesis Supervisor:** Prof. Hari R. Varma
+- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
+- **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
 ---
 
 ## Install and Run HHG-SaDAS
