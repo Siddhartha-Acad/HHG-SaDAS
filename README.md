@@ -28,7 +28,7 @@ This repository contains the core codes developed during June–December 2024 as
 <br clear="right"/>
 
 
-### MS(R) Thesis Information
+#### MS(R) Thesis Information
 
 - **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
 - **Thesis Supervisor:** Prof. Hari R. Varma
