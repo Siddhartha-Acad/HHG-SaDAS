@@ -26,32 +26,10 @@
 This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India**.
 
 These codes form an integral part of my master's thesis and are public to ensure academic transparency and reproducibility of the results.
-
-<br clear="right"/>
-
-#### MS(R) Thesis Information
-
-- **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
-- **Thesis Supervisor:** Prof. Hari R. Varma
-- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
-- **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
-
-
-- Generalized Pseudospectral Method (GPSM)
-- Split-Operator Method
-
-
-### MS(R) Thesis Information
-
-
-This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India**.
-
-These codes form an integral part of my master's thesis and are public to ensure academic transparency and reproducibility of the results.
 <br clear="right"/>
 
 
 #### MS(R) Thesis Information
-
 
 - **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
 - **Thesis Supervisor:** Prof. Hari R. Varma
