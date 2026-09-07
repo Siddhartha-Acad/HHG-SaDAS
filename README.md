@@ -19,12 +19,12 @@
 <table>
   <tr>
     <td width="60%" valign="top">
-      <p><b>HHG-SaDAS</b> is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:</p>
+      <p><strong>HHG-SaDAS</strong> is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:</p>
       <ul>
-        <li>Generalized Pseudospectral Method (GPSM)</li>
-        <li>Split-Operator Method</li>
+        <li><strong>Generalized Pseudospectral Method (GPSM)</strong></li>
+        <li><strong>Split-Operator Method</strong></li>
       </ul>
-      <p>This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the <b>Indian Institute of Technology (IIT) Mandi, India</b>.</p>
+      <p>This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the <strong>Indian Institute of Technology (IIT) Mandi, India</strong>.</p>
     </td>
     <td width="40%" valign="top" align="center">
       <!-- GIF sits in the right column -->
