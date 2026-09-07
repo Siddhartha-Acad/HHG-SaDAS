@@ -38,7 +38,7 @@ This repository contains the core codes developed during June–December 2024 as
     </td>
     <td width="20%" valign="top" align="center">
       <!-- GIF sits in the right column -->
-      <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" style="max-width:100%; height:auto;" />
+      <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" style="width:auto; height:420px; object-fit:cover;" />
       <div style="font-size:0.9rem; color:#666; margin-top:6px;">Evolution animation</div>
     </td>
   </tr>
