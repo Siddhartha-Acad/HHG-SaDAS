@@ -16,7 +16,7 @@
 ## What is HHG-SaDAS?
 <!-- Pure-HTML two-column layout (no markdown mixed into the HTML block) so it renders
      consistently across GitHub, PyPI, VS Code preview, etc. -->
-<table>
+<table border="0" cellspacing="0" cellpadding="0">
   <tr>
     <td width="60%" valign="top">
       <p><strong>HHG-SaDAS</strong> is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:</p>
