@@ -18,7 +18,7 @@
 <!-- Use HTML table for consistent two-column layout on GitHub README -->
 <table>
   <tr>
-    <td width="60%" valign="top">
+    <td width="20%" valign="top">
 
 **HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
 
