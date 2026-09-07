@@ -77,11 +77,11 @@ cd Harmonic_generation_f90/ && make
 <p align="center">
 <img src="z_doc_figures/HHG_Spectra.svg" alt="HHG Spectra" width="400"/>
 <img src="z_doc_figures/survival_prob_ionisation_prob.svg" alt="Survival and Ionisation Probability" width="400"/>
-    </td>
-    <td width="40%" valign="top" align="center">
-      <!-- GIF sits in the right column; preserve aspect ratio -->
-      <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" style="max-width:100%; height:auto; max-height:520px;" />
-      <div style="font-size:0.9rem; color:#666; margin-top:6px;">Evolution animation</div>
+</p>
+<p align="center" style="margin-top:-2mm;">
+Figure 1: HHG spectrum and time-dependent survival/ionisation probabilities for the single-atom response.
+</p>
+
 <p align="center">
 <img src="z_doc_figures/Atto_pulse_train.svg" alt="Attosecond Pulse Train" width="900"/>
 </p>
