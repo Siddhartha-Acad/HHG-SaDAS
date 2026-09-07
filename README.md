@@ -109,17 +109,15 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 
 ## A brief description of the workflow diagram:
 
-<details><summary><h4> Step 1: <code>Algo-3_Gauss_Lobatto_colloc_pt.py</code></h4></summary>
+<details><summary><strong>Step 1: <code>Algo-3_Gauss_Lobatto_colloc_pt.py</code></strong></summary>
 
 > Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
 >> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
 > 
-> After computation, the collocation points are written to a `.txt` file for later use.
+> After computation, the collocation points are automatically written to a `.txt` file for later use.
 > With `--plot` flag it will show the computed collocation points.
 </details>
-
-
-<details><summary><h4> Step 2: <code>parameters.py</code></h4></summary>
+<details><summary><strong>Step 2: <code>parameters.py</code></strong></summary>
 
 > The generated collocation point data (`.txt` file) is passed into `parameters.py`.
 > This file centralizes the required **parameters** and numerical setup used throughout the package.
@@ -128,8 +126,7 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 >
 > As indicated by the outgoing solid arrow in the workflow diagram, `parameters.py` distributes these parameters to all subsequent scripts.
 </details>
-
-<details><summary><h4> Step 3: <code>GPSM_states_generator.py</code> &amp; <code>S_matrix_generator.py</code></h4></summary>
+<details><summary><strong>Step 3: <code>GPSM_states_generator.py</code> &amp; <code>S_matrix_generator.py</code></strong></summary>
 
 > Inside the directory `/HHG-SaDAS/Harmonic_generation_py/GPSM_states_S-matrix/`
 > 
@@ -181,8 +178,7 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 >+-----------------------------+--------------------------+
 >```
 </details>
-
-<details><summary><h4> Step 4: <code>check_GPSM.py</code> &amp; <code>check_Split_operator.py</code> (optional)</h4></summary>
+<details><summary><strong>Step 4: <code>check_GPSM.py</code> &amp; <code>check_Split_operator.py</code> (optional)</strong></summary>
 
 > Inside the directory: `/HHG-SaDAS/Harmonic_generation_py/correctness_check/`
 > 
@@ -248,8 +244,7 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 > 
 > **[NOTE] :** This step is optional but strongly recommended to verify correctness before proceeding with the full simulation.
 </details>
-
-<details><summary><h4> Step 5: <code>vector_time_evolution.py</code></h4></summary>
+<details><summary><strong>Step 5: <code>vector_time_evolution.py</code></strong></summary>
 
 > This script imports all necessary parameter values from `parameters.py` (indicated by the solid arrow) and takes data inputs of GPSM states and S-matrices (indicated by the dashed arrow), which are precomputed and saved in data files.
 > 
@@ -293,8 +288,7 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 > +-------+-------------+-------------+-------------+-------------+
 >```
 </details>
-
-<details><summary><h4> Step 6: <code>HHG_spectra.py</code></h4></summary>
+<details><summary><strong>Step 6: <code>HHG_spectra.py</code></strong></summary>
 
 > Located in `/HHG-SaDAS/Harmonic_generation_py/HHG_analysis/`,
 >
