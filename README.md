@@ -25,6 +25,7 @@
 
 This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India**.
 
+These codes form an integral part of my master's thesis and are public to ensure academic transparency and reproducibility of the results.
 <br clear="right"/>
 
 
