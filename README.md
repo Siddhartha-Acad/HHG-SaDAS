@@ -93,35 +93,16 @@ Figure 3: Time evolution of the single-atom response for H(1s)@C<sub>60</sub> (F
 <img src="z_doc_figures/workflow.svg" alt="HHG-SaDAS Workflow" width="700"/>
 </p>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## A brief description of the workflow diagram:
 
-<details>
-<summary><h4>📍 Step 1 — <code>Algo-3_Gauss_Lobatto_colloc_pt.py</code></h4></summary>
-
-Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`
-
-`Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
-
-> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
-
-After computation, the collocation points are automatically written to a `.txt` file for later use.
-With `--plot` flag it will show the computed collocation points.
-
-</details>
+**Step 1: `Algo-3_Gauss_Lobatto_colloc_pt.py`**
+> Inside the directory `/HHG-SaDAS/Harmonic_generation_py/collocation_points/generator/`
+>
+> `Algo-3_Gauss_Lobatto_colloc_pt.py` computes the **Gauss–Lobatto collocation points** using *Algorithm 3*, as described in my thesis:
+>> *Appendix A: "An efficient algorithm to numerically calculate the Gauss–Lobatto collocation points."*
+> 
+> After computation, the collocation points are automatically written to a `.txt` file for later use.
+> With `--plot` flag it will show the computed collocation points.
 
 **Step 2: `parameters.py`**
 > The generated collocation point data (`.txt` file) is passed into `parameters.py`.
@@ -316,8 +297,8 @@ With `--plot` flag it will show the computed collocation points.
 > </picture>
 > </div>
 >
->> References:  Section 2.4.2: "The HHG spectra"
->> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section 3.4.2: "The conversion efficiency"
+>> References:  Section 2.4.2: “The HHG spectra”
+>> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Section 3.4.2: “The conversion efficiency”
 > 
 > Finally, the results are plotted in the figures shown above, as illustrated by the example for: `evo_data = 'VEvo_nopt=88036_H(1s)_m=0_SAE-M1_L=20_kmax=50_N=200_rmax=200_Lmap=80_dt=0.1.dat'`
 
