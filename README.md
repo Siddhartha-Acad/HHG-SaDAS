@@ -15,31 +15,34 @@
 
 ## What is HHG-SaDAS?
 
-<div style="display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap;">
-  <div style="flex:0 0 80%; max-width:80%;">
+<!-- Use HTML table for consistent two-column layout on GitHub README -->
+<table>
+  <tr>
+    <td width="80%" valign="top">
 
-  **HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
+**HHG-SaDAS** is a package to simulate HHG in atoms and atomic systems by solving the 3D time-dependent Schrödinger equation using:
 
-  - Generalized Pseudospectral Method (GPSM)
-  - Split-Operator Method
+- Generalized Pseudospectral Method (GPSM)
+- Split-Operator Method
 
 
-  This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India** .
+This repository contains the core codes developed during June–December 2024 as part of my Master of Science degree (August 2022 – August 2025) at the **Indian Institute of Technology (IIT) Mandi, India** .
 
-  ### MS(R) Thesis Information
+### MS(R) Thesis Information
 
-  - **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
-  - **Thesis Supervisor:** Prof. Hari R. Varma
-  - **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
-  - **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
+- **Title:** *Higher-Order Harmonic Generation and Harmonic-Power Enhancement in Noble-Gas Atoms Confined Inside C60*
+- **Thesis Supervisor:** Prof. Hari R. Varma
+- **Research Group:** Structure and Dynamics of Atomic Systems (SaDAS)
+- **Group Website:** [https://sadas.iitmandi.ac.in/index.php](https://sadas.iitmandi.ac.in/index.php)
 
-  </div>
-  <div style="flex:0 0 20%; max-width:20%; text-align:center;">
-    <!-- Restored GIF from working tree. File: z_doc_figures/H@C60_evo.gif -->
-    <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" style="max-width:100%; height:auto; border-radius:4px;"/>
-    <div style="font-size:0.9rem; color:var(--color-muted,#666); margin-top:6px;">Evolution animation</div>
-  </div>
-</div>
+    </td>
+    <td width="20%" valign="top" align="center">
+      <!-- GIF sits in the right column -->
+      <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" style="max-width:100%; height:auto;" />
+      <div style="font-size:0.9rem; color:#666; margin-top:6px;">Evolution animation</div>
+    </td>
+  </tr>
+</table>
 
 ---
 
