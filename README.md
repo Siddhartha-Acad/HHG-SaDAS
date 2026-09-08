@@ -16,9 +16,7 @@
 
 ## What is HHG-SaDAS?
 
-<div style="float: right; width: 320px; border-radius: 12px; overflow: hidden;">
-  <img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" width="320" />
-</div>
+<img src="z_doc_figures/H@C60_evo.gif" alt="HHG-SaDAS evolution animation" align="right" width="320" style="border-radius: 12px;" />
 
 **HHG-SaDAS** is a package to simulate high-order harmonic generation (HHG) in atoms and atomic systems (under SAE) by solving the 3D time-dependent Schrödinger equation using:
 
